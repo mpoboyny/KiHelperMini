@@ -1,0 +1,93 @@
+# VS2019 NMakefile for KiHelperMini
+
+CXX = cl.exe
+LINK = link.exe
+
+WX_LIBDIR_PATH = ./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll
+WX_INCLUDE = /I"./wxWidgets/3.3.1/include" /I"$(WX_LIBDIR_PATH)/mswu"
+WX_LIBDIR = "$(WX_LIBDIR_PATH)"
+
+CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /D__WXMSW__ /DWXUSINGDLL /DwxNO_EXCEPTIONS /DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS $(WX_INCLUDE) /I"./include"
+
+LDFLAGS = /nologo /SUBSYSTEM:WINDOWS /MACHINE:X64 /LIBPATH:$(WX_LIBDIR)
+
+WX_LIBS = \
+    wxmsw33u_core.lib \
+    wxbase33u.lib \
+    wxbase33u_xml.lib \
+    wxmsw33u_stc.lib \
+    wxpng.lib \
+    wxzlib.lib \
+    wxtiff.lib \
+    wxjpeg.lib \
+    wxexpat.lib
+
+SYS_LIBS = user32.lib gdi32.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib advapi32.lib rpcrt4.lib
+
+BIN_DIR = bin\release
+OBJ_DIR = obj\release
+
+SRC_DIR = source
+INC_DIR = include
+RES_DIR = resources
+
+SRCS = $(SRC_DIR)\main.cxx $(SRC_DIR)\MainDialog.cxx $(SRC_DIR)\MainDialogMenu.cxx $(SRC_DIR)\ConfigFile.cxx $(SRC_DIR)\ConfigDlg.cxx $(SRC_DIR)\MainDialogPanel.cxx
+HDRS = $(INC_DIR)\prc.hxx $(INC_DIR)\MainDialog.hxx $(INC_DIR)\MainDialogMenu.hxx $(INC_DIR)\ConfigFile.hxx $(INC_DIR)\ConfigDlg.hxx $(INC_DIR)\MainDialogPanel.hxx
+
+PCH_FILE = $(OBJ_DIR)\prc.pch
+
+OBJS = \
+    $(OBJ_DIR)\prc.obj \
+    $(OBJ_DIR)\main.obj \
+    $(OBJ_DIR)\MainDialog.obj \
+    $(OBJ_DIR)\MainDialogMenu.obj \
+    $(OBJ_DIR)\ConfigFile.obj \
+    $(OBJ_DIR)\ConfigDlg.obj \
+    $(OBJ_DIR)\MainDialogPanel.obj \
+    $(OBJ_DIR)\resource.res
+
+TARGET = $(BIN_DIR)\KiHelperMini.exe
+
+release: $(TARGET)
+
+$(TARGET): $(OBJS)
+	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+	@echo Linking $@...
+	@$(LINK) $(LDFLAGS) /OUT:$@ $(OBJS) $(WX_LIBS) $(SYS_LIBS)
+	@echo Copying required wxWidgets DLLs...
+	@copy /Y "./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll\*.dll" "$(BIN_DIR)\"
+	@echo Copying config.xml...
+	@copy /Y "config.xml" "$(BIN_DIR)\"
+
+# Rule for precompiled header creation
+$(OBJ_DIR)\prc.obj $(PCH_FILE): $(SRC_DIR)\prc.cxx $(INC_DIR)\prc.hxx
+	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+	@echo Precompiling header...
+	@$(CXX) $(CXXFLAGS) /Yc"prc.hxx" /Fp"$(PCH_FILE)" /c /Fo"$(OBJ_DIR)\prc.obj" $(SRC_DIR)\prc.cxx
+
+# Inference rule for source files in source directory
+{$(SRC_DIR)}.cxx{$(OBJ_DIR)}.obj:
+	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+	@echo Compiling $<...
+	@$(CXX) $(CXXFLAGS) /Yu"prc.hxx" /Fp"$(PCH_FILE)" /c /Fo$@ $<
+
+$(OBJ_DIR)\main.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\MainDialog.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\MainDialogMenu.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\ConfigFile.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\ConfigDlg.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\MainDialogPanel.obj: $(HDRS) $(PCH_FILE)
+
+# Inference rule for resources in res directory
+{$(RES_DIR)}.rc{$(OBJ_DIR)}.res:
+	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+	@echo Compiling resources $<...
+	@rc /nologo $(WX_INCLUDE) /fo$@ $<
+
+clean:
+	@if exist obj rmdir /S /Q obj
+	@if exist bin rmdir /S /Q bin
+	@if exist *.obj del /Q *.obj
+	@if exist KiHelperMini.exe del /Q KiHelperMini.exe
+	@if exist *.ilk del /Q *.ilk
+	@if exist *.pdb del /Q *.pdb

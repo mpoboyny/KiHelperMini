@@ -1,0 +1,2 @@
+// The icon for the executable
+#include "wx/msw/wx.rc"
