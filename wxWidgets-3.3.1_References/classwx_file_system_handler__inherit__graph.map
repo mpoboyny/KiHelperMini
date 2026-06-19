@@ -1,0 +1,9 @@
+<map id="wxFileSystemHandler" name="wxFileSystemHandler">
+<area shape="rect" id="node1" title="Classes derived from wxFileSystemHandler are used to access virtual file systems." alt="" coords="136,107,300,133"/>
+<area shape="rect" id="node3" href="$classwx_archive_f_s_handler.html" title="A file system handler for accessing files inside of archives." alt="" coords="365,5,521,32"/>
+<area shape="rect" id="node4" href="$classwx_data_scheme_f_s_handler.html" title="File system handler for &quot;data&quot; URI scheme (RFC 2397)." alt="" coords="348,56,539,83"/>
+<area shape="rect" id="node5" href="$classwx_filter_f_s_handler.html" title="Filter file system handler." alt="" coords="373,107,513,133"/>
+<area shape="rect" id="node6" href="$classwx_internet_f_s_handler.html" title="A file system handler for accessing files from internet servers." alt="" coords="364,157,523,184"/>
+<area shape="rect" id="node7" href="$classwx_memory_f_s_handler.html" title="This wxFileSystem handler can store arbitrary data in memory stream and make them accessible via an U..." alt="" coords="363,208,524,235"/>
+<area shape="rect" id="node2" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="5,107,88,133"/>
+</map>

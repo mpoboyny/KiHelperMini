@@ -1,0 +1,8 @@
+<map id="wxApp" name="wxApp">
+<area shape="rect" id="node1" title="The wxApp class represents the application itself when wxUSE_GUI=1." alt="" coords="140,229,207,256"/>
+<area shape="rect" id="node2" href="$classwx_app_console.html" title="This class is essential for writing console&#45;only or hybrid apps without having to define wxUSE_GUI=0." alt="" coords="114,155,233,181"/>
+<area shape="rect" id="node3" href="$classwx_evt_handler.html" title="A class that can handle events from the windowing system." alt="" coords="49,80,162,107"/>
+<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="5,5,88,32"/>
+<area shape="rect" id="node5" href="$classwx_trackable.html" title="Add&#45;on base class for a trackable object." alt="" coords="113,5,215,32"/>
+<area shape="rect" id="node6" href="$classwx_event_filter.html" title="A global event filter for pre&#45;processing all the events generated in the program." alt="" coords="186,80,297,107"/>
+</map>

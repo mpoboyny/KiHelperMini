@@ -1,0 +1,5 @@
+<map id="wxRichTextCommand" name="wxRichTextCommand">
+<area shape="rect" id="node1" title="Implements a command on the undo/redo stack." alt="" coords="5,155,168,181"/>
+<area shape="rect" id="node2" href="$classwx_command.html" title="wxCommand is a base class for modelling an application command, which is an action usually performed ..." alt="" coords="33,80,141,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="45,5,128,32"/>
+</map>

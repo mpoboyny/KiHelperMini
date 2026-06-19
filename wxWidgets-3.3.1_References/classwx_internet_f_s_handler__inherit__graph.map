@@ -1,0 +1,5 @@
+<map id="wxInternetFSHandler" name="wxInternetFSHandler">
+<area shape="rect" id="node1" title="A file system handler for accessing files from internet servers." alt="" coords="8,155,167,181"/>
+<area shape="rect" id="node2" href="$classwx_file_system_handler.html" title="Classes derived from wxFileSystemHandler are used to access virtual file systems." alt="" coords="5,80,169,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="46,5,129,32"/>
+</map>

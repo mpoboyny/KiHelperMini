@@ -1,0 +1,4 @@
+<map id="wxLogBuffer" name="wxLogBuffer">
+<area shape="rect" id="node1" title="wxLogBuffer is a very simple implementation of log sink which simply collects all the logged messages..." alt="" coords="5,80,108,107"/>
+<area shape="rect" id="node2" href="$classwx_log.html" title="wxLog class defines the interface for the log targets used by wxWidgets logging functions as explaine..." alt="" coords="25,5,89,32"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="wxPostScriptDC" name="wxPostScriptDC">
+<area shape="rect" id="node1" title="This defines the wxWidgets Encapsulated PostScript device context, which can write PostScript files o..." alt="" coords="5,229,131,256"/>
+<area shape="rect" id="node2" href="$classwx_d_c.html" title="A wxDC is a &quot;device context&quot; onto which graphics and text can be drawn." alt="" coords="38,155,98,181"/>
+<area shape="rect" id="node3" href="$classwx_read_only_d_c.html" title="Base class for device context not providing any drawing functions." alt="" coords="7,80,129,107"/>
+<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="27,5,109,32"/>
+</map>

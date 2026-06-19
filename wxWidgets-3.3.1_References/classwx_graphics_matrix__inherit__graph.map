@@ -1,0 +1,5 @@
+<map id="wxGraphicsMatrix" name="wxGraphicsMatrix">
+<area shape="rect" id="node1" title="A wxGraphicsMatrix is a native representation of an affine matrix." alt="" coords="5,155,145,181"/>
+<area shape="rect" id="node2" href="$classwx_graphics_object.html" title="This class is the superclass of native graphics objects like pens etc." alt="" coords="5,80,145,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="34,5,117,32"/>
+</map>

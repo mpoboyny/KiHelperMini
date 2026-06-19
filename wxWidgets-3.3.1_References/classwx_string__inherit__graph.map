@@ -1,0 +1,4 @@
+<map id="wxString" name="wxString">
+<area shape="rect" id="node1" title="String class for passing textual data to or receiving it from wxWidgets." alt="" coords="26,5,105,32"/>
+<area shape="rect" id="node2" href="$classwx_secret_string.html" title="Temporary string whose contents will be overwritten when it is destroyed." alt="" coords="5,80,125,107"/>
+</map>

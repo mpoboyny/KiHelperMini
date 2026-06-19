@@ -1,0 +1,27 @@
+<map id="wxPGProperty" name="wxPGProperty">
+<area shape="rect" id="node1" title="wxPGProperty is base class for all wxPropertyGrid properties and as such it is not intended to be ins..." alt="" coords="136,411,251,437"/>
+<area shape="rect" id="node3" href="$classwx_bool_property.html" title="Basic property with boolean value." alt="" coords="324,107,449,133"/>
+<area shape="rect" id="node4" href="$classwx_date_property.html" title="Property representing wxDateTime." alt="" coords="323,157,450,184"/>
+<area shape="rect" id="node5" href="$classwx_editor_dialog_property.html" title="This is an abstract class which serves as a base class for the properties having a button triggering ..." alt="" coords="299,208,475,235"/>
+<area shape="rect" id="node13" href="$classwx_enum_property.html" title="You can derive custom properties with choices from this class." alt="" coords="320,360,453,387"/>
+<area shape="rect" id="node18" href="$classwx_flags_property.html" title="Represents a bit set that fits in a long integer." alt="" coords="321,411,452,437"/>
+<area shape="rect" id="node19" href="$classwx_numeric_property.html" title="This is an abstract class which serves as a base class for numeric properties, like wxIntProperty,..." alt="" coords="311,461,462,488"/>
+<area shape="rect" id="node23" href="$classwx_p_g_root_property.html" title="Root parent property." alt="" coords="315,512,459,539"/>
+<area shape="rect" id="node24" href="$classwx_property_category.html" title="Category (caption) property." alt="" coords="309,563,464,589"/>
+<area shape="rect" id="node25" href="$classwx_string_property.html" title="Basic property with string value." alt="" coords="319,613,454,640"/>
+<area shape="rect" id="node2" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="5,411,88,437"/>
+<area shape="rect" id="node6" href="$classwx_array_string_property.html" title="Property that manages a list of strings." alt="" coords="531,5,701,32"/>
+<area shape="rect" id="node7" href="$classwx_dir_property.html" title="Like wxLongStringProperty, but the button triggers directory selector instead." alt="" coords="559,56,673,83"/>
+<area shape="rect" id="node8" href="$classwx_file_property.html" title="Like wxLongStringProperty, but the button triggers file selector instead." alt="" coords="557,107,675,133"/>
+<area shape="rect" id="node10" href="$classwx_font_property.html" title="Property representing wxFont." alt="" coords="554,157,678,184"/>
+<area shape="rect" id="node11" href="$classwx_long_string_property.html" title="Like wxStringProperty, but has a button that triggers a small text editor dialog." alt="" coords="533,208,699,235"/>
+<area shape="rect" id="node12" href="$classwx_multi_choice_property.html" title="Property that manages a value resulting from wxMultiChoiceDialog." alt="" coords="529,259,703,285"/>
+<area shape="rect" id="node9" href="$classwx_image_file_property.html" title="Property representing image file(name)." alt="" coords="757,107,917,133"/>
+<area shape="rect" id="node14" href="$classwx_cursor_property.html" title="Property representing wxCursor." alt="" coords="547,309,685,336"/>
+<area shape="rect" id="node15" href="$classwx_edit_enum_property.html" title="wxEnumProperty with wxString value and writable combo box editor." alt="" coords="537,360,695,387"/>
+<area shape="rect" id="node16" href="$classwx_system_colour_property.html" title="Has dropdown list of wxWidgets system colours." alt="" coords="523,411,709,437"/>
+<area shape="rect" id="node17" href="$classwx_colour_property.html" title="Allows to select a colour from the list or with colour dialog." alt="" coords="768,411,907,437"/>
+<area shape="rect" id="node20" href="$classwx_float_property.html" title="Basic property with double&#45;precision floating point value." alt="" coords="551,461,681,488"/>
+<area shape="rect" id="node21" href="$classwx_int_property.html" title="Basic property with integer value." alt="" coords="559,512,673,539"/>
+<area shape="rect" id="node22" href="$classwx_u_int_property.html" title="Basic property with unsigned integer value." alt="" coords="555,563,677,589"/>
+</map>

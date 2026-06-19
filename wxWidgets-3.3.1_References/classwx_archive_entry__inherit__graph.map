@@ -1,0 +1,6 @@
+<map id="wxArchiveEntry" name="wxArchiveEntry">
+<area shape="rect" id="node1" title="This is an abstract base class which serves as a common interface to archive entry classes such as wx..." alt="" coords="51,80,175,107"/>
+<area shape="rect" id="node3" href="$classwx_tar_entry.html" title="Holds the meta&#45;data for an entry in a tar." alt="" coords="5,155,100,181"/>
+<area shape="rect" id="node4" href="$classwx_zip_entry.html" title="Holds the meta&#45;data for an entry in a zip." alt="" coords="125,155,221,181"/>
+<area shape="rect" id="node2" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="71,5,154,32"/>
+</map>

@@ -1,0 +1,4 @@
+<map id="wxSVGBitmapFileHandler" name="wxSVGBitmapFileHandler">
+<area shape="rect" id="node1" title="Handler saving bitmaps to external PNG files and linking to it from the SVG." alt="" coords="5,80,195,107"/>
+<area shape="rect" id="node2" href="$classwx_s_v_g_bitmap_handler.html" title="Abstract base class for handling bitmaps inside a wxSVGFileDC." alt="" coords="17,5,183,32"/>
+</map>

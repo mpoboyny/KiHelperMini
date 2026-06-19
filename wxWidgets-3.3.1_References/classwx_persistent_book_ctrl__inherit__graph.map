@@ -1,0 +1,6 @@
+<map id="wxPersistentBookCtrl" name="wxPersistentBookCtrl">
+<area shape="rect" id="node1" title="Persistence adapter for wxBookCtrlBase." alt="" coords="19,169,181,196"/>
+<area shape="rect" id="node4" href="$classwx_persistent_tree_book_ctrl.html" title="Persistence adapter for wxTreebook." alt="" coords="5,244,195,271"/>
+<area shape="rect" id="node2" href="$classwx_persistent_window.html" title=" " alt="" coords="21,80,179,121"/>
+<area shape="rect" id="node3" href="$classwx_persistent_object.html" title="Base class for persistent object adapters." alt="" coords="26,5,174,32"/>
+</map>

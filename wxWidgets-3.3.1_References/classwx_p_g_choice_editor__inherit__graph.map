@@ -1,0 +1,7 @@
+<map id="wxPGChoiceEditor" name="wxPGChoiceEditor">
+<area shape="rect" id="node1" title=" " alt="" coords="146,155,287,181"/>
+<area shape="rect" id="node4" href="$classwx_p_g_choice_and_button_editor.html" title=" " alt="" coords="5,229,215,256"/>
+<area shape="rect" id="node5" href="$classwx_p_g_combo_box_editor.html" title=" " alt="" coords="239,229,407,256"/>
+<area shape="rect" id="node2" href="$classwx_p_g_editor.html" title="Base class for custom wxPropertyGrid editors." alt="" coords="168,80,265,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="175,5,258,32"/>
+</map>

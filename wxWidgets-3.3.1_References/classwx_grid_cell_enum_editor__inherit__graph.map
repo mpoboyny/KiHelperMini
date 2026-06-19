@@ -1,0 +1,7 @@
+<map id="wxGridCellEnumEditor" name="wxGridCellEnumEditor">
+<area shape="rect" id="node1" title="Grid cell editor which displays an enum number as a textual equivalent (e.g." alt="" coords="125,229,293,256"/>
+<area shape="rect" id="node2" href="$classwx_grid_cell_choice_editor.html" title="Grid cell editor for string data providing the user a choice from a list of strings." alt="" coords="122,155,297,181"/>
+<area shape="rect" id="node3" href="$classwx_grid_cell_editor.html" title="This class is responsible for providing and manipulating the in&#45;place edit controls for the grid." alt="" coords="144,80,275,107"/>
+<area shape="rect" id="node4" href="$classwx_shared_client_data_container.html" title="This class is a replacement for wxClientDataContainer, and unlike wxClientDataContainer the wxSharedC..." alt="" coords="5,5,224,32"/>
+<area shape="rect" id="node5" href="$classwx_ref_counter.html" title="This class is used to manage reference&#45;counting providing a simple interface and a counter." alt="" coords="248,5,363,32"/>
+</map>

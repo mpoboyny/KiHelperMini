@@ -1,0 +1,8 @@
+<map id="wxStaticBox" name="wxStaticBox">
+<area shape="rect" id="node1" title="A static box is a rectangle drawn around other windows to denote a logical grouping of items." alt="" coords="54,304,157,331"/>
+<area shape="rect" id="node2" href="$classwx_control.html" title="This is the base class for a control or &quot;widget&quot;." alt="" coords="61,229,149,256"/>
+<area shape="rect" id="node3" href="$classwx_window.html" title="wxWindow is the base class for all windows and represents any visible object on screen." alt="" coords="59,155,152,181"/>
+<area shape="rect" id="node4" href="$classwx_evt_handler.html" title="A class that can handle events from the windowing system." alt="" coords="49,80,162,107"/>
+<area shape="rect" id="node5" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="5,5,88,32"/>
+<area shape="rect" id="node6" href="$classwx_trackable.html" title="Add&#45;on base class for a trackable object." alt="" coords="113,5,215,32"/>
+</map>

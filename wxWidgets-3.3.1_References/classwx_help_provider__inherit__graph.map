@@ -1,0 +1,5 @@
+<map id="wxHelpProvider" name="wxHelpProvider">
+<area shape="rect" id="node1" title="wxHelpProvider is an abstract class used by a program implementing context&#45;sensitive help to show the..." alt="" coords="52,5,177,32"/>
+<area shape="rect" id="node2" href="$classwx_simple_help_provider.html" title="wxSimpleHelpProvider is an implementation of wxHelpProvider which supports only plain text help strin..." alt="" coords="29,80,200,107"/>
+<area shape="rect" id="node3" href="$classwx_help_controller_help_provider.html" title="wxHelpControllerHelpProvider is an implementation of wxHelpProvider which supports both context ident..." alt="" coords="5,155,224,181"/>
+</map>

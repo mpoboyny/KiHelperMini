@@ -1,0 +1,5 @@
+<map id="wxWebRequestEvent" name="wxWebRequestEvent">
+<area shape="rect" id="node1" title="A web request event sent during or after server communication." alt="" coords="5,155,164,181"/>
+<area shape="rect" id="node2" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="45,80,124,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="43,5,126,32"/>
+</map>

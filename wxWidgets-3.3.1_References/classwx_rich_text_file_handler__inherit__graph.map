@@ -1,0 +1,7 @@
+<map id="wxRichTextFileHandler" name="wxRichTextFileHandler">
+<area shape="rect" id="node1" title="The base class for file handlers." alt="" coords="232,80,403,107"/>
+<area shape="rect" id="node3" href="$classwx_rich_text_h_t_m_l_handler.html" title="Handles HTML output (only) for wxRichTextCtrl content." alt="" coords="5,155,189,181"/>
+<area shape="rect" id="node4" href="$classwx_rich_text_plain_text_handler.html" title="Implements saving a buffer to plain text." alt="" coords="214,155,421,181"/>
+<area shape="rect" id="node5" href="$classwx_rich_text_x_m_l_handler.html" title="A handler for loading and saving content in an XML format specific to wxRichTextBuffer." alt="" coords="445,155,619,181"/>
+<area shape="rect" id="node2" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="276,5,359,32"/>
+</map>

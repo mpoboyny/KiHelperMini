@@ -1,0 +1,4 @@
+<map id="wxWebViewArchiveHandler" name="wxWebViewArchiveHandler">
+<area shape="rect" id="node1" title="A custom handler for the file scheme which also supports loading from archives." alt="" coords="5,80,207,107"/>
+<area shape="rect" id="node2" href="$classwx_web_view_handler.html" title="The base class for handling custom schemes in wxWebView, for example to allow virtual file system sup..." alt="" coords="30,5,182,32"/>
+</map>

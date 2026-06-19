@@ -1,0 +1,4 @@
+<map id="wxLogStderr" name="wxLogStderr">
+<area shape="rect" id="node1" title="This class can be used to redirect the log messages to a C file stream (not to be confused with C++ s..." alt="" coords="5,80,108,107"/>
+<area shape="rect" id="node2" href="$classwx_log.html" title="wxLog class defines the interface for the log targets used by wxWidgets logging functions as explaine..." alt="" coords="25,5,89,32"/>
+</map>

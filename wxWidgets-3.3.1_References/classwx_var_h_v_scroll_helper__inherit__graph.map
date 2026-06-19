@@ -1,0 +1,7 @@
+<map id="wxVarHVScrollHelper" name="wxVarHVScrollHelper">
+<area shape="rect" id="node1" title="This class provides functions wrapping the wxVarHScrollHelper and wxVarVScrollHelper classes,..." alt="" coords="87,155,247,181"/>
+<area shape="rect" id="node5" href="$classwx_h_v_scrolled_window.html" title="This window inherits all functionality of both vertical and horizontal, variable scrolled windows." alt="" coords="85,229,249,256"/>
+<area shape="rect" id="node2" href="$classwx_var_v_scroll_helper.html" title="This class provides functions wrapping the wxVarScrollHelperBase class, targeted for vertical&#45;specifi..." alt="" coords="5,80,156,107"/>
+<area shape="rect" id="node3" href="$classwx_var_scroll_helper_base.html" title="This class provides all common base functionality for scroll calculations shared among all variable s..." alt="" coords="81,5,254,32"/>
+<area shape="rect" id="node4" href="$classwx_var_h_scroll_helper.html" title="This class provides functions wrapping the wxVarScrollHelperBase class, targeted for horizontal&#45;speci..." alt="" coords="180,80,331,107"/>
+</map>

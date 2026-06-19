@@ -1,0 +1,8 @@
+<map id="wxFFileStream" name="wxFFileStream">
+<area shape="rect" id="node1" title="This stream allows both reading from and writing to a file using buffered STDIO functions." alt="" coords="113,229,231,256"/>
+<area shape="rect" id="node2" href="$classwx_f_file_input_stream.html" title="This class represents data read in from a file." alt="" coords="5,155,157,181"/>
+<area shape="rect" id="node3" href="$classwx_input_stream.html" title="wxInputStream is an abstract base class which may not be used directly." alt="" coords="35,80,157,107"/>
+<area shape="rect" id="node4" href="$classwx_stream_base.html" title="This class is the base class of most stream related classes in wxWidgets." alt="" coords="111,5,231,32"/>
+<area shape="rect" id="node6" href="$classwx_output_stream.html" title="wxOutputStream is an abstract base class which may not be used directly." alt="" coords="189,80,321,107"/>
+<area shape="rect" id="node5" href="$classwx_f_file_output_stream.html" title="This class represents data written to a file." alt="" coords="181,155,344,181"/>
+</map>

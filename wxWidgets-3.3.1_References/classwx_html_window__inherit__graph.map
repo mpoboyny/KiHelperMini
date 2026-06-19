@@ -1,0 +1,6 @@
+<map id="wxHtmlWindow" name="wxHtmlWindow">
+<area shape="rect" id="node1" title="wxHtmlWindow is probably the only class you will directly use unless you want to do something special..." alt="" coords="109,155,234,181"/>
+<area shape="rect" id="node2" href="$classwx_scrolled.html" title="The wxScrolled class manages scrolling for its client area, transforming the coordinates according to..." alt="" coords="5,80,151,107"/>
+<area shape="rect" id="node3" title=" " alt="" coords="59,5,97,32"/>
+<area shape="rect" id="node4" href="$classwx_html_window_interface.html" title="Abstract interface to a HTML rendering window (such as wxHtmlWindow or wxHtmlListBox) that is passed ..." alt="" coords="175,80,357,107"/>
+</map>

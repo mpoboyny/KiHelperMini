@@ -1,0 +1,4 @@
+<map id="wxDateTimeWorkDays" name="wxDateTimeWorkDays">
+<area shape="rect" id="node1" title="Holiday authority that classifies all Saturdays and Sundays as holidays." alt="" coords="27,80,198,107"/>
+<area shape="rect" id="node2" href="$classwx_date_time_holiday_authority.html" title="Class which decides whether a given date is a holiday and is used by all functions working with &quot;work..." alt="" coords="5,5,220,32"/>
+</map>

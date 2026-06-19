@@ -1,0 +1,5 @@
+<map id="wxActivateEvent" name="wxActivateEvent">
+<area shape="rect" id="node1" title="An activate event is sent when a window or application is being activated or deactivated." alt="" coords="5,155,137,181"/>
+<area shape="rect" id="node2" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="32,80,111,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="30,5,113,32"/>
+</map>

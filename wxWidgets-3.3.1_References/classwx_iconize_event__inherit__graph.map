@@ -1,0 +1,5 @@
+<map id="wxIconizeEvent" name="wxIconizeEvent">
+<area shape="rect" id="node1" title="An event being sent when the frame is iconized (minimized) or restored." alt="" coords="5,155,129,181"/>
+<area shape="rect" id="node2" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="28,80,107,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="26,5,109,32"/>
+</map>

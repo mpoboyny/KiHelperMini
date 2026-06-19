@@ -1,0 +1,6 @@
+<map id="wxDateTimeHolidayAuthority" name="wxDateTimeHolidayAuthority">
+<area shape="rect" id="node1" title="Class which decides whether a given date is a holiday and is used by all functions working with &quot;work..." alt="" coords="117,5,332,32"/>
+<area shape="rect" id="node2" href="$classwx_date_time_u_s_catholic_feasts.html" title="Holiday authority that returns Catholic holy days of obligation, as observed in the United States." alt="" coords="6,80,225,107"/>
+<area shape="rect" id="node4" href="$classwx_date_time_work_days.html" title="Holiday authority that classifies all Saturdays and Sundays as holidays." alt="" coords="249,80,419,107"/>
+<area shape="rect" id="node3" href="$classwx_date_time_christian_holidays.html" title="Holiday authority that returns holidays common to all Christian religions." alt="" coords="5,155,225,181"/>
+</map>

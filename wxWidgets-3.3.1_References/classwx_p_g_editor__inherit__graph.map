@@ -1,0 +1,11 @@
+<map id="wxPGEditor" name="wxPGEditor">
+<area shape="rect" id="node1" title="Base class for custom wxPropertyGrid editors." alt="" coords="136,56,233,83"/>
+<area shape="rect" id="node3" href="$classwx_p_g_check_box_editor.html" title=" " alt="" coords="281,5,444,32"/>
+<area shape="rect" id="node4" href="$classwx_p_g_choice_editor.html" title=" " alt="" coords="292,56,433,83"/>
+<area shape="rect" id="node7" href="$classwx_p_g_text_ctrl_editor.html" title=" " alt="" coords="289,107,436,133"/>
+<area shape="rect" id="node2" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="5,56,88,83"/>
+<area shape="rect" id="node5" href="$classwx_p_g_choice_and_button_editor.html" title=" " alt="" coords="495,5,704,32"/>
+<area shape="rect" id="node6" href="$classwx_p_g_combo_box_editor.html" title=" " alt="" coords="515,56,683,83"/>
+<area shape="rect" id="node8" href="$classwx_p_g_spin_ctrl_editor.html" title=" " alt="" coords="525,107,673,133"/>
+<area shape="rect" id="node9" href="$classwx_p_g_text_ctrl_and_button_editor.html" title=" " alt="" coords="492,157,707,184"/>
+</map>

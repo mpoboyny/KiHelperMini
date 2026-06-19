@@ -1,0 +1,5 @@
+<map id="wxSizerItem" name="wxSizerItem">
+<area shape="rect" id="node1" title="The wxSizerItem class is used to track the position, size and other attributes of each item managed b..." alt="" coords="15,80,118,107"/>
+<area shape="rect" id="node3" href="$classwx_g_b_sizer_item.html" title="The wxGBSizerItem class is used by the wxGridBagSizer for tracking the items in the sizer." alt="" coords="5,155,128,181"/>
+<area shape="rect" id="node2" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="25,5,108,32"/>
+</map>

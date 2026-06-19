@@ -1,0 +1,5 @@
+<map id="wxSizeEvent" name="wxSizeEvent">
+<area shape="rect" id="node1" title="A size event holds information about size change events of wxWindow." alt="" coords="5,155,111,181"/>
+<area shape="rect" id="node2" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="19,80,97,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="17,5,99,32"/>
+</map>

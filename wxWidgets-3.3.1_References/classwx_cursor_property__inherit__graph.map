@@ -1,0 +1,6 @@
+<map id="wxCursorProperty" name="wxCursorProperty">
+<area shape="rect" id="node1" title="Property representing wxCursor." alt="" coords="5,229,144,256"/>
+<area shape="rect" id="node2" href="$classwx_enum_property.html" title="You can derive custom properties with choices from this class." alt="" coords="8,155,141,181"/>
+<area shape="rect" id="node3" href="$classwx_p_g_property.html" title="wxPGProperty is base class for all wxPropertyGrid properties and as such it is not intended to be ins..." alt="" coords="17,80,132,107"/>
+<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="33,5,116,32"/>
+</map>

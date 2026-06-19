@@ -1,0 +1,6 @@
+<map id="wxPropertyGridEvent" name="wxPropertyGridEvent">
+<area shape="rect" id="node1" title="A property grid event holds information about events associated with wxPropertyGrid objects." alt="" coords="5,229,165,256"/>
+<area shape="rect" id="node2" href="$classwx_command_event.html" title="This event class contains information about command events, which originate from a variety of simple ..." alt="" coords="13,155,158,181"/>
+<area shape="rect" id="node3" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="46,80,125,107"/>
+<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="44,5,127,32"/>
+</map>

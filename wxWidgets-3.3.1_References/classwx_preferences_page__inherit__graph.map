@@ -1,0 +1,4 @@
+<map id="wxPreferencesPage" name="wxPreferencesPage">
+<area shape="rect" id="node1" title="One page of preferences dialog." alt="" coords="23,5,173,32"/>
+<area shape="rect" id="node2" href="$classwx_stock_preferences_page.html" title="Specialization of wxPreferencesPage useful for certain commonly used preferences page." alt="" coords="5,80,191,107"/>
+</map>

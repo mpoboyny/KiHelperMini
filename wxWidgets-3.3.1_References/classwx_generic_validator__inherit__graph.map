@@ -1,0 +1,7 @@
+<map id="wxGenericValidator" name="wxGenericValidator">
+<area shape="rect" id="node1" title="wxGenericValidator performs data transfer (but not validation or filtering) for many type of controls..." alt="" coords="31,229,180,256"/>
+<area shape="rect" id="node2" href="$classwx_validator.html" title="wxValidator is the base class for a family of validator classes that mediate between a class of contr..." alt="" coords="56,155,155,181"/>
+<area shape="rect" id="node3" href="$classwx_evt_handler.html" title="A class that can handle events from the windowing system." alt="" coords="49,80,162,107"/>
+<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="5,5,88,32"/>
+<area shape="rect" id="node5" href="$classwx_trackable.html" title="Add&#45;on base class for a trackable object." alt="" coords="113,5,215,32"/>
+</map>

@@ -1,0 +1,5 @@
+<map id="wxLogInterposerTemp" name="wxLogInterposerTemp">
+<area shape="rect" id="node1" title="Legacy class which should not be used any longer." alt="" coords="5,155,171,181"/>
+<area shape="rect" id="node2" href="$classwx_log_chain.html" title="This simple class allows you to chain log sinks, that is to install a new sink but keep passing log m..." alt="" coords="37,80,139,107"/>
+<area shape="rect" id="node3" href="$classwx_log.html" title="wxLog class defines the interface for the log targets used by wxWidgets logging functions as explaine..." alt="" coords="56,5,120,32"/>
+</map>

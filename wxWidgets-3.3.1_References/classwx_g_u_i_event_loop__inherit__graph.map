@@ -1,0 +1,4 @@
+<map id="wxGUIEventLoop" name="wxGUIEventLoop">
+<area shape="rect" id="node1" title="A generic implementation of the GUI event loop." alt="" coords="9,80,143,107"/>
+<area shape="rect" id="node2" href="$classwx_event_loop_base.html" title="Base class for all event loop implementations." alt="" coords="5,5,147,32"/>
+</map>

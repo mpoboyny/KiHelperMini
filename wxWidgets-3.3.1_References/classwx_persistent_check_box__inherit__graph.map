@@ -1,0 +1,5 @@
+<map id="wxPersistentCheckBox" name="wxPersistentCheckBox">
+<area shape="rect" id="node1" title="Persistence adapter for wxCheckBox controls." alt="" coords="5,169,176,196"/>
+<area shape="rect" id="node2" href="$classwx_persistent_window.html" title=" " alt="" coords="11,80,170,121"/>
+<area shape="rect" id="node3" href="$classwx_persistent_object.html" title="Base class for persistent object adapters." alt="" coords="17,5,165,32"/>
+</map>

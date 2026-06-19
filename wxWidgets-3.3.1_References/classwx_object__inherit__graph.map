@@ -1,0 +1,151 @@
+<map id="wxObject" name="wxObject">
+<area shape="rect" id="node1" title="This is the root class of many of the wxWidgets classes." alt="" coords="5,2716,88,2743"/>
+<area shape="rect" id="node2" href="$classwx_accelerator_table.html" title="An accelerator table allows the application to specify a table of keyboard shortcuts for menu or butt..." alt="" coords="169,5,319,32"/>
+<area shape="rect" id="node3" href="$classwx_accessible.html" title="The wxAccessible class allows wxWidgets applications, and wxWidgets itself, to return extended inform..." alt="" coords="189,56,299,83"/>
+<area shape="rect" id="node4" href="$classwx_animation.html" title="The wxAnimation class handles the interface between the animation control and the details of the anim..." alt="" coords="190,107,298,133"/>
+<area shape="rect" id="node5" href="$classwx_archive_class_factory.html" title="Allows the creation of streams to handle archive formats such as zip and tar." alt="" coords="158,157,330,184"/>
+<area shape="rect" id="node8" href="$classwx_archive_entry.html" title="This is an abstract base class which serves as a common interface to archive entry classes such as wx..." alt="" coords="182,208,306,235"/>
+<area shape="rect" id="node11" href="$classwx_art_provider.html" title="wxArtProvider class is used to customize the look of wxWidgets application." alt="" coords="187,259,301,285"/>
+<area shape="rect" id="node12" href="$classwx_automation_object.html" title="The wxAutomationObject class represents an OLE automation object containing a single data member,..." alt="" coords="165,309,323,336"/>
+<area shape="rect" id="node13" href="$classwx_bitmap_handler.html" title="This is the base class for implementing bitmap file loading/saving, and bitmap creation from data." alt="" coords="175,360,313,387"/>
+<area shape="rect" id="node14" href="$classwx_client.html" title="A wxClient object represents the client part of a client&#45;server DDE&#45;like (Dynamic Data Exchange) conv..." alt="" coords="205,411,283,437"/>
+<area shape="rect" id="node15" href="$classwx_clipboard.html" title="A class for manipulating the clipboard." alt="" coords="193,461,295,488"/>
+<area shape="rect" id="node16" href="$classwx_colour.html" title="A colour is an object representing a combination of Red, Green, and Blue (RGB) intensity values and a..." alt="" coords="203,512,285,539"/>
+<area shape="rect" id="node17" href="$classwx_colour_data.html" title="This class holds a variety of information related to colour dialogs." alt="" coords="187,563,301,589"/>
+<area shape="rect" id="node18" href="$classwx_colour_property_value.html" title="Because text, background and other colours tend to differ between platforms, wxSystemColourProperty m..." alt="" coords="157,613,331,640"/>
+<area shape="rect" id="node19" href="$classwx_command.html" title="wxCommand is a base class for modelling an application command, which is an action usually performed ..." alt="" coords="190,664,298,691"/>
+<area shape="rect" id="node21" href="$classwx_command_processor.html" title="wxCommandProcessor is a class that maintains a history of wxCommands, with undo/redo functionality bu..." alt="" coords="159,715,329,741"/>
+<area shape="rect" id="node22" href="$classwx_config_base.html" title="wxConfigBase defines the basic interface of all config classes." alt="" coords="187,765,301,792"/>
+<area shape="rect" id="node25" href="$classwx_connection.html" title="A wxConnection object represents the connection between a client and a server." alt="" coords="187,816,301,843"/>
+<area shape="rect" id="node26" href="$classwx_connection_base.html" title=" " alt="" coords="171,867,317,893"/>
+<area shape="rect" id="node28" href="$classwx_context_help.html" title="This class changes the cursor to a query and puts the application into a &#39;context&#45;sensitive help mode..." alt="" coords="183,917,305,944"/>
+<area shape="rect" id="node29" href="$classwx_d_d_e_client.html" title="A wxDDEClient object represents the client part of a client&#45;server DDE (Dynamic Data Exchange) conver..." alt="" coords="191,968,297,995"/>
+<area shape="rect" id="node30" href="$classwx_data_view_icon_text.html" title="wxDataViewIconText is used by wxDataViewIconTextRenderer for data transfer." alt="" coords="165,1019,323,1045"/>
+<area shape="rect" id="node32" href="$classwx_data_view_renderer.html" title="This class is used by wxDataViewCtrl to render the individual cells." alt="" coords="163,1069,325,1096"/>
+<area shape="rect" id="node42" href="$classwx_doc_template.html" title="The wxDocTemplate class is used to model the relationship between a document class and a view class." alt="" coords="181,1120,307,1147"/>
+<area shape="rect" id="node43" href="$classwx_drag_image.html" title="This class is used when you wish to drag an object on the screen, and a simple cursor is not enough." alt="" coords="187,1171,301,1197"/>
+<area shape="rect" id="node44" href="$classwx_encoding_converter.html" title="This class is capable of converting strings between two 8&#45;bit encodings/charsets." alt="" coords="162,1221,326,1248"/>
+<area shape="rect" id="node45" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="205,1272,283,1299"/>
+<area shape="rect" id="node68" href="$classwx_evt_handler.html" title="A class that can handle events from the windowing system." alt="" coords="187,1323,301,1349"/>
+<area shape="rect" id="node69" href="$classwx_f_s_file.html" title="This class represents a single file opened by wxFileSystem." alt="" coords="205,1373,283,1400"/>
+<area shape="rect" id="node70" href="$classwx_file_history.html" title="The wxFileHistory encapsulates a user interface convenience, the list of most recently visited files ..." alt="" coords="189,1424,299,1451"/>
+<area shape="rect" id="node71" href="$classwx_file_system.html" title="This class provides an interface for opening files on different file systems." alt="" coords="187,1475,301,1501"/>
+<area shape="rect" id="node72" href="$classwx_file_system_handler.html" title="Classes derived from wxFileSystemHandler are used to access virtual file systems." alt="" coords="162,1525,326,1552"/>
+<area shape="rect" id="node73" href="$classwx_filter_class_factory.html" title="Allows the creation of filter streams to handle compression formats such as gzip and bzip2." alt="" coords="166,1576,322,1603"/>
+<area shape="rect" id="node74" href="$classwx_find_replace_data.html" title="wxFindReplaceData holds the data for wxFindReplaceDialog." alt="" coords="169,1627,319,1653"/>
+<area shape="rect" id="node75" href="$classwx_font_data.html" title="This class holds a variety of information related to font dialogs." alt="" coords="194,1677,294,1704"/>
+<area shape="rect" id="node76" href="$classwx_g_d_i_object.html" title="This class allows platforms to implement functionality to optimise GDI objects, such as wxPen,..." alt="" coords="191,1728,297,1755"/>
+<area shape="rect" id="node77" href="$classwx_g_l_context.html" title="An instance of a wxGLContext represents the state of an OpenGL state machine and the connection betwe..." alt="" coords="189,1779,299,1805"/>
+<area shape="rect" id="node78" href="$classwx_graphics_object.html" title="This class is the superclass of native graphics objects like pens etc." alt="" coords="174,1829,314,1856"/>
+<area shape="rect" id="node79" href="$classwx_graphics_renderer.html" title="A wxGraphicsRenderer is the instance corresponding to the rendering engine used." alt="" coords="165,1880,323,1907"/>
+<area shape="rect" id="node80" href="$classwx_grid_table_base.html" title="The almost abstract base class for grid tables." alt="" coords="177,1931,311,1957"/>
+<area shape="rect" id="node81" href="$classwx_hash_table.html" title=" " alt="" coords="190,1981,298,2008"/>
+<area shape="rect" id="node82" href="$classwx_help_controller_base.html" title="This is the abstract base class a family of classes by which applications may invoke a help viewer to..." alt="" coords="161,2032,327,2059"/>
+<area shape="rect" id="node83" href="$classwx_html_cell.html" title="Internal data structure." alt="" coords="195,2083,293,2109"/>
+<area shape="rect" id="node84" href="$classwx_html_d_c_renderer.html" title="This class can render HTML document into a specified area of a DC." alt="" coords="169,2133,319,2160"/>
+<area shape="rect" id="node85" href="$classwx_html_easy_printing.html" title="This class provides very simple interface to printing architecture." alt="" coords="167,2184,321,2211"/>
+<area shape="rect" id="node86" href="$classwx_html_filter.html" title="This class is the parent class of input filters for wxHtmlWindow." alt="" coords="191,2235,297,2261"/>
+<area shape="rect" id="node87" href="$classwx_html_help_data.html" title="This class is used by wxHtmlHelpController and wxHtmlHelpFrame to access HTML help items." alt="" coords="177,2285,311,2312"/>
+<area shape="rect" id="node88" href="$classwx_html_link_info.html" title="This class stores all necessary information about hypertext links (as represented by &lt;A&gt; tag in HTML ..." alt="" coords="181,2336,307,2363"/>
+<area shape="rect" id="node89" href="$classwx_html_tag_handler.html" title=" " alt="" coords="171,2387,317,2413"/>
+<area shape="rect" id="node90" href="$classwx_image.html" title="This class encapsulates a platform&#45;independent image." alt="" coords="203,2437,285,2464"/>
+<area shape="rect" id="node91" href="$classwx_image_handler.html" title="This is the base class for implementing image file loading/saving, and image creation from data." alt="" coords="177,2488,311,2515"/>
+<area shape="rect" id="node92" href="$classwx_image_list.html" title="A wxImageList contains a list of images, which are stored in an unspecified form." alt="" coords="191,2539,297,2565"/>
+<area shape="rect" id="node93" href="$classwx_individual_layout_constraint.html" title=" " alt="" coords="136,2589,352,2616"/>
+<area shape="rect" id="node94" href="$classwx_joystick.html" title="wxJoystick allows an application to control one or more joysticks." alt="" coords="198,2640,290,2667"/>
+<area shape="rect" id="node95" href="$classwx_layout_algorithm.html" title="wxLayoutAlgorithm implements layout of subwindows in MDI or SDI frames." alt="" coords="169,2691,319,2717"/>
+<area shape="rect" id="node96" href="$classwx_layout_constraints.html" title=" " alt="" coords="165,2741,323,2768"/>
+<area shape="rect" id="node97" href="$classwx_list_item.html" title="This class stores information about a wxListCtrl item or column." alt="" coords="197,2792,291,2819"/>
+<area shape="rect" id="node98" href="$classwx_mask.html" title="This class encapsulates a monochrome mask bitmap, where the masked area is black and the unmasked are..." alt="" coords="206,2843,282,2869"/>
+<area shape="rect" id="node99" href="$classwx_menu_item.html" title="A menu item represents an item in a menu." alt="" coords="191,2893,297,2920"/>
+<area shape="rect" id="node100" href="$classwx_metafile.html" title="A wxMetafile represents the MS Windows metafile object, so metafile operations have no effect in X." alt="" coords="197,2944,291,2971"/>
+<area shape="rect" id="node101" href="$classwx_module.html" title="The module system is a very simple mechanism to allow applications (and parts of wxWidgets itself) to..." alt="" coords="199,2995,289,3021"/>
+<area shape="rect" id="node102" href="$classwx_p_g_cell.html" title="Base class for wxPropertyGrid cell information." alt="" coords="202,3045,286,3072"/>
+<area shape="rect" id="node103" href="$classwx_p_g_editor.html" title="Base class for custom wxPropertyGrid editors." alt="" coords="195,3096,293,3123"/>
+<area shape="rect" id="node104" href="$classwx_p_g_editor_dialog_adapter.html" title="Derive a class from this to adapt an existing editor dialog or function to be used when editor button..." alt="" coords="149,3147,339,3173"/>
+<area shape="rect" id="node105" href="$classwx_p_g_property.html" title="wxPGProperty is base class for all wxPropertyGrid properties and as such it is not intended to be ins..." alt="" coords="187,3197,301,3224"/>
+<area shape="rect" id="node106" href="$classwx_page_setup_dialog.html" title="This class represents the page setup common dialog." alt="" coords="169,3248,319,3275"/>
+<area shape="rect" id="node107" href="$classwx_page_setup_dialog_data.html" title="This class holds a variety of information related to wxPageSetupDialog." alt="" coords="153,3299,335,3325"/>
+<area shape="rect" id="node108" href="$classwx_print_data.html" title="This class holds a variety of information related to printers and printer device contexts." alt="" coords="193,3349,295,3376"/>
+<area shape="rect" id="node109" href="$classwx_print_dialog.html" title="This class represents the print and print setup common dialogs." alt="" coords="187,3400,301,3427"/>
+<area shape="rect" id="node110" href="$classwx_print_dialog_data.html" title="This class holds information related to the visual characteristics of wxPrintDialog." alt="" coords="172,3451,316,3477"/>
+<area shape="rect" id="node111" href="$classwx_print_preview.html" title="Objects of this class manage the print preview process." alt="" coords="183,3501,305,3528"/>
+<area shape="rect" id="node112" href="$classwx_printer.html" title="This class represents the Windows or PostScript printer, and is the vehicle through which printing ma..." alt="" coords="202,3552,286,3579"/>
+<area shape="rect" id="node113" href="$classwx_printout.html" title="This class encapsulates the functionality of printing out an application document." alt="" coords="198,3603,290,3629"/>
+<area shape="rect" id="node114" href="$classwx_quantize.html" title="Performs quantization, or colour reduction, on a wxImage." alt="" coords="195,3653,293,3680"/>
+<area shape="rect" id="node115" href="$classwx_read_only_d_c.html" title="Base class for device context not providing any drawing functions." alt="" coords="183,3704,305,3731"/>
+<area shape="rect" id="node116" href="$classwx_region_iterator.html" title="This class is used to iterate through the rectangles in a region, typically when examining the damage..." alt="" coords="177,3755,311,3781"/>
+<area shape="rect" id="node117" href="$classwx_rich_text_action.html" title="Implements a part of a command." alt="" coords="175,3805,313,3832"/>
+<area shape="rect" id="node118" href="$classwx_rich_text_drawing_context.html" title="A class for passing information to drawing and measuring functions." alt="" coords="143,3856,345,3883"/>
+<area shape="rect" id="node119" href="$classwx_rich_text_drawing_handler.html" title="The base class for custom drawing handlers." alt="" coords="143,3907,345,3933"/>
+<area shape="rect" id="node120" href="$classwx_rich_text_field_type.html" title="The base class for custom field types." alt="" coords="165,3957,323,3984"/>
+<area shape="rect" id="node121" href="$classwx_rich_text_file_handler.html" title="The base class for file handlers." alt="" coords="159,4008,329,4035"/>
+<area shape="rect" id="node122" href="$classwx_rich_text_font_table.html" title="Manages quick access to a pool of fonts for rendering rich text." alt="" coords="165,4059,323,4085"/>
+<area shape="rect" id="node123" href="$classwx_rich_text_formatting_dialog_factory.html" title="This class provides pages for wxRichTextFormattingDialog, and allows other customization of the dialo..." alt="" coords="139,4110,349,4151"/>
+<area shape="rect" id="node124" href="$classwx_rich_text_header_footer_data.html" title="This class represents header and footer data to be passed to the wxRichTextPrinting and wxRichTextPri..." alt="" coords="137,4176,351,4203"/>
+<area shape="rect" id="node125" href="$classwx_rich_text_image_block.html" title="This class stores information about an image, in binary in&#45;memory form." alt="" coords="157,4227,331,4253"/>
+<area shape="rect" id="node126" href="$classwx_rich_text_object.html" title="This is the base for drawable rich text objects." alt="" coords="175,4277,313,4304"/>
+<area shape="rect" id="node127" href="$classwx_rich_text_printing.html" title="This class provides a simple interface for performing wxRichTextBuffer printing and previewing." alt="" coords="171,4328,317,4355"/>
+<area shape="rect" id="node128" href="$classwx_rich_text_properties.html" title="A simple property class using wxVariants." alt="" coords="163,4379,325,4405"/>
+<area shape="rect" id="node129" href="$classwx_rich_text_renderer.html" title="This class isolates some common drawing functionality." alt="" coords="167,4429,321,4456"/>
+<area shape="rect" id="node130" href="$classwx_rich_text_style_definition.html" title="This is a base class for paragraph and character styles." alt="" coords="148,4480,340,4507"/>
+<area shape="rect" id="node131" href="$classwx_rich_text_style_sheet.html" title="A style sheet contains named paragraph and character styles that make it easy for a user to apply com..." alt="" coords="161,4531,327,4557"/>
+<area shape="rect" id="node132" href="$classwx_sizer.html" title="wxSizer is the abstract base class used for laying out subwindows in a window." alt="" coords="207,4581,281,4608"/>
+<area shape="rect" id="node133" href="$classwx_sizer_item.html" title="The wxSizerItem class is used to track the position, size and other attributes of each item managed b..." alt="" coords="193,4632,295,4659"/>
+<area shape="rect" id="node134" href="$classwx_sock_address.html" title="You are unlikely to need to use this class: only wxSocketBase uses it." alt="" coords="182,4683,306,4709"/>
+<area shape="rect" id="node135" href="$classwx_socket_base.html" title="wxSocketBase is the base class for all socket&#45;related objects, and it defines all basic IO functional..." alt="" coords="186,4733,302,4760"/>
+<area shape="rect" id="node136" href="$classwx_sound.html" title="This class represents a short sound (loaded from Windows WAV file), that can be stored in memory and ..." alt="" coords="203,4784,285,4811"/>
+<area shape="rect" id="node137" href="$classwx_string_tokenizer.html" title="wxStringTokenizer helps you to break a string up into a number of tokens." alt="" coords="174,4835,314,4861"/>
+<area shape="rect" id="node138" href="$classwx_system_options.html" title="wxSystemOptions stores option/value pairs that wxWidgets itself or applications can use to alter beha..." alt="" coords="174,4885,314,4912"/>
+<area shape="rect" id="node139" href="$classwx_t_c_p_client.html" title="A wxTCPClient object represents the client part of a client&#45;server conversation." alt="" coords="193,4936,295,4963"/>
+<area shape="rect" id="node140" href="$classwx_t_c_p_connection.html" title="A wxTCPClient object represents the connection between a client and a server." alt="" coords="175,4987,313,5013"/>
+<area shape="rect" id="node141" href="$classwx_t_c_p_server.html" title="A wxTCPServer object represents the server part of a client&#45;server conversation." alt="" coords="191,5037,297,5064"/>
+<area shape="rect" id="node142" href="$classwx_tool_bar_tool_base.html" title="A toolbar tool represents one item on the toolbar." alt="" coords="171,5088,317,5115"/>
+<area shape="rect" id="node143" href="$classwx_tool_tip.html" title="This class holds information about a tooltip associated with a window (see wxWindow::SetToolTip())." alt="" coords="201,5139,287,5165"/>
+<area shape="rect" id="node144" href="$classwx_u_r_i.html" title="wxURI is used to extract information from a URI (Uniform Resource Identifier)." alt="" coords="212,5189,276,5216"/>
+<area shape="rect" id="node145" href="$classwx_variant.html" title="The wxVariant class represents a container for any type." alt="" coords="201,5240,287,5267"/>
+<area shape="rect" id="node146" href="$classwx_web_view_factory.html" title="An abstract factory class for creating wxWebView backends." alt="" coords="170,5291,318,5317"/>
+<area shape="rect" id="node147" href="$classwx_xml_document.html" title="This class holds XML data/document as parsed by XML parser in the root node." alt="" coords="177,5341,311,5368"/>
+<area shape="rect" id="node148" href="$classwx_xml_resource.html" title="This is the main class for interacting with the XML&#45;based resource system." alt="" coords="181,5392,307,5419"/>
+<area shape="rect" id="node149" href="$classwx_xml_resource_handler.html" title="wxSizerXmlHandler is a class for resource handlers capable of creating a wxSizer object from an XML n..." alt="" coords="155,5443,333,5469"/>
+<area shape="rect" id="node6" href="$classwx_tar_class_factory.html" title="Class factory for the tar archive format." alt="" coords="457,107,600,133"/>
+<area shape="rect" id="node7" href="$classwx_zip_class_factory.html" title="Class factory for the zip archive format." alt="" coords="457,157,601,184"/>
+<area shape="rect" id="node9" href="$classwx_tar_entry.html" title="Holds the meta&#45;data for an entry in a tar." alt="" coords="481,208,576,235"/>
+<area shape="rect" id="node10" href="$classwx_zip_entry.html" title="Holds the meta&#45;data for an entry in a zip." alt="" coords="481,259,577,285"/>
+<area shape="rect" id="node20" href="$classwx_rich_text_command.html" title="Implements a command on the undo/redo stack." alt="" coords="447,385,610,412"/>
+<area shape="rect" id="node23" href="$classwx_file_config.html" title="wxFileConfig implements wxConfigBase interface for storing and retrieving configuration information u..." alt="" coords="476,436,581,463"/>
+<area shape="rect" id="node24" href="$classwx_reg_config.html" title="wxRegConfig implements the wxConfigBase interface for storing and retrieving configuration informatio..." alt="" coords="475,487,582,513"/>
+<area shape="rect" id="node27" href="$classwx_d_d_e_connection.html" title="A wxDDEConnection object represents the connection between a client and a server." alt="" coords="457,537,600,564"/>
+<area shape="rect" id="node31" href="$classwx_data_view_check_icon_text.html" title="wxDataViewCheckIconText is used by wxDataViewCheckIconTextRenderer for data transfer." alt="" coords="429,588,628,615"/>
+<area shape="rect" id="node33" href="$classwx_data_view_bitmap_renderer.html" title="This class is used by wxDataViewCtrl to render bitmaps." alt="" coords="423,639,634,665"/>
+<area shape="rect" id="node34" href="$classwx_data_view_check_icon_text_renderer.html" title="This renderer class shows a checkbox in addition to the icon and text shown by the base class and als..." alt="" coords="400,689,657,716"/>
+<area shape="rect" id="node35" href="$classwx_data_view_choice_renderer.html" title="A wxDataViewCtrl renderer using wxChoice control and values of strings in it." alt="" coords="425,740,632,767"/>
+<area shape="rect" id="node36" href="$classwx_data_view_custom_renderer.html" title="You need to derive a new class from wxDataViewCustomRenderer in order to write a new renderer." alt="" coords="422,791,635,817"/>
+<area shape="rect" id="node37" href="$classwx_data_view_date_renderer.html" title="This class is used by wxDataViewCtrl to render calendar controls." alt="" coords="431,841,626,868"/>
+<area shape="rect" id="node38" href="$classwx_data_view_icon_text_renderer.html" title="The wxDataViewIconTextRenderer class is used to display text with a small icon next to it as it is ty..." alt="" coords="420,892,637,919"/>
+<area shape="rect" id="node39" href="$classwx_data_view_progress_renderer.html" title="This class is used by wxDataViewCtrl to render progress bars." alt="" coords="419,943,638,969"/>
+<area shape="rect" id="node40" href="$classwx_data_view_text_renderer.html" title="wxDataViewTextRenderer is used for rendering text." alt="" coords="433,993,624,1020"/>
+<area shape="rect" id="node41" href="$classwx_data_view_toggle_renderer.html" title="This class is used by wxDataViewCtrl to render toggle controls." alt="" coords="426,1044,631,1071"/>
+<area shape="rect" id="node46" href="$classwx_activate_event.html" title="An activate event is sent when a window or application is being activated or deactivated." alt="" coords="463,1095,595,1121"/>
+<area shape="rect" id="node47" href="$classwx_aui_manager_event.html" title="Event used to indicate various actions taken with wxAuiManager." alt="" coords="451,1145,607,1172"/>
+<area shape="rect" id="node48" href="$classwx_calculate_layout_event.html" title="This event is sent by wxLayoutAlgorithm to calculate the amount of the remaining client area that the..." alt="" coords="437,1196,620,1223"/>
+<area shape="rect" id="node49" href="$classwx_close_event.html" title="This event class contains information about window and session close events." alt="" coords="471,1247,586,1273"/>
+<area shape="rect" id="node50" href="$classwx_command_event.html" title="This event class contains information about command events, which originate from a variety of simple ..." alt="" coords="456,1297,601,1324"/>
+<area shape="rect" id="node51" href="$classwx_d_p_i_changed_event.html" title="Event sent when the display scale factor or pixel density (measured in dots&#45;per&#45;inch,..." alt="" coords="450,1348,607,1375"/>
+<area shape="rect" id="node52" href="$classwx_dial_up_event.html" title="This is the event class for the dialup events sent by wxDialUpManager." alt="" coords="467,1399,590,1425"/>
+<area shape="rect" id="node53" href="$classwx_display_changed_event.html" title="A display changed event is sent to top&#45;level windows when the display resolution has changed." alt="" coords="437,1449,621,1476"/>
+<area shape="rect" id="node54" href="$classwx_drop_files_event.html" title="This class is used for drop files events, that is, when files have been dropped onto the window." alt="" coords="459,1500,598,1527"/>
+<area shape="rect" id="node55" href="$classwx_erase_event.html" title="An erase event is sent when a window&#39;s background needs to be repainted." alt="" coords="471,1551,586,1577"/>
+<area shape="rect" id="node56" href="$classwx_file_system_watcher_event.html" title="A class of events sent when a file system event occurs." alt="" coords="427,1601,630,1628"/>
+<area shape="rect" id="node57" href="$classwx_focus_event.html" title="A focus event is sent when a window&#39;s focus changes." alt="" coords="471,1652,586,1679"/>
+<area shape="rect" id="node58" href="$classwx_full_screen_event.html" title="An event being sent when the user enters or exits full screen mode." alt="" coords="456,1703,601,1729"/>
+<area shape="rect" id="node59" href="$classwx_gesture_event.html" title="This is the base class for all supported gesture events." alt="" coords="464,1753,593,1780"/>
+<area shape="rect" id="node60" href="$classwx_iconize_event.html" title="An event being sent when the frame is iconized (minimized) or restored." alt="" coords="467,1804,591,1831"/>
+<area shape="rect" id="node61" href="$classwx_idle_event.html" title="This class is used for idle events, which are generated when the system becomes idle." alt="" coords="477,1855,580,1881"/>
+<area shape="rect" id="node62" href="$classwx_init_dialog_event.html" title="A wxInitDialogEvent is sent as a dialog or panel is being initialised." alt="" coords="458,1905,599,1932"/>
+<area shape="rect" id="node63" href="$classwx_joystick_event.html" title="This event class contains information about joystick events, particularly events received by windows." alt="" coords="464,1956,593,1983"/>
+<area shape="rect" id="node64" href="$classwx_key_event.html" title="This event class contains information about key press and release events." alt="" coords="477,2007,580,2033"/>
+<area shape="rect" id="node65" href="$classwx_maximize_event.html" title="An event being sent when a top level window is maximized." alt="" coords="457,2057,600,2084"/>
+<area shape="rect" id="node66" href="$classwx_menu_event.html" title="This class is used for a variety of menu&#45;related events." alt="" coords="471,2108,586,2135"/>
+<area shape="rect" id="node67" href="$classwx_mouse_capture_changed_event.html" title="A mouse capture changed event is sent to a window that loses its mouse capture." alt="" coords="414,2159,643,2185"/>
+</map>

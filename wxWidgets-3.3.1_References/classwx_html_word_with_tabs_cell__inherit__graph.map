@@ -1,0 +1,6 @@
+<map id="wxHtmlWordWithTabsCell" name="wxHtmlWordWithTabsCell">
+<area shape="rect" id="node1" title="wxHtmlWordCell is a specialization for storing text fragments with embedded tab characters." alt="" coords="5,229,196,256"/>
+<area shape="rect" id="node2" href="$classwx_html_word_cell.html" title="This html cell represents a single word or text fragment in the document stream." alt="" coords="35,155,166,181"/>
+<area shape="rect" id="node3" href="$classwx_html_cell.html" title="Internal data structure." alt="" coords="51,80,150,107"/>
+<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="59,5,142,32"/>
+</map>

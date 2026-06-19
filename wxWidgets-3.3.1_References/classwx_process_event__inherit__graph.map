@@ -1,0 +1,5 @@
+<map id="wxProcessEvent" name="wxProcessEvent">
+<area shape="rect" id="node1" title="A process event is sent to the wxEvtHandler specified to wxProcess when a process is terminated." alt="" coords="5,155,133,181"/>
+<area shape="rect" id="node2" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="30,80,109,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="28,5,111,32"/>
+</map>

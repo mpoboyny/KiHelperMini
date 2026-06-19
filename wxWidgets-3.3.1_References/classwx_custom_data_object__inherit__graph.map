@@ -1,0 +1,6 @@
+<map id="wxCustomDataObject" name="wxCustomDataObject">
+<area shape="rect" id="node1" title="wxCustomDataObject is a specialization of wxDataObjectSimple for some application&#45;specific data in ar..." alt="" coords="5,155,169,181"/>
+<area shape="rect" id="node4" href="$classwx_image_data_object.html" title="wxImageDataObject is a specialization of wxDataObject for image data." alt="" coords="10,229,165,256"/>
+<area shape="rect" id="node2" href="$classwx_data_object_simple.html" title="This is the simplest possible implementation of the wxDataObject class." alt="" coords="8,80,167,107"/>
+<area shape="rect" id="node3" href="$classwx_data_object.html" title="A wxDataObject represents data that can be copied to or from the clipboard, or dragged and dropped." alt="" coords="30,5,145,32"/>
+</map>

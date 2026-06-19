@@ -1,0 +1,5 @@
+<map id="wxInfoDC" name="wxInfoDC">
+<area shape="rect" id="node1" title="Class used for querying the window device context." alt="" coords="24,155,109,181"/>
+<area shape="rect" id="node2" href="$classwx_read_only_d_c.html" title="Base class for device context not providing any drawing functions." alt="" coords="5,80,128,107"/>
+<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="25,5,108,32"/>
+</map>

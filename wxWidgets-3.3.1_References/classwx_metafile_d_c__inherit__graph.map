@@ -1,0 +1,6 @@
+<map id="wxMetafileDC" name="wxMetafileDC">
+<area shape="rect" id="node1" title="This is a type of device context that allows a metafile object to be created (Windows only),..." alt="" coords="10,229,123,256"/>
+<area shape="rect" id="node2" href="$classwx_d_c.html" title="A wxDC is a &quot;device context&quot; onto which graphics and text can be drawn." alt="" coords="37,155,97,181"/>
+<area shape="rect" id="node3" href="$classwx_read_only_d_c.html" title="Base class for device context not providing any drawing functions." alt="" coords="5,80,128,107"/>
+<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="25,5,108,32"/>
+</map>

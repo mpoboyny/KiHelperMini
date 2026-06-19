@@ -1,0 +1,4 @@
+<map id="wxAuiSerializer" name="wxAuiSerializer">
+<area shape="rect" id="node1" title="wxAuiSerializer is used by wxAuiManager::SaveLayout() to store layout information." alt="" coords="22,80,145,107"/>
+<area shape="rect" id="node2" href="$classwx_aui_book_serializer.html" title="wxAuiBookSerializer is used for serializing wxAuiNotebook layout." alt="" coords="5,5,161,32"/>
+</map>

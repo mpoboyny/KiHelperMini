@@ -1,0 +1,4 @@
+<map id="wxLogGui" name="wxLogGui">
+<area shape="rect" id="node1" title="This is the default log target for the GUI wxWidgets applications." alt="" coords="5,80,92,107"/>
+<area shape="rect" id="node2" href="$classwx_log.html" title="wxLog class defines the interface for the log targets used by wxWidgets logging functions as explaine..." alt="" coords="17,5,81,32"/>
+</map>

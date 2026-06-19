@@ -1,0 +1,13 @@
+<map id="wxWithImages" name="wxWithImages">
+<area shape="rect" id="node1" title="A mixin class to be used with other classes that use a wxImageList." alt="" coords="502,5,621,32"/>
+<area shape="rect" id="node2" href="$classwx_book_ctrl_base.html" title="A book control is a convenient way of displaying multiple pages of information, displayed one page at..." alt="" coords="430,80,559,107"/>
+<area shape="rect" id="node11" href="$classwx_tree_ctrl.html" title="A tree control presents information as a hierarchy, with items that may be expanded to show further i..." alt="" coords="584,80,675,107"/>
+<area shape="rect" id="node3" href="$classwx_aui_notebook.html" title="wxAuiNotebook is part of the wxAUI class framework, which represents a notebook control,..." alt="" coords="32,155,157,181"/>
+<area shape="rect" id="node5" href="$classwx_choicebook.html" title="wxChoicebook is a class similar to wxNotebook, but uses a wxChoice control to show the labels instead..." alt="" coords="181,155,299,181"/>
+<area shape="rect" id="node6" href="$classwx_listbook.html" title="wxListbook is a class similar to wxNotebook but which uses a wxListCtrl to show the labels instead of..." alt="" coords="323,155,419,181"/>
+<area shape="rect" id="node7" href="$classwx_notebook.html" title="This class represents a notebook control, which manages multiple windows with associated tabs." alt="" coords="443,155,547,181"/>
+<area shape="rect" id="node8" href="$classwx_simplebook.html" title="wxSimplebook is a control showing exactly one of its several pages." alt="" coords="571,155,690,181"/>
+<area shape="rect" id="node9" href="$classwx_toolbook.html" title="wxToolbook is a class similar to wxNotebook but which uses a wxToolBar to show the labels instead of ..." alt="" coords="715,155,813,181"/>
+<area shape="rect" id="node10" href="$classwx_treebook.html" title="This class is an extension of the wxNotebook class that allows a tree structured set of pages to be s..." alt="" coords="838,155,938,181"/>
+<area shape="rect" id="node4" href="$classwx_aui_m_d_i_client_window.html" title=" " alt="" coords="5,229,184,256"/>
+</map>

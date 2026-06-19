@@ -1,0 +1,8 @@
+<map id="wxPaintDC" name="wxPaintDC">
+<area shape="rect" id="node1" title="A wxPaintDC must be constructed if an application wishes to paint on the client area of a window from..." alt="" coords="21,379,113,405"/>
+<area shape="rect" id="node2" href="$classwx_client_d_c.html" title="Deprecated class for drawing on the client area of a window." alt="" coords="17,304,116,331"/>
+<area shape="rect" id="node3" href="$classwx_window_d_c.html" title="Deprecated class for drawing on the entire window." alt="" coords="11,229,123,256"/>
+<area shape="rect" id="node4" href="$classwx_d_c.html" title="A wxDC is a &quot;device context&quot; onto which graphics and text can be drawn." alt="" coords="37,155,97,181"/>
+<area shape="rect" id="node5" href="$classwx_read_only_d_c.html" title="Base class for device context not providing any drawing functions." alt="" coords="5,80,128,107"/>
+<area shape="rect" id="node6" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="25,5,108,32"/>
+</map>

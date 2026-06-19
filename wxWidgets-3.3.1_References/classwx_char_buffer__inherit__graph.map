@@ -1,0 +1,5 @@
+<map id="wxCharBuffer" name="wxCharBuffer">
+<area shape="rect" id="node1" title="This is a specialization of wxCharTypeBuffer&lt;T&gt; for char type." alt="" coords="63,155,173,181"/>
+<area shape="rect" id="node2" href="$classwx_char_type_buffer.html" title=" " alt="" coords="19,80,217,107"/>
+<area shape="rect" id="node3" href="$classwx_scoped_char_type_buffer.html" title="wxScopedCharTypeBuffer&lt;T&gt; is a template class for storing characters." alt="" coords="5,5,231,32"/>
+</map>
