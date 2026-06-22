@@ -50,8 +50,9 @@
 #include <vector>
 
 // frameMP
+#ifndef _MPTRACE_
 #define _MPTRACE_
-#define MP_UNICODE
+#endif
 
 #include "str.hxx"
 #include "trace.hxx"
