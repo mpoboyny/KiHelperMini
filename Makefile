@@ -7,7 +7,7 @@ OBJ_DIR_ROOT := $(BASE_DIR)/obj
 BIN_DIR_ROOT := $(BASE_DIR)/bin
 
 # --- Konfiguration ---
-TARGET_NAME := KiHelper
+TARGET_NAME := KiHelperMini
 OS_DEF      := LINUX_OS
 
 # System Libs (Reihenfolge: CUDA vor System/Math/GOMP)
@@ -53,6 +53,8 @@ release: $(PCH_GCH)
 	@echo "Copying required shared libraries..."
 	@LD_LIBRARY_PATH=$(WX_BASE_DIR)/build-gtk-release-shared_x64/lib ldd $(BIN_DIR)/$(TARGET_NAME) | awk '/=> \.\//{print $$3}' | xargs -I {} cp -L {} $(BIN_DIR)/
 	@strip --strip-unneeded $(BIN_DIR)/$(TARGET_NAME)
+	@echo Copying config.xml...
+	@cp -f "$(BASE_DIR)/config.xml" "$(BIN_DIR)/"
 
 # --- Run Phonies ---
 rund:

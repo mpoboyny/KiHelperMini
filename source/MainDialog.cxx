@@ -16,7 +16,7 @@
 
 CMainDialog::CMainDialog()
     : wxFrame(NULL, wxID_ANY, g_APP_NAME, wxDefaultPosition, wxSize(700, 500), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
-    /*, m_ConfFile(std::make_unique<ConfigFile>(new ConfigFile()) */
+    , m_ConfFile(std::make_unique<ConfigFile>())
 {
     TrFu;
     
@@ -27,10 +27,8 @@ CMainDialog::CMainDialog()
     SetMenuBar(m_menuBar);
     
     // wxFrame automatically handles sizing a single child wxPanel to fill its client area.
-    CMainDialogPanel* mainPanel = new CMainDialogPanel(this);
-    
-    Centre();
-    
+    new CMainDialogPanel(this);
+
     Bind(wxEVT_MENU, &CMainDialog::OnExit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &CMainDialog::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &CMainDialog::OnSettings, this, ID_SETTINGS);
@@ -48,7 +46,7 @@ void CMainDialog::OnAbout(wxCommandEvent& event)
     
     aboutInfo.SetName(g_APP_NAME);
     aboutInfo.SetVersion("1.0.0");
-    aboutInfo.SetDescription("Light AI Assistant Utility.\n\nThis program use llama-cli.\n\nBuilt with wxWidgets.\n\nIt is free software, no license, no warranty.\nYou use it on own risk ;)\n");
+    aboutInfo.SetDescription("Light AI Assistant Utility.\nThis program use llama.cpp.\nBuilt with wxWidgets.\nIt is free software, no license, no warranty.\nYou use it on own risk ;)\n");
     aboutInfo.SetCopyright("(C) 2026 Mykhaylo Poboynyy");
     // aboutInfo.SetWebSite("https://your-website.com");
     aboutInfo.SetIcon(wxIcon(app_xpm));

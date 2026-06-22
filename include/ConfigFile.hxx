@@ -7,8 +7,6 @@
 
 class ConfigFile
 {
-    static const char *s_DefaultConfig;
-
     wxXmlDocument *m_xmlDoc;
     wxString m_lastErrorMsg;
 
@@ -27,20 +25,11 @@ public:
         bool Current;
     };
 
-    static const wxString s_NoRole;
-    static const wxString s_NoRule;
-
-
-    static bool CheckDefaultConfigFile();
-
     ConfigFile();
     ~ConfigFile();
 
     bool HaveError(wxString &ErrorMsg) const;
     operator wxString() const;
-    wxString GetLogCheck(wxString &currModelName, wxString &currModelPath) const;
-    std::list<RoleInfo> GetRoles() const;
-    std::list<RuleInfo> GetRules() const;
 };
 
 #endif //CONFIG_FILE_HXX
