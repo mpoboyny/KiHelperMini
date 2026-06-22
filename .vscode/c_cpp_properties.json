@@ -1,0 +1,38 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/wxWidgets/3.3.1/include",
+                "${workspaceFolder}/wxWidgets/3.3.1/build-gtk-release-shared_x64/lib/wx/include/gtk3-unicode-3.3",
+                "/usr/include",
+                "/usr/local/include"
+            ],
+            "defines": [
+                "__WXGTK__",
+                "WXUSINGDLL",
+                "wxDEBUG_LEVEL=0",
+                "LINUX_OS"
+            ],
+            "forcedInclude": [
+                "${workspaceFolder}/include/prc.hxx"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "Win32",
+			"includePath": [
+                "${workspaceFolder}/include",
+				"${workspaceFolder}/wxWidgets/3.3.1/include",
+                "${workspaceFolder}/wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll/mswu"
+			],
+            "cStandard": "c17",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
