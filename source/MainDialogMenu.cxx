@@ -6,6 +6,7 @@
 #include "MainDialogMenu.hxx"
 
 #include "../resources/edit-4.xpm"
+#include "../resources/restart.xpm"
 
 CMainDialogMenu::CMainDialogMenu() 
     : wxMenuBar()
@@ -18,8 +19,16 @@ CMainDialogMenu::CMainDialogMenu()
     fileMenu->Append(exitItem);
     Append(fileMenu, "&File");
 
+    fileMenu->AppendSeparator();
+
+    // Reset menu (uses restart icon)
+    wxMenuItem* resetItem = new wxMenuItem(fileMenu, ID_RESET, "&Reset and reload\tCtrl-R", "Reset config and reload application");
+    resetItem->SetBitmap(wxBitmap(restart));
+    fileMenu->Append(resetItem);
+
+
     // Edit Menu
-    wxMenu *menuEdit = new wxMenu;
+    wxMenu* menuEdit = new wxMenu();
     wxMenuItem* settingsItem = new wxMenuItem(menuEdit, ID_SETTINGS, "Settings", "Open configuration settings");
     settingsItem->SetBitmap(wxBitmap(edit_xpm));
     menuEdit->Append(settingsItem);

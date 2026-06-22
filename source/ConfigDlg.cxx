@@ -110,6 +110,7 @@ void ConfigDlg::SaveConfig()
 
 void ConfigDlg::OnOK(wxCommandEvent &event)
 {
+    TrFu;
     if (IsModified()) {
         wxString currentXml = m_textCtrl->GetText();
         wxStringInputStream stream(currentXml);

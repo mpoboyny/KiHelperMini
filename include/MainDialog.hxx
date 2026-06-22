@@ -21,6 +21,7 @@ class CMainDialog : public wxFrame
         std::unique_ptr<ConfigFile> m_ConfFile;
 
         void OnExit(wxCommandEvent& event);
+        void OnReset(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void OnSettings(wxCommandEvent& event);
         void OnClose(wxCloseEvent& event);

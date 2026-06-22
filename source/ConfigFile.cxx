@@ -1,5 +1,6 @@
 #include "prc.hxx"
 #include "ConfigFile.hxx"
+#include <sstream>
 
 // Public
 ConfigFile::ConfigFile()
@@ -11,8 +12,9 @@ ConfigFile::ConfigFile()
     m_xmlDoc = new wxXmlDocument();
     if (!m_xmlDoc->Load(g_ConfFile, wxXMLDOC_NONE, &err)) {
         if (err.line != 0) {
+            TrStr(g_ConfFile);
             // Specific XML syntax error
-            m_lastErrorMsg = wxString::Format("XML Error: %s at line %d, col %d", err.message, err.line, err.column);
+            m_lastErrorMsg = wxString::Format("XML Error in %s: %s at line %d, col %d", g_ConfFileName, err.message, err.line, err.column);
         }
         else  {
             m_lastErrorMsg = wxString::Format("Error: Could not load: " + g_ConfFile);
@@ -40,6 +42,15 @@ ConfigFile::operator wxString() const
 {
     wxString Res;
     if (HaveError(Res)) {
+        // If there was an error parsing, return the original file contents
+        // so the GUI can show the (possibly malformed) file for editing.
+        std::ifstream in(g_ConfFile.ToStdString(), std::ios::in | std::ios::binary);
+        if (in) {
+            std::ostringstream ss;
+            ss << in.rdbuf();
+            std::string content = ss.str();
+            return wxString::FromUTF8(content);
+        }
         return "<!-- " + Res + " -->";
     }
     wxStringOutputStream stream;

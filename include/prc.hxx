@@ -64,12 +64,21 @@ extern const wchar_t           *g_DefaultTxtFontName;
 
 extern const wchar_t           *g_APP_NAME;
 extern const wxString          g_ConfDir;
+extern const wxString          g_ConfFileName;
 extern const wxString          g_ConfFile;
+
+enum GuiStatus
+{
+    GuiStatus_Info,
+    GuiStatus_Warn,
+    GuiStatus_Erro
+};
 
 enum MenusIDs
 {
     ID_SETTINGS   = wxID_HIGHEST + 50,
-    ID_MODEL_INFO = wxID_HIGHEST + 51
+    ID_MODEL_INFO = wxID_HIGHEST + 51,
+    ID_RESET      = wxID_HIGHEST + 52
 };
 
 enum ButtIDs

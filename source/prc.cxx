@@ -19,12 +19,14 @@ const wxString g_ConfDir = []() {
     return fn.GetPathWithSep();
 }();
 
+const wxString g_ConfFileName = L"config.xml";
+
 const wxString g_ConfFile = []() {
-    wxString targetPath = g_ConfDir + L"config.xml";
+    wxString targetPath = g_ConfDir + g_ConfFileName;
     wxFileName targetFn(targetPath);
     if (!targetFn.FileExists()) {
         wxFileName exeFn(wxStandardPaths::Get().GetExecutablePath());
-        wxString srcPath = exeFn.GetPathWithSep() + L"config.xml";
+        wxString srcPath = exeFn.GetPathWithSep() + g_ConfFileName;
         wxFileName srcFn(srcPath);
         if (srcFn.FileExists()) {
             wxCopyFile(srcPath, targetPath);

@@ -16,7 +16,7 @@
 
 
 CMainDialog::CMainDialog()
-    : wxFrame(NULL, wxID_ANY, g_APP_NAME, wxDefaultPosition, wxSize(700, 500), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
+    : wxFrame(NULL, wxID_ANY, g_APP_NAME, wxDefaultPosition, wxSize(900, 700), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
     , m_ConfFile(std::make_unique<ConfigFile>())
 {
     TrFu;
@@ -35,13 +35,31 @@ CMainDialog::CMainDialog()
     SetStatusBar(m_statusBar);
 
     Bind(wxEVT_MENU, &CMainDialog::OnExit, this, wxID_EXIT);
+    Bind(wxEVT_MENU, &CMainDialog::OnReset, this, ID_RESET);
     Bind(wxEVT_MENU, &CMainDialog::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &CMainDialog::OnSettings, this, ID_SETTINGS);
     Bind(wxEVT_CLOSE_WINDOW, &CMainDialog::OnClose, this);
+
+    wxString msg;
+    if (m_ConfFile->HaveError(msg))
+        m_statusBar->ShowMessage(GuiStatus::GuiStatus_Erro, msg);
+    else
+        m_statusBar->ShowReady();
 }
 
-void CMainDialog::OnExit(wxCommandEvent& event) 
+void CMainDialog::OnExit(wxCommandEvent &event)
 {
+    Close(true);
+}
+
+void CMainDialog::OnReset(wxCommandEvent &event)
+{
+    // remove existing config file if present, then restart
+    if (wxFileName::FileExists(g_ConfFile)) {
+        wxRemoveFile(g_ConfFile);
+    }
+
+    wxExecute(wxStandardPaths::Get().GetExecutablePath());
     Close(true);
 }
 
@@ -60,8 +78,18 @@ void CMainDialog::OnAbout(wxCommandEvent& event)
 
 void CMainDialog::OnSettings(wxCommandEvent& event) 
 {
-    ConfigDlg dlg(this);
-    dlg.ShowModal();
+    TrFu;
+    ConfigDlg* dlg = new ConfigDlg(this);
+    if (dlg->ShowModal() == wxID_OK) {
+        if (dlg->IsModified()) {
+            dlg->SaveConfig();
+            wxExecute(wxStandardPaths::Get().GetExecutablePath());
+            dlg->Destroy();
+            Close(true);
+            return;
+        }
+    }
+    dlg->Destroy();
 }
 
 void CMainDialog::OnClose(wxCloseEvent& event) 
