@@ -1,5 +1,0 @@
-<map id="wxMemoryFSHandler" name="wxMemoryFSHandler">
-<area shape="rect" id="node1" title="This wxFileSystem handler can store arbitrary data in memory stream and make them accessible via an U..." alt="" coords="7,155,168,181"/>
-<area shape="rect" id="node2" href="$classwx_file_system_handler.html" title="Classes derived from wxFileSystemHandler are used to access virtual file systems." alt="" coords="5,80,169,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="46,5,129,32"/>
-</map>

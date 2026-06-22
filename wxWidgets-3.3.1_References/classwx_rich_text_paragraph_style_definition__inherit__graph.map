@@ -1,6 +1,0 @@
-<map id="wxRichTextParagraphStyleDefinition" name="wxRichTextParagraphStyleDefinition">
-<area shape="rect" id="node1" title="This class represents a paragraph style definition, usually added to a wxRichTextStyleSheet." alt="" coords="15,155,210,196"/>
-<area shape="rect" id="node4" href="$classwx_rich_text_list_style_definition.html" title="This class represents a list style definition, usually added to a wxRichTextStyleSheet." alt="" coords="5,244,220,271"/>
-<area shape="rect" id="node2" href="$classwx_rich_text_style_definition.html" title="This is a base class for paragraph and character styles." alt="" coords="17,80,209,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="71,5,154,32"/>
-</map>

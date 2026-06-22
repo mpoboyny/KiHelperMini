@@ -1,5 +1,0 @@
-<map id="wxSVGBitmapHandler" name="wxSVGBitmapHandler">
-<area shape="rect" id="node1" title="Abstract base class for handling bitmaps inside a wxSVGFileDC." alt="" coords="139,5,306,32"/>
-<area shape="rect" id="node2" href="$classwx_s_v_g_bitmap_embed_handler.html" title="Handler embedding bitmaps as base64&#45;encoded PNGs into the SVG." alt="" coords="5,80,216,107"/>
-<area shape="rect" id="node3" href="$classwx_s_v_g_bitmap_file_handler.html" title="Handler saving bitmaps to external PNG files and linking to it from the SVG." alt="" coords="240,80,429,107"/>
-</map>

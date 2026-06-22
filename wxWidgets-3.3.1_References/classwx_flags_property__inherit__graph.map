@@ -1,5 +1,0 @@
-<map id="wxFlagsProperty" name="wxFlagsProperty">
-<area shape="rect" id="node1" title="Represents a bit set that fits in a long integer." alt="" coords="5,155,136,181"/>
-<area shape="rect" id="node2" href="$classwx_p_g_property.html" title="wxPGProperty is base class for all wxPropertyGrid properties and as such it is not intended to be ins..." alt="" coords="13,80,128,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="29,5,112,32"/>
-</map>

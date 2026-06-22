@@ -1,9 +1,0 @@
-<map id="wxMBConv" name="wxMBConv">
-<area shape="rect" id="node1" title="This class is the base class of a hierarchy of classes capable of converting text strings between mul..." alt="" coords="350,5,445,32"/>
-<area shape="rect" id="node2" href="$classwx_c_s_conv.html" title="This class converts between any character set supported by the system and Unicode." alt="" coords="5,80,96,107"/>
-<area shape="rect" id="node3" href="$classwx_conv_auto.html" title="This class implements a Unicode to/from multibyte converter capable of automatically recognizing the ..." alt="" coords="120,80,224,107"/>
-<area shape="rect" id="node4" href="$classwx_m_b_conv_u_t_f16.html" title="This class is used to convert between multibyte encodings and UTF&#45;16 Unicode encoding (also known as ..." alt="" coords="249,80,386,107"/>
-<area shape="rect" id="node5" href="$classwx_m_b_conv_u_t_f32.html" title="This class is used to convert between multibyte encodings and UTF&#45;32 Unicode encoding (also known as ..." alt="" coords="410,80,547,107"/>
-<area shape="rect" id="node6" href="$classwx_m_b_conv_u_t_f7.html" title="This class converts between the UTF&#45;7 encoding and Unicode." alt="" coords="571,80,701,107"/>
-<area shape="rect" id="node7" href="$classwx_m_b_conv_u_t_f8.html" title="This class converts between the UTF&#45;8 encoding and Unicode." alt="" coords="725,80,854,107"/>
-</map>

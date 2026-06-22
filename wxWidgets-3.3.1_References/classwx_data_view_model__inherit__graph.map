@@ -1,9 +1,0 @@
-<map id="wxDataViewModel" name="wxDataViewModel">
-<area shape="rect" id="node1" title="wxDataViewModel is the base class for all data model to be displayed by a wxDataViewCtrl." alt="" coords="244,80,388,107"/>
-<area shape="rect" id="node3" href="$classwx_data_view_list_model.html" title="Base class with abstract API for wxDataViewIndexListModel and wxDataViewVirtualListModel." alt="" coords="138,155,305,181"/>
-<area shape="rect" id="node7" href="$classwx_data_view_tree_store.html" title="wxDataViewTreeStore is a specialised wxDataViewModel for storing simple trees very much like wxTreeCt..." alt="" coords="329,155,495,181"/>
-<area shape="rect" id="node2" href="$classwx_ref_counter.html" title="This class is used to manage reference&#45;counting providing a simple interface and a counter." alt="" coords="259,5,373,32"/>
-<area shape="rect" id="node4" href="$classwx_data_view_index_list_model.html" title="wxDataViewIndexListModel is a specialized data model which lets you address an item by its position (..." alt="" coords="5,229,208,256"/>
-<area shape="rect" id="node6" href="$classwx_data_view_virtual_list_model.html" title="wxDataViewVirtualListModel is a specialized data model which lets you address an item by its position..." alt="" coords="232,229,443,256"/>
-<area shape="rect" id="node5" href="$classwx_data_view_list_store.html" title="wxDataViewListStore is a specialised wxDataViewModel for storing a simple table of data." alt="" coords="26,304,187,331"/>
-</map>

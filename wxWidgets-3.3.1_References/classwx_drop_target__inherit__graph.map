@@ -1,5 +1,0 @@
-<map id="wxDropTarget" name="wxDropTarget">
-<area shape="rect" id="node1" title="This class represents a target for a drag and drop operation." alt="" coords="97,5,209,32"/>
-<area shape="rect" id="node2" href="$classwx_file_drop_target.html" title="This is a drop target which accepts files (dragged from File Manager or Explorer)." alt="" coords="5,80,140,107"/>
-<area shape="rect" id="node3" href="$classwx_text_drop_target.html" title="A predefined drop target for dealing with text data." alt="" coords="165,80,303,107"/>
-</map>

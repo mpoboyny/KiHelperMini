@@ -1,6 +1,0 @@
-<map id="wxPropertyGridInterface" name="wxPropertyGridInterface">
-<area shape="rect" id="node1" title="Most of the shared property manipulation interface shared by wxPropertyGrid, wxPropertyGridPage,..." alt="" coords="152,5,333,32"/>
-<area shape="rect" id="node2" href="$classwx_property_grid.html" title="wxPropertyGrid is a specialized grid for editing properties &#45; in other words name = value pairs." alt="" coords="5,80,128,107"/>
-<area shape="rect" id="node3" href="$classwx_property_grid_manager.html" title="wxPropertyGridManager is an efficient multi&#45;page version of wxPropertyGrid, which can optionally have..." alt="" coords="153,80,333,107"/>
-<area shape="rect" id="node4" href="$classwx_property_grid_page.html" title="Holder of property grid page information." alt="" coords="357,80,512,107"/>
-</map>

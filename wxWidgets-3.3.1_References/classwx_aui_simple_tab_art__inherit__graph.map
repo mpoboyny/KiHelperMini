@@ -1,4 +1,0 @@
-<map id="wxAuiSimpleTabArt" name="wxAuiSimpleTabArt">
-<area shape="rect" id="node1" title="Another standard tab art provider for wxAuiNotebook." alt="" coords="5,80,153,107"/>
-<area shape="rect" id="node2" href="$classwx_aui_tab_art.html" title="Tab art provider defines all the drawing functions used by wxAuiNotebook." alt="" coords="28,5,131,32"/>
-</map>

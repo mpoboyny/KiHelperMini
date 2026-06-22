@@ -1,5 +1,0 @@
-<map id="wxTempFFileOutputStream" name="wxTempFFileOutputStream">
-<area shape="rect" id="node1" title="wxTempFFileOutputStream is an output stream based on wxTempFFile." alt="" coords="5,155,204,181"/>
-<area shape="rect" id="node2" href="$classwx_output_stream.html" title="wxOutputStream is an abstract base class which may not be used directly." alt="" coords="39,80,171,107"/>
-<area shape="rect" id="node3" href="$classwx_stream_base.html" title="This class is the base class of most stream related classes in wxWidgets." alt="" coords="45,5,165,32"/>
-</map>

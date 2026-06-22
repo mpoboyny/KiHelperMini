@@ -1,6 +1,0 @@
-<map id="wxPanGestureEvent" name="wxPanGestureEvent">
-<area shape="rect" id="node1" title="This event is generated when the user moves a finger on the surface." alt="" coords="5,229,157,256"/>
-<area shape="rect" id="node2" href="$classwx_gesture_event.html" title="This is the base class for all supported gesture events." alt="" coords="17,155,146,181"/>
-<area shape="rect" id="node3" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="42,80,121,107"/>
-<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="40,5,123,32"/>
-</map>

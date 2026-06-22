@@ -1,6 +1,0 @@
-<map id="wxContextMenuEvent" name="wxContextMenuEvent">
-<area shape="rect" id="node1" title="This class is used for context menu events, sent to give the application a chance to show a context (..." alt="" coords="5,229,171,256"/>
-<area shape="rect" id="node2" href="$classwx_command_event.html" title="This event class contains information about command events, which originate from a variety of simple ..." alt="" coords="15,155,161,181"/>
-<area shape="rect" id="node3" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="49,80,127,107"/>
-<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="47,5,129,32"/>
-</map>

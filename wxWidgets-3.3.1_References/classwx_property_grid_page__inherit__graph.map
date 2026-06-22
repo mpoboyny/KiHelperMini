@@ -1,8 +1,0 @@
-<map id="wxPropertyGridPage" name="wxPropertyGridPage">
-<area shape="rect" id="node1" title="Holder of property grid page information." alt="" coords="200,155,355,181"/>
-<area shape="rect" id="node2" href="$classwx_evt_handler.html" title="A class that can handle events from the windowing system." alt="" coords="49,80,162,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="5,5,88,32"/>
-<area shape="rect" id="node4" href="$classwx_trackable.html" title="Add&#45;on base class for a trackable object." alt="" coords="113,5,215,32"/>
-<area shape="rect" id="node5" href="$classwx_property_grid_interface.html" title="Most of the shared property manipulation interface shared by wxPropertyGrid, wxPropertyGridPage,..." alt="" coords="187,80,368,107"/>
-<area shape="rect" id="node6" href="$classwx_property_grid_page_state.html" title="Contains low&#45;level property page information (properties, column widths, etc.) of a single wxProperty..." alt="" coords="393,80,581,107"/>
-</map>

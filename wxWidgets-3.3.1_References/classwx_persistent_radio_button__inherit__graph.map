@@ -1,5 +1,0 @@
-<map id="wxPersistentRadioButton" name="wxPersistentRadioButton">
-<area shape="rect" id="node1" title="Persistence adapter for wxRadioButton controls." alt="" coords="5,169,192,196"/>
-<area shape="rect" id="node2" href="$classwx_persistent_window.html" title=" " alt="" coords="19,80,178,121"/>
-<area shape="rect" id="node3" href="$classwx_persistent_object.html" title="Base class for persistent object adapters." alt="" coords="25,5,173,32"/>
-</map>

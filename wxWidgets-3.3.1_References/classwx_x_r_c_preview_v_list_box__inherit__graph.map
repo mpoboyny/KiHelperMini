@@ -1,8 +1,0 @@
-<map id="wxXRCPreviewVListBox" name="wxXRCPreviewVListBox">
-<area shape="rect" id="node1" title="GUI editors, e.g., wxFormBuilder, typically allow users to lay out instances of controls." alt="" coords="5,304,183,331"/>
-<area shape="rect" id="node2" href="$classwx_v_list_box.html" title="wxVListBox is a wxListBox&#45;like control with the following two main differences from a regular wxListB..." alt="" coords="45,229,143,256"/>
-<area shape="rect" id="node3" href="$classwx_v_scrolled.html" title="In the name of this class, &quot;V&quot; may stand for &quot;variable&quot; because it can be used for scrolling rows of ..." alt="" coords="17,155,171,181"/>
-<area shape="rect" id="node4" title=" " alt="" coords="16,80,55,107"/>
-<area shape="rect" id="node5" href="$classwx_var_v_scroll_helper.html" title="This class provides functions wrapping the wxVarScrollHelperBase class, targeted for vertical&#45;specifi..." alt="" coords="79,80,229,107"/>
-<area shape="rect" id="node6" href="$classwx_var_scroll_helper_base.html" title="This class provides all common base functionality for scroll calculations shared among all variable s..." alt="" coords="67,5,241,32"/>
-</map>

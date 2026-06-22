@@ -1,9 +1,0 @@
-<map id="wxEnumProperty" name="wxEnumProperty">
-<area shape="rect" id="node1" title="You can derive custom properties with choices from this class." alt="" coords="181,155,315,181"/>
-<area shape="rect" id="node4" href="$classwx_cursor_property.html" title="Property representing wxCursor." alt="" coords="5,229,144,256"/>
-<area shape="rect" id="node5" href="$classwx_edit_enum_property.html" title="wxEnumProperty with wxString value and writable combo box editor." alt="" coords="169,229,327,256"/>
-<area shape="rect" id="node6" href="$classwx_system_colour_property.html" title="Has dropdown list of wxWidgets system colours." alt="" coords="352,229,539,256"/>
-<area shape="rect" id="node2" href="$classwx_p_g_property.html" title="wxPGProperty is base class for all wxPropertyGrid properties and as such it is not intended to be ins..." alt="" coords="191,80,305,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="207,5,289,32"/>
-<area shape="rect" id="node7" href="$classwx_colour_property.html" title="Allows to select a colour from the list or with colour dialog." alt="" coords="376,304,515,331"/>
-</map>

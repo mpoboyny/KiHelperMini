@@ -1,5 +1,0 @@
-<map id="wxBitmapDataObject" name="wxBitmapDataObject">
-<area shape="rect" id="node1" title="wxBitmapDataObject is a specialization of wxDataObject for bitmap data." alt="" coords="5,155,167,181"/>
-<area shape="rect" id="node2" href="$classwx_data_object_simple.html" title="This is the simplest possible implementation of the wxDataObject class." alt="" coords="7,80,165,107"/>
-<area shape="rect" id="node3" href="$classwx_data_object.html" title="A wxDataObject represents data that can be copied to or from the clipboard, or dragged and dropped." alt="" coords="29,5,143,32"/>
-</map>

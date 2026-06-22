@@ -1,6 +1,0 @@
-<map id="wxWebViewChromiumEvent" name="wxWebViewChromiumEvent">
-<area shape="rect" id="node1" title="Event class for events generated exclusively by wxWebViewChromium." alt="" coords="5,229,212,256"/>
-<area shape="rect" id="node2" href="$classwx_command_event.html" title="This event class contains information about command events, which originate from a variety of simple ..." alt="" coords="36,155,181,181"/>
-<area shape="rect" id="node3" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="69,80,148,107"/>
-<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="67,5,150,32"/>
-</map>

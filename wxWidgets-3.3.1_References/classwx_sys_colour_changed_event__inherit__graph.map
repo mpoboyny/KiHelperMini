@@ -1,5 +1,0 @@
-<map id="wxSysColourChangedEvent" name="wxSysColourChangedEvent">
-<area shape="rect" id="node1" title="This class is used for system colour change events, which are generated when the user changes the col..." alt="" coords="5,155,205,181"/>
-<area shape="rect" id="node2" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="66,80,145,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="64,5,147,32"/>
-</map>

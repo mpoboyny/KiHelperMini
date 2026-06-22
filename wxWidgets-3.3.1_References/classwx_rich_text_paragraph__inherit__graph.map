@@ -1,6 +1,0 @@
-<map id="wxRichTextParagraph" name="wxRichTextParagraph">
-<area shape="rect" id="node1" title="This object represents a single paragraph containing various objects such as text content,..." alt="" coords="29,229,190,256"/>
-<area shape="rect" id="node2" href="$classwx_rich_text_composite_object.html" title="Objects of this class can contain other objects." alt="" coords="5,155,213,181"/>
-<area shape="rect" id="node3" href="$classwx_rich_text_object.html" title="This is the base for drawable rich text objects." alt="" coords="40,80,179,107"/>
-<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="68,5,151,32"/>
-</map>

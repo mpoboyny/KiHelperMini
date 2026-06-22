@@ -1,6 +1,0 @@
-<map id="wxConfigBase" name="wxConfigBase">
-<area shape="rect" id="node1" title="wxConfigBase defines the basic interface of all config classes." alt="" coords="66,80,181,107"/>
-<area shape="rect" id="node3" href="$classwx_file_config.html" title="wxFileConfig implements wxConfigBase interface for storing and retrieving configuration information u..." alt="" coords="5,155,111,181"/>
-<area shape="rect" id="node4" href="$classwx_reg_config.html" title="wxRegConfig implements the wxConfigBase interface for storing and retrieving configuration informatio..." alt="" coords="135,155,242,181"/>
-<area shape="rect" id="node2" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="82,5,165,32"/>
-</map>

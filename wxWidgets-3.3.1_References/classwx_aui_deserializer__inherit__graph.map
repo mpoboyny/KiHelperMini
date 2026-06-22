@@ -1,4 +1,0 @@
-<map id="wxAuiDeserializer" name="wxAuiDeserializer">
-<area shape="rect" id="node1" title="wxAuiDeserializer is used by wxAuiManager::LoadLayout() to restore layout information saved by wxAuiM..." alt="" coords="22,80,162,107"/>
-<area shape="rect" id="node2" href="$classwx_aui_book_deserializer.html" title="wxAuiBookDeserializer is used for deserializing wxAuiNotebook layout." alt="" coords="5,5,179,32"/>
-</map>

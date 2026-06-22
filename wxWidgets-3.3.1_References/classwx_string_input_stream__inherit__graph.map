@@ -1,5 +1,0 @@
-<map id="wxStringInputStream" name="wxStringInputStream">
-<area shape="rect" id="node1" title="This class implements an input stream which reads data from a string." alt="" coords="5,155,164,181"/>
-<area shape="rect" id="node2" href="$classwx_input_stream.html" title="wxInputStream is an abstract base class which may not be used directly." alt="" coords="24,80,145,107"/>
-<area shape="rect" id="node3" href="$classwx_stream_base.html" title="This class is the base class of most stream related classes in wxWidgets." alt="" coords="25,5,145,32"/>
-</map>

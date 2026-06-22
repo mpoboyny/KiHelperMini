@@ -1,6 +1,0 @@
-<map id="wxPrintout" name="wxPrintout">
-<area shape="rect" id="node1" title="This class encapsulates the functionality of printing out an application document." alt="" coords="101,80,193,107"/>
-<area shape="rect" id="node3" href="$classwx_html_printout.html" title="This class serves as printout class for HTML documents." alt="" coords="5,155,129,181"/>
-<area shape="rect" id="node4" href="$classwx_rich_text_printout.html" title="This class implements print layout for wxRichTextBuffer." alt="" coords="154,155,301,181"/>
-<area shape="rect" id="node2" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="106,5,189,32"/>
-</map>

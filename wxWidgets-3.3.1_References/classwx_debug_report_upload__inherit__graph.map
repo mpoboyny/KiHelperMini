@@ -1,5 +1,0 @@
-<map id="wxDebugReportUpload" name="wxDebugReportUpload">
-<area shape="rect" id="node1" title="This class is used to upload a compressed file using HTTP POST request." alt="" coords="15,155,187,181"/>
-<area shape="rect" id="node2" href="$classwx_debug_report_compress.html" title="wxDebugReportCompress is a wxDebugReport which compresses all the files in this debug report into a s..." alt="" coords="5,80,196,107"/>
-<area shape="rect" id="node3" href="$classwx_debug_report.html" title="wxDebugReport is used to generate a debug report, containing information about the program current st..." alt="" coords="37,5,164,32"/>
-</map>

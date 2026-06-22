@@ -1,6 +1,0 @@
-<map id="wxBufferedOutputStream" name="wxBufferedOutputStream">
-<area shape="rect" id="node1" title="This stream acts as a cache." alt="" coords="5,229,192,256"/>
-<area shape="rect" id="node2" href="$classwx_filter_output_stream.html" title="A filter stream has the capability of a normal stream but it can be placed on top of another stream." alt="" coords="16,155,181,181"/>
-<area shape="rect" id="node3" href="$classwx_output_stream.html" title="wxOutputStream is an abstract base class which may not be used directly." alt="" coords="33,80,165,107"/>
-<area shape="rect" id="node4" href="$classwx_stream_base.html" title="This class is the base class of most stream related classes in wxWidgets." alt="" coords="39,5,159,32"/>
-</map>

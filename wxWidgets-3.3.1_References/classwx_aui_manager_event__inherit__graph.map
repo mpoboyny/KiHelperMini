@@ -1,5 +1,0 @@
-<map id="wxAuiManagerEvent" name="wxAuiManagerEvent">
-<area shape="rect" id="node1" title="Event used to indicate various actions taken with wxAuiManager." alt="" coords="5,155,161,181"/>
-<area shape="rect" id="node2" href="$classwx_event.html" title="An event is a structure holding information about an event passed to a callback or member function." alt="" coords="44,80,123,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="42,5,125,32"/>
-</map>

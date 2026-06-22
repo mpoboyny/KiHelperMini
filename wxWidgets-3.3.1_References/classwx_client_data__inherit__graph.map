@@ -1,5 +1,0 @@
-<map id="wxClientData" name="wxClientData">
-<area shape="rect" id="node1" title="All classes deriving from wxEvtHandler (such as all controls and wxApp) can hold arbitrary data which..." alt="" coords="105,5,216,32"/>
-<area shape="rect" id="node2" href="$classwx_string_client_data.html" title="Predefined client data class for holding a string." alt="" coords="5,80,153,107"/>
-<area shape="rect" id="node3" href="$classwx_tree_item_data.html" title="wxTreeItemData is some (arbitrary) user class associated with some item." alt="" coords="177,80,307,107"/>
-</map>

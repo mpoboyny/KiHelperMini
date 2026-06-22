@@ -1,8 +1,0 @@
-<map id="wxArchiveInputStream" name="wxArchiveInputStream">
-<area shape="rect" id="node1" title="This is an abstract base class which serves as a common interface to archive input streams such as wx..." alt="" coords="73,229,243,256"/>
-<area shape="rect" id="node5" href="$classwx_tar_input_stream.html" title="Input stream for reading tar files." alt="" coords="5,304,145,331"/>
-<area shape="rect" id="node6" href="$classwx_zip_input_stream.html" title="Input stream for reading zip files." alt="" coords="169,304,312,331"/>
-<area shape="rect" id="node2" href="$classwx_filter_input_stream.html" title="A filter stream has the capability of a normal stream but it can be placed on top of another stream." alt="" coords="81,155,235,181"/>
-<area shape="rect" id="node3" href="$classwx_input_stream.html" title="wxInputStream is an abstract base class which may not be used directly." alt="" coords="97,80,219,107"/>
-<area shape="rect" id="node4" href="$classwx_stream_base.html" title="This class is the base class of most stream related classes in wxWidgets." alt="" coords="98,5,218,32"/>
-</map>

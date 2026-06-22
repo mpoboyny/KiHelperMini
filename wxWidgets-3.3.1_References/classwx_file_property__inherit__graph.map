@@ -1,7 +1,0 @@
-<map id="wxFileProperty" name="wxFileProperty">
-<area shape="rect" id="node1" title="Like wxLongStringProperty, but the button triggers file selector instead." alt="" coords="34,229,153,256"/>
-<area shape="rect" id="node5" href="$classwx_image_file_property.html" title="Property representing image file(name)." alt="" coords="13,304,173,331"/>
-<area shape="rect" id="node2" href="$classwx_editor_dialog_property.html" title="This is an abstract class which serves as a base class for the properties having a button triggering ..." alt="" coords="5,155,181,181"/>
-<area shape="rect" id="node3" href="$classwx_p_g_property.html" title="wxPGProperty is base class for all wxPropertyGrid properties and as such it is not intended to be ins..." alt="" coords="36,80,151,107"/>
-<area shape="rect" id="node4" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="52,5,135,32"/>
-</map>

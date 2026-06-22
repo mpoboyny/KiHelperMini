@@ -1,5 +1,0 @@
-<map id="wxAuiDockLayoutInfo" name="wxAuiDockLayoutInfo">
-<area shape="rect" id="node1" title="Description of a docked element layout." alt="" coords="95,5,259,32"/>
-<area shape="rect" id="node2" href="$structwx_aui_pane_layout_info.html" title="Description of user&#45;modifiable pane layout information." alt="" coords="5,80,168,107"/>
-<area shape="rect" id="node3" href="$structwx_aui_tab_layout_info.html" title="Contains information about the layout of a tab control in a wxAuiNotebook." alt="" coords="193,80,346,107"/>
-</map>

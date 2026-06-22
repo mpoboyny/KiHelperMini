@@ -1,6 +1,0 @@
-<map id="wxDataViewChoiceRenderer" name="wxDataViewChoiceRenderer">
-<area shape="rect" id="node1" title="A wxDataViewCtrl renderer using wxChoice control and values of strings in it." alt="" coords="32,155,239,181"/>
-<area shape="rect" id="node4" href="$classwx_data_view_choice_by_index_renderer.html" title="A wxDataViewCtrl renderer using wxChoice control and indexes into it." alt="" coords="5,229,265,256"/>
-<area shape="rect" id="node2" href="$classwx_data_view_renderer.html" title="This class is used by wxDataViewCtrl to render the individual cells." alt="" coords="54,80,217,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="94,5,177,32"/>
-</map>

@@ -1,4 +1,0 @@
-<map id="wxTestingModalHook" name="wxTestingModalHook">
-<area shape="rect" id="node1" title="Implementation of wxModalDialogHook for use in testing." alt="" coords="5,80,167,107"/>
-<area shape="rect" id="node2" href="$classwx_modal_dialog_hook.html" title="Allows intercepting all modal dialog calls." alt="" coords="7,5,165,32"/>
-</map>

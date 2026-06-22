@@ -1,6 +1,0 @@
-<map id="wxZlibOutputStream" name="wxZlibOutputStream">
-<area shape="rect" id="node1" title="This stream compresses all data written to it." alt="" coords="9,229,167,256"/>
-<area shape="rect" id="node2" href="$classwx_filter_output_stream.html" title="A filter stream has the capability of a normal stream but it can be placed on top of another stream." alt="" coords="5,155,171,181"/>
-<area shape="rect" id="node3" href="$classwx_output_stream.html" title="wxOutputStream is an abstract base class which may not be used directly." alt="" coords="22,80,154,107"/>
-<area shape="rect" id="node4" href="$classwx_stream_base.html" title="This class is the base class of most stream related classes in wxWidgets." alt="" coords="28,5,148,32"/>
-</map>

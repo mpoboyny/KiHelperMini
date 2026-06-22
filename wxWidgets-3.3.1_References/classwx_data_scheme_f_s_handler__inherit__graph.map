@@ -1,5 +1,0 @@
-<map id="wxDataSchemeFSHandler" name="wxDataSchemeFSHandler">
-<area shape="rect" id="node1" title="File system handler for &quot;data&quot; URI scheme (RFC 2397)." alt="" coords="5,155,196,181"/>
-<area shape="rect" id="node2" href="$classwx_file_system_handler.html" title="Classes derived from wxFileSystemHandler are used to access virtual file systems." alt="" coords="19,80,183,107"/>
-<area shape="rect" id="node3" href="$classwx_object.html" title="This is the root class of many of the wxWidgets classes." alt="" coords="59,5,142,32"/>
-</map>
