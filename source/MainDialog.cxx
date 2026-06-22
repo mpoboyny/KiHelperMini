@@ -9,6 +9,7 @@
 #include "MainDialogPanel.hxx"
 
 #include "MainDialog.hxx"
+#include "MainDialogStatusBar.hxx"
 
 #include "../resources/app.xpm"
 
@@ -28,6 +29,10 @@ CMainDialog::CMainDialog()
     
     // wxFrame automatically handles sizing a single child wxPanel to fill its client area.
     new CMainDialogPanel(this);
+
+    // create and register status bar so wxFrame lays it out at the bottom
+    m_statusBar = new CMainDialogStatusBar(this);
+    SetStatusBar(m_statusBar);
 
     Bind(wxEVT_MENU, &CMainDialog::OnExit, this, wxID_EXIT);
     Bind(wxEVT_MENU, &CMainDialog::OnAbout, this, wxID_ABOUT);

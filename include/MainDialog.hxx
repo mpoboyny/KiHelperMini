@@ -7,10 +7,12 @@
 
 class CMainDialogMenu;
 class ConfigFile;
+class CMainDialogStatusBar;
 
 class CMainDialog : public wxFrame 
 {
     CMainDialogMenu* m_menuBar;
+    CMainDialogStatusBar* m_statusBar;
     
     public:
         CMainDialog();
