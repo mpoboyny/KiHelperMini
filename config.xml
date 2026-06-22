@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Settings>
-    <Models OS="Windows">
-        <!-- Only / is to use as path separator --> 
-        <Model File="C:/MyTools/llama/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" />
-        <Model File="C:/MyTools/llama/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
-        <Model File="C:/MyTools/llama/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
-    </Models>
-    <Models OS="Linux">
-        <Model File="/home/LocalKiModels/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" />
-        <Model File="/home/LocalKiModels/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
-        <Model File="/home/LocalKiModels/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
-    </Models>
-    <!-- LLamaCpp OS="Linux">
-        <BinPath cuda="true">/home/tato/GitHub/KiHelperMiniDir/llama.cpp/release-shared_x64-cuda/</BinPath>
-        <BinPath cuda="false">/home/tato/GitHub/KiHelperMiniDir/llama.cpp/release-shared_x64-ncuda/</BinPath>
-    </LLamaCpp -->
+    <Systems>
+        <System Name="Windows">
+            <Models>
+                <!-- Only / is to use as path separator --> 
+                <Model File="C:/MyTools/llama/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" />
+                <Model File="C:/MyTools/llama/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
+                <Model File="C:/MyTools/llama/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
+            </Models>
+        </System>
+        <System Name="Linux">
+            <Models>
+                <Model File="/home/LocalKiModels/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" />
+                <Model File="/home/LocalKiModels/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
+                <Model File="/home/LocalKiModels/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
+            </Models>
+            <LLamaCpp>
+                <Bin Path="/home/tato/GitHub/KiHelperMiniDir/llama.cpp/release-shared_x64-cuda/bin/" />
+            </LLamaCpp>
+        </System>
+    </Systems>
 </Settings>

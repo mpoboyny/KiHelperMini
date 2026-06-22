@@ -86,4 +86,6 @@ enum ButtIDs
     ID_SHOW_CONF_FOLDER  = wxID_HIGHEST + 1000
 };
 
+int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent);
+
 #endif

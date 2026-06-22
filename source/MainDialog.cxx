@@ -13,8 +13,6 @@
 
 #include "../resources/app.xpm"
 
-
-
 CMainDialog::CMainDialog()
     : wxFrame(NULL, wxID_ANY, g_APP_NAME, wxDefaultPosition, wxSize(900, 700), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
     , m_ConfFile(std::make_unique<ConfigFile>())
@@ -54,7 +52,14 @@ void CMainDialog::OnExit(wxCommandEvent &event)
 
 void CMainDialog::OnReset(wxCommandEvent &event)
 {
-    // remove existing config file if present, then restart
+    // ask user for confirmation before deleting current config
+    wxString ask = wxString::Format("Are you sure you want to delete current\n%s\nfile and overwrite with default?", g_ConfFile);
+    int answer = ShowGenericMessageBox(ask, "Confirm Reset", wxYES_NO | wxNO_DEFAULT | wxICON_WARNING, this);
+    TrVar(answer);
+    if (answer != wxID_YES) {
+        return;
+    }
+
     if (wxFileName::FileExists(g_ConfFile)) {
         wxRemoveFile(g_ConfFile);
     }

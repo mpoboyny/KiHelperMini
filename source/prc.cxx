@@ -34,3 +34,8 @@ const wxString g_ConfFile = []() {
     }
     return targetPath;
 }();
+
+int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent) {
+    wxGenericMessageDialog dlg(parent, message, caption, style);
+    return dlg.ShowModal();
+}
