@@ -8,6 +8,9 @@
                 <Model File="C:/MyTools/llama/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
                 <Model File="C:/MyTools/llama/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
             </Models>
+            <LLamaCpp>
+                <Bin Path="C:/MyTools/llama-nocuda/" />
+            </LLamaCpp>
         </System>
         <System Name="Linux">
             <Models>

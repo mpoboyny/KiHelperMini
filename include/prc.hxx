@@ -49,6 +49,12 @@
 #include <list>
 #include <vector>
 
+#ifdef _WIN32 
+#   ifndef MP_UNICODE
+#       define MP_UNICODE
+#   endif
+#endif
+
 // frameMP
 #ifndef _MPTRACE_
 #define _MPTRACE_

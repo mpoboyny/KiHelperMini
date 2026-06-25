@@ -2,6 +2,7 @@
 // MainDialogStatusBar.cxx
 //
 
+#include "prc.hxx"
 #include "MainDialogStatusBar.hxx"
 
 CMainDialogStatusBar::CMainDialogStatusBar(wxWindow* parent)

@@ -26,7 +26,7 @@ CMainDialog::CMainDialog()
     SetMenuBar(m_menuBar);
     
     // wxFrame automatically handles sizing a single child wxPanel to fill its client area.
-    new CMainDialogPanel(this);
+    new CMainDialogPanel(this, m_ConfFile.get());
 
     // create and register status bar so wxFrame lays it out at the bottom
     m_statusBar = new CMainDialogStatusBar(this);
@@ -43,6 +43,7 @@ CMainDialog::CMainDialog()
         m_statusBar->ShowMessage(GuiStatus::GuiStatus_Erro, msg);
     else
         m_statusBar->ShowReady();
+    Center();
 }
 
 void CMainDialog::OnExit(wxCommandEvent &event)

@@ -4,6 +4,7 @@
 
 #ifndef CONFIG_FILE_HXX
 #define CONFIG_FILE_HXX
+#include <wx/arrstr.h>
 
 class ConfigFile
 {
@@ -30,6 +31,10 @@ public:
 
     bool HaveError(wxString &ErrorMsg) const;
     operator wxString() const;
+
+    wxString GetLLamaBinPath();
+    wxArrayString GetModels() const;
+    wxString GetCurrentSysName() const;
 };
 
 #endif //CONFIG_FILE_HXX

@@ -57,3 +57,147 @@ ConfigFile::operator wxString() const
     m_xmlDoc->Save(stream);
     return stream.GetString();
 }
+
+// Return current system name matching config.xml <System Name="..."> values
+wxString ConfigFile::GetCurrentSysName() const
+{
+#ifdef _WIN32
+    return wxString("Windows");
+#elif defined(__APPLE__)
+    return wxString("Mac");
+#elif defined(__linux__)
+    return wxString("Linux");
+#else
+    return wxString();
+#endif
+}
+
+wxArrayString ConfigFile::GetModels() const
+{
+    wxArrayString res;
+    wxString err;
+    if (HaveError(err))
+        return res;
+    if (m_xmlDoc == nullptr)
+        return res;
+
+    wxString sysName = GetCurrentSysName();
+
+    wxXmlNode* root = m_xmlDoc->GetRoot(); // <Settings>
+    if (!root)
+        return res;
+
+    // Find <Systems>
+    wxXmlNode* systemsNode = nullptr;
+    for (wxXmlNode* child = root->GetChildren(); child; child = child->GetNext()) {
+        if (child->GetName().CmpNoCase("Systems") == 0) {
+            systemsNode = child;
+            break;
+        }
+    }
+    if (!systemsNode)
+        return res;
+
+    // Iterate <System Name="..."> nodes
+    for (wxXmlNode* system = systemsNode->GetChildren(); system; system = system->GetNext()) {
+        if (system->GetName().CmpNoCase("System") != 0)
+            continue;
+        wxString nameAttr = system->GetAttribute("Name", "");
+        if (nameAttr.IsEmpty())
+            continue;
+        if (!sysName.IsEmpty() && nameAttr.CmpNoCase(sysName) != 0)
+            continue;
+
+        // Found matching System entry, look for Models -> Model
+        for (wxXmlNode* models = system->GetChildren(); models; models = models->GetNext()) {
+            if (models->GetName().CmpNoCase("Models") != 0)
+                continue;
+            for (wxXmlNode* model = models->GetChildren(); model; model = model->GetNext()) {
+                if (model->GetName().CmpNoCase("Model") != 0)
+                    continue;
+                wxString fileAttr = model->GetAttribute("File", "");
+                if (fileAttr.IsEmpty())
+                    continue;
+
+                wxFileName fn(fileAttr);
+                if (!fn.IsAbsolute()) {
+                    wxFileName cfg(g_ConfFile);
+                    wxFileName full(cfg.GetPath(), fileAttr);
+                    fn = full;
+                }
+
+                res.Add(fn.GetFullPath());
+            }
+            // return after processing Models for matched system
+            return res;
+        }
+    }
+
+    return res;
+}
+
+wxString ConfigFile::GetLLamaBinPath()
+{
+    wxString Res;
+    if (HaveError(Res))
+        return m_lastErrorMsg;
+    if (m_xmlDoc == nullptr)
+        return wxString();
+
+    // Decide which <System Name="..."> to select based on current platform
+    wxString sysName = GetCurrentSysName();
+
+    wxXmlNode* root = m_xmlDoc->GetRoot(); // <Settings>
+    if (!root)
+        return wxString();
+
+    // Find <Systems>
+    wxXmlNode* systemsNode = nullptr;
+    for (wxXmlNode* child = root->GetChildren(); child; child = child->GetNext()) {
+        if (child->GetName().CmpNoCase("Systems") == 0) {
+            systemsNode = child;
+            break;
+        }
+    }
+    if (!systemsNode)
+        return wxString();
+
+    // Iterate <System Name="..."> nodes
+    for (wxXmlNode* system = systemsNode->GetChildren(); system; system = system->GetNext()) {
+        if (system->GetName().CmpNoCase("System") != 0)
+            continue;
+        wxString nameAttr = system->GetAttribute("Name", "");
+        if (nameAttr.IsEmpty())
+            continue;
+        if (!sysName.IsEmpty() && nameAttr.CmpNoCase(sysName) != 0)
+            continue;
+
+        // Found matching System entry, look for LLamaCpp -> Bin
+        for (wxXmlNode* ll = system->GetChildren(); ll; ll = ll->GetNext()) {
+            if (ll->GetName().CmpNoCase("LLamaCpp") != 0)
+                continue;
+            for (wxXmlNode* bin = ll->GetChildren(); bin; bin = bin->GetNext()) {
+                if (bin->GetName().CmpNoCase("Bin") != 0)
+                    continue;
+                wxString pathAttr = bin->GetAttribute("Path", "");
+                if (pathAttr.IsEmpty())
+                    continue;
+
+                wxFileName fn(pathAttr);
+                if (!fn.IsAbsolute()) {
+                    // If relative, resolve against config file directory
+                    wxFileName cfg(g_ConfFile);
+                    wxString cfgDir = cfg.GetPath();
+                    wxFileName full(cfgDir, pathAttr);
+                    fn = full;
+                }
+
+                // Return normalized full path (no trailing separator)
+                return fn.GetFullPath();
+            }
+        }
+    }
+
+    // Not found
+    return wxString();
+}

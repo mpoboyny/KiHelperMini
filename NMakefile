@@ -5,9 +5,9 @@ LINK = link.exe
 
 WX_LIBDIR_PATH = ./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll
 WX_INCLUDE = /I"./wxWidgets/3.3.1/include" /I"$(WX_LIBDIR_PATH)/mswu"
-WX_LIBDIR = "$(WX_LIBDIR_PATH)"
+WX_LIBDIR = $(WX_LIBDIR_PATH)
 
-CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /D__WXMSW__ /DWXUSINGDLL /DwxNO_EXCEPTIONS /DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS $(WX_INCLUDE) /I"./include"
+CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /D__WXMSW__ /DWXUSINGDLL /DwxNO_EXCEPTIONS /DUNICODE /D_UNICODE /DMP_UNICODE /D_CRT_SECURE_NO_WARNINGS $(WX_INCLUDE) /I"./include"
 
 LDFLAGS = /nologo /SUBSYSTEM:WINDOWS /MACHINE:X64 /LIBPATH:$(WX_LIBDIR)
 
@@ -31,8 +31,8 @@ SRC_DIR = source
 INC_DIR = include
 RES_DIR = resources
 
-SRCS = $(SRC_DIR)\main.cxx $(SRC_DIR)\MainDialog.cxx $(SRC_DIR)\MainDialogMenu.cxx $(SRC_DIR)\ConfigFile.cxx $(SRC_DIR)\ConfigDlg.cxx $(SRC_DIR)\MainDialogPanel.cxx
-HDRS = $(INC_DIR)\prc.hxx $(INC_DIR)\MainDialog.hxx $(INC_DIR)\MainDialogMenu.hxx $(INC_DIR)\ConfigFile.hxx $(INC_DIR)\ConfigDlg.hxx $(INC_DIR)\MainDialogPanel.hxx
+SRCS = $(SRC_DIR)\main.cxx $(SRC_DIR)\MainDialog.cxx $(SRC_DIR)\MainDialogMenu.cxx $(SRC_DIR)\ConfigFile.cxx $(SRC_DIR)\ConfigDlg.cxx $(SRC_DIR)\MainDialogPanel.cxx $(SRC_DIR)\MainDialogStatusBar.cxx
+HDRS = $(INC_DIR)\prc.hxx $(INC_DIR)\MainDialog.hxx $(INC_DIR)\MainDialogMenu.hxx $(INC_DIR)\ConfigFile.hxx $(INC_DIR)\ConfigDlg.hxx $(INC_DIR)\MainDialogPanel.hxx $(INC_DIR)\MainDialogStatusBar.hxx
 
 PCH_FILE = $(OBJ_DIR)\prc.pch
 
@@ -44,10 +44,12 @@ OBJS = \
     $(OBJ_DIR)\ConfigFile.obj \
     $(OBJ_DIR)\ConfigDlg.obj \
     $(OBJ_DIR)\MainDialogPanel.obj \
+	$(OBJ_DIR)\MainDialogStatusBar.obj \
     $(OBJ_DIR)\resource.res
 
 TARGET = $(BIN_DIR)\KiHelperMini.exe
 
+# `release` is the only build target
 release: $(TARGET)
 
 $(TARGET): $(OBJS)
@@ -58,6 +60,11 @@ $(TARGET): $(OBJS)
 	@copy /Y "./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll\*.dll" "$(BIN_DIR)\"
 	@echo Copying config.xml...
 	@copy /Y "config.xml" "$(BIN_DIR)\"
+
+# Run the release build and, if successful, execute the produced binary
+runr: release
+	@echo Running $(TARGET)...
+	@$(TARGET)
 
 # Rule for precompiled header creation
 $(OBJ_DIR)\prc.obj $(PCH_FILE): $(SRC_DIR)\prc.cxx $(INC_DIR)\prc.hxx
@@ -77,6 +84,7 @@ $(OBJ_DIR)\MainDialogMenu.obj: $(HDRS) $(PCH_FILE)
 $(OBJ_DIR)\ConfigFile.obj: $(HDRS) $(PCH_FILE)
 $(OBJ_DIR)\ConfigDlg.obj: $(HDRS) $(PCH_FILE)
 $(OBJ_DIR)\MainDialogPanel.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\MainDialogStatusBar.obj: $(HDRS) $(PCH_FILE)
 
 # Inference rule for resources in res directory
 {$(RES_DIR)}.rc{$(OBJ_DIR)}.res:
