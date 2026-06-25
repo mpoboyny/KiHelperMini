@@ -10,6 +10,10 @@
 
 #include "MainDialog.hxx"
 #include "MainDialogStatusBar.hxx"
+#include "BuildLlama.hxx"
+#ifdef _WIN32
+#include "BuildDialogWin.hxx"
+#endif
 
 #include "../resources/app.xpm"
 
@@ -36,6 +40,8 @@ CMainDialog::CMainDialog()
     Bind(wxEVT_MENU, &CMainDialog::OnReset, this, ID_RESET);
     Bind(wxEVT_MENU, &CMainDialog::OnAbout, this, wxID_ABOUT);
     Bind(wxEVT_MENU, &CMainDialog::OnSettings, this, ID_SETTINGS);
+    Bind(wxEVT_MENU, &CMainDialog::OnBuild, this, ID_BUILD);
+    Bind(wxEVT_MENU, &CMainDialog::OnBuildLlama, this, ID_BUILD_LLAMA);
     Bind(wxEVT_CLOSE_WINDOW, &CMainDialog::OnClose, this);
 
     wxString msg;
@@ -96,6 +102,24 @@ void CMainDialog::OnSettings(wxCommandEvent& event)
         }
     }
     dlg->Destroy();
+}
+
+void CMainDialog::OnBuild(wxCommandEvent& event)
+{
+    ShowGenericMessageBox("Build is not implemented yet.", "Build", wxOK | wxICON_INFORMATION, this);
+}
+
+void CMainDialog::OnBuildLlama(wxCommandEvent& event)
+{
+#ifdef _WIN32
+    BuildDialogWin winDlg(this);
+    winDlg.ShowModal();
+    winDlg.Destroy();
+#else
+    BuildLlama dlg(this);
+    dlg.ShowModal();
+    dlg.Destroy();
+#endif
 }
 
 void CMainDialog::OnClose(wxCloseEvent& event) 

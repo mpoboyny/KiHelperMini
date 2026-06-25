@@ -31,21 +31,24 @@ SRC_DIR = source
 INC_DIR = include
 RES_DIR = resources
 
-SRCS = $(SRC_DIR)\main.cxx $(SRC_DIR)\MainDialog.cxx $(SRC_DIR)\MainDialogMenu.cxx $(SRC_DIR)\ConfigFile.cxx $(SRC_DIR)\ConfigDlg.cxx $(SRC_DIR)\MainDialogPanel.cxx $(SRC_DIR)\MainDialogStatusBar.cxx
-HDRS = $(INC_DIR)\prc.hxx $(INC_DIR)\MainDialog.hxx $(INC_DIR)\MainDialogMenu.hxx $(INC_DIR)\ConfigFile.hxx $(INC_DIR)\ConfigDlg.hxx $(INC_DIR)\MainDialogPanel.hxx $(INC_DIR)\MainDialogStatusBar.hxx
+SRCS = $(SRC_DIR)\main.cxx $(SRC_DIR)\MainDialog.cxx $(SRC_DIR)\MainDialogMenu.cxx $(SRC_DIR)\ConfigFile.cxx $(SRC_DIR)\ConfigDlg.cxx $(SRC_DIR)\MainDialogPanel.cxx $(SRC_DIR)\MainDialogStatusBar.cxx $(SRC_DIR)\BuildLlama.cxx $(SRC_DIR)\BuildDialogWin.cxx $(SRC_DIR)\ProcessRunner.cxx
+HDRS = $(INC_DIR)\prc.hxx $(INC_DIR)\MainDialog.hxx $(INC_DIR)\MainDialogMenu.hxx $(INC_DIR)\ConfigFile.hxx $(INC_DIR)\ConfigDlg.hxx $(INC_DIR)\MainDialogPanel.hxx $(INC_DIR)\MainDialogStatusBar.hxx $(INC_DIR)\BuildLlama.hxx $(INC_DIR)\BuildDialogWin.hxx $(INC_DIR)\ProcessRunner.hxx
 
 PCH_FILE = $(OBJ_DIR)\prc.pch
 
 OBJS = \
-    $(OBJ_DIR)\prc.obj \
-    $(OBJ_DIR)\main.obj \
-    $(OBJ_DIR)\MainDialog.obj \
-    $(OBJ_DIR)\MainDialogMenu.obj \
-    $(OBJ_DIR)\ConfigFile.obj \
-    $(OBJ_DIR)\ConfigDlg.obj \
-    $(OBJ_DIR)\MainDialogPanel.obj \
+	$(OBJ_DIR)\prc.obj \
+	$(OBJ_DIR)\main.obj \
+	$(OBJ_DIR)\MainDialog.obj \
+	$(OBJ_DIR)\MainDialogMenu.obj \
+	$(OBJ_DIR)\ConfigFile.obj \
+	$(OBJ_DIR)\ConfigDlg.obj \
+	$(OBJ_DIR)\MainDialogPanel.obj \
 	$(OBJ_DIR)\MainDialogStatusBar.obj \
-    $(OBJ_DIR)\resource.res
+	$(OBJ_DIR)\resource.res \
+	$(OBJ_DIR)\BuildLlama.obj \
+	$(OBJ_DIR)\BuildDialogWin.obj \
+	$(OBJ_DIR)\ProcessRunner.obj
 
 TARGET = $(BIN_DIR)\KiHelperMini.exe
 
@@ -85,6 +88,9 @@ $(OBJ_DIR)\ConfigFile.obj: $(HDRS) $(PCH_FILE)
 $(OBJ_DIR)\ConfigDlg.obj: $(HDRS) $(PCH_FILE)
 $(OBJ_DIR)\MainDialogPanel.obj: $(HDRS) $(PCH_FILE)
 $(OBJ_DIR)\MainDialogStatusBar.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\BuildLlama.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\BuildDialogWin.obj: $(HDRS) $(PCH_FILE)
+$(OBJ_DIR)\ProcessRunner.obj: $(HDRS) $(PCH_FILE)
 
 # Inference rule for resources in res directory
 {$(RES_DIR)}.rc{$(OBJ_DIR)}.res:

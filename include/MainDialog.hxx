@@ -24,6 +24,8 @@ class CMainDialog : public wxFrame
         void OnReset(wxCommandEvent& event);
         void OnAbout(wxCommandEvent& event);
         void OnSettings(wxCommandEvent& event);
+        void OnBuild(wxCommandEvent& event);
+        void OnBuildLlama(wxCommandEvent& event);
         void OnClose(wxCloseEvent& event);
 };
 

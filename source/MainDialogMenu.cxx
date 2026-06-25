@@ -34,6 +34,12 @@ CMainDialogMenu::CMainDialogMenu()
     menuEdit->Append(settingsItem);
     Append(menuEdit, "&Edit");
 
+    wxMenu* buildMenu = new wxMenu();
+    // Add llama.cpp as a direct menu item under Build
+    wxMenuItem* llamaItem = new wxMenuItem(buildMenu, ID_BUILD_LLAMA, "llama.cpp", "Build llama.cpp");
+    buildMenu->Append(llamaItem);
+    Append(buildMenu, "&Build");
+
     wxMenu* helpMenu = new wxMenu();
     wxMenuItem* aboutItem = new wxMenuItem(helpMenu, wxID_ABOUT, "&About...\tF1", "Show about dialog");
     aboutItem->SetBitmap(wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_MENU));

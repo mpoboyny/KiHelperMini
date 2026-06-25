@@ -12,3 +12,7 @@ Special thanks to the developers of wxWidgets and llama.cpp
 
 Best regards
 Mykhaylo Poboynyy
+
+Build (Windows)
+
+- Rule: use `nmake /f NMakefile clean runr` for build
