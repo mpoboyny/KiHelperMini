@@ -13,13 +13,12 @@ BuildLlama::BuildLlama(wxWindow* parent)
     wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
 
     wxStaticText* info = new wxStaticText(this, wxID_ANY,
-        "This dialog is for building llama.cpp.\n\nOn Windows use: nmake /f NMakefile clean runr",
+        "This dialog is for building llama.cpp.\n\nYour OS is not supported yet.",
         wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
     top->Add(info, 1, wxALL | wxEXPAND, 12);
 
     wxStdDialogButtonSizer* btns = new wxStdDialogButtonSizer();
     btns->AddButton(new wxButton(this, wxID_OK));
-    btns->AddButton(new wxButton(this, wxID_CANCEL));
     btns->Realize();
     top->Add(btns, 0, wxALIGN_CENTER | wxBOTTOM, 8);
 

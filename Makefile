@@ -26,21 +26,11 @@ SOURCES := $(wildcard $(SRC_DIR)/*.cxx)
 
 .PHONY: all debug release clean rund runr runddd _build .inner_link
 
-all: debug
+all: release
 
 $(PCH_GCH): $(PCH_HEADER)
 	@echo "Precompiling header..."
 	$(CXX) $(COMMON_CXXFLAGS) $(shell $(WX_CONF_PATH) --cxxflags) -x c++-header -c $< -o $@
-
-# --- Debug Build ---
-debug: BIN_DIR  := $(BIN_DIR_ROOT)/debug
-debug: OBJ_DIR  := $(OBJ_DIR_ROOT)/debug
-debug: WX_CONF_PATH := $(WX_BASE_DIR)/build-gtk-debug-shared_x64/wx-config
-debug: CXXFLAGS := $(COMMON_CXXFLAGS) -g -D_DEBUG
-debug: LDFLAGS  := -Wl,-rpath,$(WX_BASE_DIR)/build-gtk-debug-shared_x64/lib
-                   
-debug: $(PCH_GCH)
-	@$(MAKE) _build BIN_DIR="$(BIN_DIR)" OBJ_DIR="$(OBJ_DIR)" WX_CONF_PATH="$(WX_CONF_PATH)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 # --- Release Build ---
 release: BIN_DIR  := $(BIN_DIR_ROOT)/release

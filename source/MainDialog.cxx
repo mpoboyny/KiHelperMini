@@ -13,6 +13,10 @@
 #include "BuildLlama.hxx"
 #ifdef _WIN32
 #include "BuildDialogWin.hxx"
+#elif defined(__gnu_linux__)
+#include "BuildDialogLin.hxx"
+#else
+#include "BuildLlama.hxx"
 #endif
 
 #include "../resources/app.xpm"
@@ -49,7 +53,6 @@ CMainDialog::CMainDialog()
         m_statusBar->ShowMessage(GuiStatus::GuiStatus_Erro, msg);
     else
         m_statusBar->ShowReady();
-    Center();
 }
 
 void CMainDialog::OnExit(wxCommandEvent &event)
@@ -115,6 +118,10 @@ void CMainDialog::OnBuildLlama(wxCommandEvent& event)
     BuildDialogWin winDlg(this);
     winDlg.ShowModal();
     winDlg.Destroy();
+#elif defined(__gnu_linux__)
+    BuildDialogLin dlg(this);
+    dlg.ShowModal();
+    dlg.Destroy();
 #else
     BuildLlama dlg(this);
     dlg.ShowModal();

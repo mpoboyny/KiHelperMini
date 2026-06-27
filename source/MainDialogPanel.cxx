@@ -51,7 +51,7 @@ CMainDialogPanel::CMainDialogPanel(wxWindow* parent, ConfigFile *cfgFile)
     if (models.IsEmpty()) {
         models.Add("No models configured");
     }
-    m_listModels = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxSize(600,55), models, wxLB_SINGLE | wxLB_ALWAYS_SB);
+    m_listModels = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxSize(600,75), models, wxLB_SINGLE | wxLB_ALWAYS_SB);
     cfgSizer->Add(m_listModels, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 4);
 
     // Outer sizer with 5px margin around the group

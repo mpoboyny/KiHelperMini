@@ -1,6 +1,6 @@
 KiHelperMini
 
-Envelop of wheel is fun. So, Open Source is fun too. Please, no question 'Why'.
+Envelop of wheel is fun. So, open source is fun too. Please, no questions 'Why'.
 It is a Program for software developer or AI-enthusiastic users. KI is the German abbreviation for AI in English.
 
 It is Light AI Assistant Utility
@@ -12,7 +12,3 @@ Special thanks to the developers of wxWidgets and llama.cpp
 
 Best regards
 Mykhaylo Poboynyy
-
-Build (Windows)
-
-- Rule: use `nmake /f NMakefile clean runr` for build
