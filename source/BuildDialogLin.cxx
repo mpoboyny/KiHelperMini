@@ -11,7 +11,8 @@
 enum
 {
     ID_OPEN_LLAMA_SOURCE_LIN = wxID_HIGHEST + 300,
-    ID_CHECK_CMAKE_LIN = wxID_HIGHEST + 301
+    ID_CHECK_CMAKE_LIN = wxID_HIGHEST + 301,
+    ID_DOWNLOAD_LLAMA_LIN = wxID_HIGHEST + 302
 };
 
 BuildDialogLin::BuildDialogLin(wxWindow* parent)
@@ -58,8 +59,10 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     toolsBox->Add(toolsRow, 0, wxEXPAND);
 
     wxBoxSizer* toolsActionRow = new wxBoxSizer(wxHORIZONTAL);
-    m_sourceButton = new wxButton(this, ID_OPEN_LLAMA_SOURCE_LIN, "llama.cpp source");
+    m_sourceButton = new wxButton(this, ID_OPEN_LLAMA_SOURCE_LIN, "llama.cpp source folder");
     toolsActionRow->Add(m_sourceButton, 0, wxALL, 10);
+    m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA_LIN, "Download llama.cpp master");
+    toolsActionRow->Add(m_downloadButton, 0, wxALL, 10);
     toolsActionRow->AddStretchSpacer(1);
     toolsBox->Add(toolsActionRow, 0, wxEXPAND);
 
@@ -85,6 +88,7 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
 
     Bind(wxEVT_BUTTON, &BuildDialogLin::OnCheckCMake, this, ID_CHECK_CMAKE_LIN);
     Bind(wxEVT_BUTTON, &BuildDialogLin::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE_LIN);
+    Bind(wxEVT_BUTTON, &BuildDialogLin::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA_LIN);
 
     m_cmakePathText->SetValue(CMakePath());
 }
@@ -128,11 +132,18 @@ void BuildDialogLin::OnCheckCMake(wxCommandEvent& event)
 
 void BuildDialogLin::OnOpenLlamaSource(wxCommandEvent& event)
 {
-    wxFileName sourcePath(wxGetCwd(), "source");
-    if (!wxDirExists(sourcePath.GetFullPath())) {
-        sourcePath = wxFileName(wxGetCwd());
+    wxString sourcePath = m_llamaSource->GetValue();
+    wxDirDialog dlg(this, "Select llama.cpp source folder", wxGetCwd(),
+                    wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    if (dlg.ShowModal() != wxID_OK) {
+        return;
     }
 
-    m_llamaSource->SetValue(sourcePath.GetFullPath());
-    wxLaunchDefaultApplication(sourcePath.GetFullPath());
+    sourcePath = dlg.GetPath();
+    m_llamaSource->SetValue(sourcePath);
+}
+
+void BuildDialogLin::OnDownloadLlama(wxCommandEvent& event)
+{
+    ShowGenericMessageBox("Click", "Download llama.cpp master", wxOK | wxICON_INFORMATION, this);
 }
