@@ -35,6 +35,8 @@
 #include <wx/dc.h>
 #include <wx/settings.h>
 #include <wx/tokenzr.h>
+#include <wx/url.h>
+#include <wx/webrequest.h>
 #include <memory>
 #include <utility>
 #include <type_traits>
@@ -91,7 +93,9 @@ enum MenusIDs
 
 enum ButtIDs
 {
-    ID_SHOW_CONF_FOLDER  = wxID_HIGHEST + 1000
+    ID_SHOW_CONF_FOLDER  = wxID_HIGHEST + 1000,
+    ID_DONLOAD,
+    ID_CANCEL_DOWNLOAD
 };
 
 int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent);

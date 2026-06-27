@@ -4,6 +4,7 @@
 
 #include "prc.hxx"
 #include "BuildDialogLin.hxx"
+#include "DownlodDialog.hxx"
 #include "ProcessRunner.hxx"
 #include <wx/statline.h>
 #include "../resources/app.xpm"
@@ -145,5 +146,6 @@ void BuildDialogLin::OnOpenLlamaSource(wxCommandEvent& event)
 
 void BuildDialogLin::OnDownloadLlama(wxCommandEvent& event)
 {
-    ShowGenericMessageBox("Click", "Download llama.cpp master", wxOK | wxICON_INFORMATION, this);
+    DownlodDialog dlg(this);
+    dlg.ShowModal();
 }
