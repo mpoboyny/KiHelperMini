@@ -54,7 +54,7 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     wxBoxSizer* toolsRow = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* sourceLabel = new wxStaticText(this, wxID_ANY, "llama.cpp source:");
     toolsRow->Add(sourceLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
-    m_llamaSource = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize);
+    m_llamaSource = new wxTextCtrl(this, wxID_ANY, g_ConfDir + DownlodDialog::s_defSaveDir, wxDefaultPosition, wxDefaultSize);
     m_llamaSource->SetName("llama_source");
     toolsRow->Add(m_llamaSource, 1, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 10);
     toolsBox->Add(toolsRow, 0, wxEXPAND);
@@ -136,6 +136,9 @@ void BuildDialogLin::OnOpenLlamaSource(wxCommandEvent& event)
     wxString sourcePath = m_llamaSource->GetValue();
     wxDirDialog dlg(this, "Select llama.cpp source folder", wxGetCwd(),
                     wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    wxString currPath = sourcePath.Trim();
+    if (!currPath.IsEmpty())
+        dlg.SetPath(currPath);
     if (dlg.ShowModal() != wxID_OK) {
         return;
     }
@@ -148,4 +151,7 @@ void BuildDialogLin::OnDownloadLlama(wxCommandEvent& event)
 {
     DownlodDialog dlg(this);
     dlg.ShowModal();
+    if (dlg.GetDownloadResult()) {
+        m_llamaSource->SetValue(dlg.GetSavedFile());
+    }
 }

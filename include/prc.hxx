@@ -37,6 +37,7 @@
 #include <wx/tokenzr.h>
 #include <wx/url.h>
 #include <wx/webrequest.h>
+#include <wx/filefn.h>
 #include <memory>
 #include <utility>
 #include <type_traits>
@@ -50,6 +51,8 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <thread>
+#include <atomic>
 
 #ifdef _WIN32 
 #   ifndef MP_UNICODE

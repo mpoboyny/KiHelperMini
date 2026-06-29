@@ -4,6 +4,7 @@
 
 #include "prc.hxx"
 #include "NetHelper.hxx"
+#include "../resources/app.xpm"
 
 bool NetHelper::IsUrlAvaliable(const wxString& url)
 {
@@ -37,23 +38,71 @@ bool NetHelper::IsUrlAvaliable(const wxString& url)
 }
 
 /*static*/
-bool NetHelper::Download(const wxString& url, const wxString& to)
+bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& to)
 {
     TrFu;
+
     if (url.IsEmpty() || to.IsEmpty()) {
         return false;
     }
 
+    wxDialog* dlg = new wxDialog(caller, wxID_ANY, "", wxDefaultPosition, wxSize(200, 130), wxDEFAULT_DIALOG_STYLE & ~(wxCLOSE_BOX | wxCAPTION));
+    dlg->SetIcon(wxIcon(app_xpm));
+    
+    wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+    
+    wxStaticText* text = new wxStaticText(dlg, wxID_ANY, "Be patient...", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL);
+    wxGauge* progress = new wxGauge(dlg, wxID_ANY, 100, wxDefaultPosition, wxSize(240, 15), wxGA_HORIZONTAL);
+    
+    sizer->Add(text, 1, wxALL | wxALIGN_CENTER, 20);
+    sizer->Add(progress, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_CENTER, 15);
+
+    dlg->SetSizer(sizer);
+    dlg->Layout();
+    
+    dlg->SetTitle("Please wait...");
+    dlg->CenterOnParent();
+    dlg->Show();
+
+    
+    dlg->Update();
+    wxYieldIfNeeded();
+
+    std::atomic<bool> downloadFinished{false};
+    bool requestOk = false;
     wxWebRequestSync request = wxWebSessionSync::GetDefault().CreateRequest(url);
+    
     if (!request.IsOk()) {
+        dlg->Destroy();
         return false;
     }
 
     request.SetMethod("GET");
     request.SetStorage(wxWebRequest::Storage_File);
 
-     auto result = request.Execute();
-    if (!result) { 
+    auto networkTask = [&request, &downloadFinished, &requestOk]() {
+        auto result = request.Execute();
+        if (!!result) { 
+            requestOk = true;
+        }
+        downloadFinished = true;
+    };
+
+    std::thread workerThread(networkTask);
+
+    while (!downloadFinished) {
+        progress->Pulse();
+        wxYieldIfNeeded();
+        std::this_thread::sleep_for(std::chrono::milliseconds(20));
+    }
+
+    if (workerThread.joinable()) {
+        workerThread.join();
+    }
+
+    dlg->Destroy();
+
+    if (!requestOk) { 
         return false; 
     }
 
@@ -65,22 +114,22 @@ bool NetHelper::Download(const wxString& url, const wxString& to)
     if (response.GetStatus() < 200 || response.GetStatus() >= 300) {
         return false;
     }
-
+    
     wxString tempFile = response.GetDataFile(); 
+    TrStr(tempFile);
     if (tempFile.IsEmpty()) {
         return false;
     }
 
-    wxFileName sourceInfo(tempFile);
-    wxString fileName = sourceInfo.GetName() + "." + sourceInfo.GetExt();
-
     wxFileName targetInfo;
     targetInfo.AssignDir(to);
-    targetInfo.SetFullName(fileName);
+    targetInfo.SetFullName("llama.cpp-master.zip");
     
     wxString targetPath = targetInfo.GetFullPath();
-
+    TrStr(targetPath);
+    
     bool res = wxCopyFile(tempFile, targetPath, true);
     wxRemoveFile(tempFile);
+
     return res; 
 }

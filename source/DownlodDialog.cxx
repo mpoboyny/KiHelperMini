@@ -67,8 +67,9 @@ DownlodDialog::DownlodDialog(wxWindow* parent)
 
     wxBoxSizer* buttonRow = new wxBoxSizer(wxHORIZONTAL);
     buttonRow->AddStretchSpacer(1);
-    buttonRow->Add(new wxButton(this, ID_DONLOAD, "Download"), 0, wxALL, 10);
-    buttonRow->Add(new wxButton(this, ID_CANCEL_DOWNLOAD, "Cancel"), 0, wxALL, 10);
+    m_downloadButt = new wxButton(this, ID_DONLOAD, "Download");
+    buttonRow->Add(m_downloadButt, 0, wxALL, 10);
+    buttonRow->Add(new wxButton(this, ID_CANCEL_DOWNLOAD, "Close"), 0, wxALL, 10);
     top->Add(buttonRow, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 12);
 
     SetSizer(top);
@@ -78,12 +79,14 @@ DownlodDialog::DownlodDialog(wxWindow* parent)
     Layout();
     CentreOnParent();
 
-    Bind(wxEVT_BUTTON, &DownlodDialog::OnDonload, this, ID_DONLOAD);
+    Bind(wxEVT_BUTTON, &DownlodDialog::OnDownload, this, ID_DONLOAD);
     Bind(wxEVT_BUTTON, &DownlodDialog::OnCancel, this, ID_CANCEL_DOWNLOAD);
 }
 
-void DownlodDialog::OnDonload(wxCommandEvent& event)
+void DownlodDialog::OnDownload(wxCommandEvent& event)
 {
+    m_downloadResult = false;
+    m_savedFile.Empty();
     wxString savePath = m_saveInText->GetValue();
     if (savePath.IsEmpty()) {
         ShowGenericMessageBox("Please specify a save location.", "Download llama.cpp", wxOK | wxICON_ERROR, this);
@@ -140,8 +143,6 @@ void DownlodDialog::OnDonload(wxCommandEvent& event)
         return;
     }
     
-    wxEndBusyCursor();
-
     int answer = ShowGenericMessageBox(
         wxString::Format("Download from:\n%s\n\nto:\n%s", fromUrl, savePath),
         "Confirm Download",
@@ -152,16 +153,17 @@ void DownlodDialog::OnDonload(wxCommandEvent& event)
         wxEndBusyCursor();
         return;
     }
-
-    if (NetHelper::Download(fromUrl, savePath)) {
-        wxEndBusyCursor();
+    
+    if (NetHelper::Download(this, fromUrl, savePath)) {
         ShowGenericMessageBox(wxString("File saved to:\n") + savePath, "Download succeed", wxOK | wxICON_INFORMATION, this);
+        m_downloadResult = true;
+        m_savedFile = savePath;
+        m_downloadButt->Enable(false);
     }
-        
     else {
-        wxEndBusyCursor();
         ShowGenericMessageBox(wxString("Some things went wrong.") + savePath, "Download failed", wxOK | wxICON_ERROR, this);
     }
+    wxEndBusyCursor();
 }
 
 void DownlodDialog::OnCancel(wxCommandEvent& event)
