@@ -4,43 +4,13 @@
 
 #include "prc.hxx"
 #include "DownlodDialog.hxx"
-#include <wx/stattext.h>
-#include <wx/dir.h>
-#include <wx/filename.h>
 #include "../resources/app.xpm"
 #include "NetHelper.hxx"
-
-
-static bool RemoveDirectoryContents(const wxString& path)
-{
-    wxDir dir(path);
-    if (!dir.IsOpened()) {
-        return false;
-    }
-
-    wxString name;
-    bool cont = dir.GetFirst(&name, wxEmptyString, wxDIR_FILES | wxDIR_DIRS);
-    while (cont) {
-        wxString item = path + wxFileName::GetPathSeparator() + name;
-        if (wxDirExists(item)) {
-            if (!RemoveDirectoryContents(item) || !wxRmdir(item)) {
-                return false;
-            }
-        } else {
-            if (!wxRemoveFile(item)) {
-                return false;
-            }
-        }
-        cont = dir.GetNext(&name);
-    }
-
-    return true;
-}
 
 /*static*/
 const wxString DownlodDialog::s_defLink = "https://github.com/ggml-org/llama.cpp/archive/refs/heads/master.zip";
 /*static*/
-const wxSize DownlodDialog::s_defSize = wxSize(600, 350);
+const wxSize DownlodDialog::s_defSize = wxSize(600, 250);
 /*static*/
 const wxString DownlodDialog::s_defSaveDir = "llama.cpp-source/";
 

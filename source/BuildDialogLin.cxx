@@ -6,15 +6,7 @@
 #include "BuildDialogLin.hxx"
 #include "DownlodDialog.hxx"
 #include "ProcessRunner.hxx"
-#include <wx/statline.h>
 #include "../resources/app.xpm"
-
-enum
-{
-    ID_OPEN_LLAMA_SOURCE_LIN = wxID_HIGHEST + 300,
-    ID_CHECK_CMAKE_LIN = wxID_HIGHEST + 301,
-    ID_DOWNLOAD_LLAMA_LIN = wxID_HIGHEST + 302
-};
 
 BuildDialogLin::BuildDialogLin(wxWindow* parent)
     : wxDialog(parent, wxID_ANY, "Build (Linux)", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
@@ -64,6 +56,9 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     toolsActionRow->Add(m_sourceButton, 0, wxALL, 10);
     m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA_LIN, "Download llama.cpp master");
     toolsActionRow->Add(m_downloadButton, 0, wxALL, 10);
+    m_unzipButton = new wxButton(this, ID_UNZIP_LLAMA, "Unzip llama.cpp source");
+    toolsActionRow->Add(m_unzipButton, 0, wxALL, 10);
+
     toolsActionRow->AddStretchSpacer(1);
     toolsBox->Add(toolsActionRow, 0, wxEXPAND);
 
@@ -90,6 +85,7 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     Bind(wxEVT_BUTTON, &BuildDialogLin::OnCheckCMake, this, ID_CHECK_CMAKE_LIN);
     Bind(wxEVT_BUTTON, &BuildDialogLin::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE_LIN);
     Bind(wxEVT_BUTTON, &BuildDialogLin::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA_LIN);
+    Bind(wxEVT_BUTTON, &BuildDialogLin::OnUnzipLlama, this, ID_UNZIP_LLAMA);
 
     m_cmakePathText->SetValue(CMakePath());
 }
@@ -154,4 +150,8 @@ void BuildDialogLin::OnDownloadLlama(wxCommandEvent& event)
     if (dlg.GetDownloadResult()) {
         m_llamaSource->SetValue(dlg.GetSavedFile());
     }
+}
+
+void BuildDialogLin::OnUnzipLlama(wxCommandEvent &event)
+{
 }

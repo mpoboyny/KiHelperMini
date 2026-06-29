@@ -14,6 +14,7 @@ public:
     ~ProcessRunner() = default;
 
     wxString Run(const wxString& exePath, const wxString& args);
+    bool RunAsyncInNewWindow(const wxString& scriptPath);
 };
 
 #endif // PROCESSRUNNER_HXX

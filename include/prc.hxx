@@ -38,13 +38,18 @@
 #include <wx/url.h>
 #include <wx/webrequest.h>
 #include <wx/filefn.h>
+#include <wx/stattext.h>
+#include <wx/dir.h>
+#include <wx/statline.h>
+#include <wx/variant.h>
+#include <wx/clipbrd.h>
+#include <wx/dataobj.h>
+#include <wx/utils.h>
+
 #include <memory>
 #include <utility>
 #include <type_traits>
-#include <wx/clipbrd.h>
-#include <wx/dataobj.h>
 #include <cctype>
-#include <wx/variant.h>
 #include <algorithm>
 #include <fstream>
 #include <map>
@@ -98,9 +103,14 @@ enum ButtIDs
 {
     ID_SHOW_CONF_FOLDER  = wxID_HIGHEST + 1000,
     ID_DONLOAD,
-    ID_CANCEL_DOWNLOAD
+    ID_CANCEL_DOWNLOAD,
+    ID_OPEN_LLAMA_SOURCE_LIN,
+    ID_CHECK_CMAKE_LIN,
+    ID_DOWNLOAD_LLAMA_LIN,
+    ID_UNZIP_LLAMA
 };
 
 int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent);
+bool RemoveDirectoryContents(const wxString& path);
 
 #endif

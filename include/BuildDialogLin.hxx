@@ -18,10 +18,12 @@ private:
     void OnCheckCMake(wxCommandEvent& event);
     void OnOpenLlamaSource(wxCommandEvent& event);
     void OnDownloadLlama(wxCommandEvent& event);
+    void OnUnzipLlama(wxCommandEvent& event);
 
     wxButton* m_sourceButton;
     wxButton* m_downloadButton;
     wxButton* m_checkButton;
+    wxButton* m_unzipButton;
     wxTextCtrl* m_llamaSource;
     wxTextCtrl* m_cmakePathText;
 };

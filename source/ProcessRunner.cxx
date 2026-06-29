@@ -33,3 +33,32 @@ wxString ProcessRunner::Run(const wxString& exePath, const wxString& args)
 
     return output;
 }
+
+#ifdef _WIN32
+
+bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
+{
+    TrFu;
+    Tr("NO IMPL");
+}
+
+#elif defined(__gnu_linux__)
+
+bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
+{
+    TrFu;
+    wxString command = wxString::Format("x-terminal-emulator -e sh -c '%s'", scriptPath);
+    long pid = wxExecute(command, wxEXEC_ASYNC);
+    return pid > 0;
+}
+
+#else
+
+bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
+{
+    TrFu;
+    Tr("NO IMPL");
+}
+
+#endif
+
