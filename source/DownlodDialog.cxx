@@ -149,10 +149,19 @@ void DownlodDialog::OnDonload(wxCommandEvent& event)
         this);
     
     if (answer != wxID_YES) {
+        wxEndBusyCursor();
         return;
     }
 
-    ShowGenericMessageBox("Download started.", "Download llama.cpp", wxOK | wxICON_INFORMATION, this);
+    if (NetHelper::Download(fromUrl, savePath)) {
+        wxEndBusyCursor();
+        ShowGenericMessageBox(wxString("File saved to:\n") + savePath, "Download succeed", wxOK | wxICON_INFORMATION, this);
+    }
+        
+    else {
+        wxEndBusyCursor();
+        ShowGenericMessageBox(wxString("Some things went wrong.") + savePath, "Download failed", wxOK | wxICON_ERROR, this);
+    }
 }
 
 void DownlodDialog::OnCancel(wxCommandEvent& event)

@@ -9,6 +9,7 @@ class NetHelper
 {
 public:
     static bool IsUrlAvaliable(const wxString& url);
+    static bool Download(const wxString& url, const wxString& to);
 };
 
 #endif // NETHELPER_HXX
