@@ -127,9 +127,29 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
     
     wxString targetPath = targetInfo.GetFullPath();
     TrStr(targetPath);
+    bool res = false;
+
+    try {
+        res = wxCopyFile(tempFile, targetPath, true);
+    }
+    catch (const std::exception& e) {
+        TrStr(e.what());
+        return false;
+    }
+    catch(...) {
+        TrStr("Exception occurred while copying temporary file.");
+        return false;
+    }
     
-    bool res = wxCopyFile(tempFile, targetPath, true);
-    wxRemoveFile(tempFile);
+    try {
+        wxRemoveFile(tempFile);
+    }
+    catch (const std::exception& e) {
+        TrStr(wxString("Ignore: ") + e.what());
+    }
+    catch(...) {
+        TrStr(wxString("Ignore: ") + "Exception occurred while removing the temporary file.");
+    }
 
     return res; 
 }
