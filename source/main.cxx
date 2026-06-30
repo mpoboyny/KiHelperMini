@@ -24,14 +24,34 @@ int main(int argc, char* argv[])
     }
     
     // Disable wxWidgets GUI error dialogs and default handlers so errors
-    // are reported to stderr instead of popping GUI message boxes.
-    // Redirect wxLog (used by wxLogError/wxLogWarning/etc.) to stderr.
-    wxLog::SetActiveTarget(new wxLogStderr());
-    // Redirect other message output to stderr as well.
-    wxMessageOutput::Set(new wxMessageOutputStderr());
-    // Disable assert dialogs
+    // are reported via our tracing system (Tr/TrStr) instead of stderr
+    // or modal message boxes.
+    // Small wxLog target that forwards messages to TrStr
+    class WxLogToTrace : public wxLog {
+    protected:
+        void DoLogTextAtLevel(wxLogLevel WXUNUSED(level), const wxString& msg) override
+        {
+            TrFu;
+            TrStr(msg);
+        }
+    };
+
+    // Message output that forwards to TrStr
+    class WxMessageOutputToTrace : public wxMessageOutput {
+    public:
+        void Output(const wxString& str) override
+        {
+            TrFu;
+            TrStr(str);
+        }
+    };
+
+    // Install our trace-based targets
+    wxLog::SetActiveTarget(new WxLogToTrace());
+    wxMessageOutput::Set(new WxMessageOutputToTrace());
+
+    // Disable assert dialogs and fatal-exception dialogs
     wxDisableAsserts();
-    // Ensure fatal exception handling is disabled (no crash dialogs)
     wxHandleFatalExceptions(false);
 
     wxTheApp->CallOnInit();
