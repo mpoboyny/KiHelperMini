@@ -30,7 +30,7 @@ DownlodDialog::DownlodDialog(wxWindow* parent)
     fields->Add(m_fromText, 1, wxEXPAND);
 
     fields->Add(new wxStaticText(this, wxID_ANY, "Save in:"), 0, wxALIGN_CENTER_VERTICAL);
-    m_saveInText = new wxTextCtrl(this, wxID_ANY, g_ConfDir + s_defSaveDir, wxDefaultPosition, wxDefaultSize);
+    m_saveInText = new wxTextCtrl(this, wxID_ANY, wxFileName(g_ConfDir + s_defSaveDir).GetFullPath(), wxDefaultPosition, wxDefaultSize);
     fields->Add(m_saveInText, 1, wxEXPAND);
 
     top->Add(fields, 1, wxALL | wxEXPAND, 12);

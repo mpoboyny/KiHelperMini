@@ -1,14 +1,14 @@
 //
-// BuildDialogLin.cxx
+// BuildDialog.cxx
 //
 
 #include "prc.hxx"
-#include "BuildDialogLin.hxx"
+#include "BuildDialog.hxx"
 #include "DownlodDialog.hxx"
 #include "ProcessRunner.hxx"
 #include "../resources/app.xpm"
 
-BuildDialogLin::BuildDialogLin(wxWindow* parent)
+BuildDialog::BuildDialog(wxWindow* parent)
     : wxDialog(parent, wxID_ANY, "Build (Linux)", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
     TrFu;
@@ -46,7 +46,7 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     wxBoxSizer* toolsRow = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* sourceLabel = new wxStaticText(this, wxID_ANY, "llama.cpp source:");
     toolsRow->Add(sourceLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
-    m_llamaSource = new wxTextCtrl(this, wxID_ANY, g_ConfDir + DownlodDialog::s_defSaveDir, wxDefaultPosition, wxDefaultSize);
+    m_llamaSource = new wxTextCtrl(this, wxID_ANY, wxFileName(g_ConfDir + DownlodDialog::s_defSaveDir).GetFullPath(), wxDefaultPosition, wxDefaultSize);
     m_llamaSource->SetName("llama_source");
     toolsRow->Add(m_llamaSource, 1, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 10);
     toolsBox->Add(toolsRow, 0, wxEXPAND);
@@ -82,15 +82,36 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     SetSize(700, 500);
     CentreOnParent();
 
-    Bind(wxEVT_BUTTON, &BuildDialogLin::OnCheckCMake, this, ID_CHECK_CMAKE);
-    Bind(wxEVT_BUTTON, &BuildDialogLin::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
-    Bind(wxEVT_BUTTON, &BuildDialogLin::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
-    Bind(wxEVT_BUTTON, &BuildDialogLin::OnUnzipLlama, this, ID_UNZIP_LLAMA);
+    Bind(wxEVT_BUTTON, &BuildDialog::OnCheckCMake, this, ID_CHECK_CMAKE);
+    Bind(wxEVT_BUTTON, &BuildDialog::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
+    Bind(wxEVT_BUTTON, &BuildDialog::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
+    Bind(wxEVT_BUTTON, &BuildDialog::OnUnzipLlama, this, ID_UNZIP_LLAMA);
 
     m_cmakePathText->SetValue(CMakePath());
 }
 
-wxString BuildDialogLin::CMakePath()
+#ifdef _WIN32
+wxString BuildDialog::CMakePath()
+{
+    wxString pathEnv;
+    if (!wxGetEnv("PATH", &pathEnv)) {
+        return wxEmptyString;
+    }
+
+    wxString exeName = "cmake.exe";
+    wxStringTokenizer pathTokens(pathEnv, wxPATH_SEP, wxTOKEN_DEFAULT);
+    while (pathTokens.HasMoreTokens()) {
+        wxFileName candidate(pathTokens.GetNextToken(), exeName);
+        if (candidate.FileExists()) {
+            return candidate.GetFullPath();
+        }
+    }
+
+    return wxEmptyString;
+}
+
+#else
+wxString BuildDialog::CMakePath()
 {
     wxString pathEnv;
     if (!wxGetEnv("PATH", &pathEnv)) {
@@ -108,8 +129,9 @@ wxString BuildDialogLin::CMakePath()
 
     return wxEmptyString;
 }
+#endif
 
-void BuildDialogLin::OnCheckCMake(wxCommandEvent& event)
+void BuildDialog::OnCheckCMake(wxCommandEvent& event)
 {
     wxString path = m_cmakePathText->GetValue();
     if (path.IsEmpty()) {
@@ -127,7 +149,7 @@ void BuildDialogLin::OnCheckCMake(wxCommandEvent& event)
     ShowGenericMessageBox(output, "CMake version", wxOK | wxICON_INFORMATION, this);
 }
 
-void BuildDialogLin::OnOpenLlamaSource(wxCommandEvent& event)
+void BuildDialog::OnOpenLlamaSource(wxCommandEvent& event)
 {
     wxString sourcePath = m_llamaSource->GetValue();
     wxDirDialog dlg(this, "Select llama.cpp source folder", wxGetCwd(),
@@ -143,7 +165,7 @@ void BuildDialogLin::OnOpenLlamaSource(wxCommandEvent& event)
     m_llamaSource->SetValue(sourcePath);
 }
 
-void BuildDialogLin::OnDownloadLlama(wxCommandEvent& event)
+void BuildDialog::OnDownloadLlama(wxCommandEvent& event)
 {
     DownlodDialog dlg(this);
     dlg.ShowModal();
@@ -152,6 +174,6 @@ void BuildDialogLin::OnDownloadLlama(wxCommandEvent& event)
     }
 }
 
-void BuildDialogLin::OnUnzipLlama(wxCommandEvent &event)
+void BuildDialog::OnUnzipLlama(wxCommandEvent &event)
 {
 }

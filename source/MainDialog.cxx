@@ -11,13 +11,7 @@
 #include "MainDialog.hxx"
 #include "MainDialogStatusBar.hxx"
 #include "BuildLlama.hxx"
-#ifdef _WIN32
-#include "BuildDialogWin.hxx"
-#elif defined(__gnu_linux__)
-#include "BuildDialogLin.hxx"
-#else
-#include "BuildLlama.hxx"
-#endif
+#include "BuildDialog.hxx"
 
 #include "../resources/app.xpm"
 
@@ -114,14 +108,10 @@ void CMainDialog::OnBuild(wxCommandEvent& event)
 
 void CMainDialog::OnBuildLlama(wxCommandEvent& event)
 {
-#ifdef _WIN32
-    BuildDialogWin winDlg(this);
+#if defined(_WIN32) || defined(__gnu_linux__)
+    BuildDialog winDlg(this);
     winDlg.ShowModal();
     winDlg.Destroy();
-#elif defined(__gnu_linux__)
-    BuildDialogLin dlg(this);
-    dlg.ShowModal();
-    dlg.Destroy();
 #else
     BuildLlama dlg(this);
     dlg.ShowModal();

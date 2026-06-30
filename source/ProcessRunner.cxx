@@ -39,7 +39,10 @@ wxString ProcessRunner::Run(const wxString& exePath, const wxString& args)
 bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
 {
     TrFu;
-    Tr("NO IMPL");
+    // Launch script in a new console window using cmd's start command.
+    wxString command = wxString::Format("cmd /c start \"\" \"%s\"", scriptPath);
+    long pid = wxExecute(command, wxEXEC_ASYNC);
+    return pid > 0;
 }
 
 #elif defined(__gnu_linux__)
@@ -57,7 +60,7 @@ bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
 bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
 {
     TrFu;
-    Tr("NO IMPL");
+    return false;
 }
 
 #endif

@@ -54,7 +54,7 @@ $(TARGET): $(PCH_FILE) $(HDRS)
 	@echo Building resources...
 	@nmake -nologo -f NMakefile $(OBJ_DIR)\resource.res
 	@echo Building sources (incremental)...
-	@setlocal EnableDelayedExpansion & set "HDRS=" & for /f "delims=" %%H in ('dir /b /a-d $(INC_DIR)\*.hxx') do @(if "!HDRS!"=="" (set "HDRS=$(INC_DIR)\%%H") else (set "HDRS=!HDRS! $(INC_DIR)\%%H")) & for /f "delims=" %%F in ('dir /b /a-d $(SRC_DIR)\*.cxx') do @(if /I not "%%~nxF"=="prc.cxx" (echo Checking $(SRC_DIR)\%%F & nmake -nologo -f NMakefile HDRS="!HDRS!" $(OBJ_DIR)\%%~nF.obj)) & endlocal
+	@setlocal EnableDelayedExpansion & set "HDRS=" & for /f "delims=" %%H in ('dir /b /a-d $(INC_DIR)\*.hxx') do @(if "!HDRS!"=="" (set "HDRS=$(INC_DIR)\%%H") else (set "HDRS=!HDRS! $(INC_DIR)\%%H")) & for /f "delims=" %%F in ('dir /b /a-d $(SRC_DIR)\*.cxx') do @(if /I not "%%~nxF"=="prc.cxx" (nmake -nologo -f NMakefile HDRS="!HDRS!" $(OBJ_DIR)\%%~nF.obj)) & endlocal
 	@echo Linking $@...
 	@$(LINK) $(LDFLAGS) /OUT:$@ $(OBJ_DIR)\*.obj $(OBJ_DIR)\*.res $(WX_LIBS) $(SYS_LIBS)
 	@echo Copying required wxWidgets DLLs...
@@ -73,13 +73,11 @@ runr: release
 # Rule for precompiled header creation
 $(OBJ_DIR)\prc.obj $(PCH_FILE): $(SRC_DIR)\prc.cxx $(INC_DIR)\prc.hxx
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
-	@echo Precompiling header...
 	@$(CXX) $(CXXFLAGS) /Yc"prc.hxx" /Fp"$(PCH_FILE)" /c /Fo"$(OBJ_DIR)\prc.obj" $(SRC_DIR)\prc.cxx
 
 # Inference rule for source files in source directory
 {$(SRC_DIR)}.cxx{$(OBJ_DIR)}.obj:
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
-	@echo Compiling $<...
 	@$(CXX) $(CXXFLAGS) /Yu"prc.hxx" /Fp"$(PCH_FILE)" /c /Fo$@ $<
 
 # Per-object explicit header prerequisites removed — inference rule handles dependencies.
@@ -87,7 +85,6 @@ $(OBJ_DIR)\prc.obj $(PCH_FILE): $(SRC_DIR)\prc.cxx $(INC_DIR)\prc.hxx
 # Inference rule for resources in res directory
 {$(RES_DIR)}.rc{$(OBJ_DIR)}.res:
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
-	@echo Compiling resources $<...
 	@rc /nologo $(WX_INCLUDE) /fo$@ $<
 
 clean:

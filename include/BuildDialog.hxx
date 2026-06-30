@@ -2,16 +2,16 @@
 // BuildDialogLin.hxx
 //
 
-#ifndef BUILDDIALOGLIN_HXX
-#define BUILDDIALOGLIN_HXX
+#ifndef BUILDDIALOG_HXX
+#define BUILDDIALOG_HXX
 
 #include "prc.hxx"
 
-class BuildDialogLin : public wxDialog
+class BuildDialog : public wxDialog
 {
 public:
-    BuildDialogLin(wxWindow* parent);
-    ~BuildDialogLin() = default;
+    BuildDialog(wxWindow* parent);
+    ~BuildDialog() = default;
 
 private:
     wxString CMakePath();
@@ -28,4 +28,4 @@ private:
     wxTextCtrl* m_cmakePathText;
 };
 
-#endif // BUILDDIALOGLIN_HXX
+#endif // BUILDDIALOG_HXX
