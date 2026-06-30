@@ -14,6 +14,7 @@ LDFLAGS = /nologo /SUBSYSTEM:WINDOWS /MACHINE:X64 /LIBPATH:$(WX_LIBDIR)
 WX_LIBS = \
     wxmsw33u_core.lib \
     wxbase33u.lib \
+	wxbase33u_net.lib \
     wxbase33u_xml.lib \
     wxmsw33u_stc.lib \
     wxpng.lib \
@@ -24,45 +25,45 @@ WX_LIBS = \
 
 SYS_LIBS = user32.lib gdi32.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib advapi32.lib rpcrt4.lib
 
-BIN_DIR = bin\release
-OBJ_DIR = obj\release
+OBJ_DIR_ROOT = obj
+BIN_DIR_ROOT = bin
+BUILD_TYPE = release
+
+BIN_DIR = $(BIN_DIR_ROOT)\$(BUILD_TYPE)
+OBJ_DIR = $(OBJ_DIR_ROOT)\$(BUILD_TYPE)
 
 SRC_DIR = source
 INC_DIR = include
 RES_DIR = resources
 
-SRCS = $(SRC_DIR)\main.cxx $(SRC_DIR)\MainDialog.cxx $(SRC_DIR)\MainDialogMenu.cxx $(SRC_DIR)\ConfigFile.cxx $(SRC_DIR)\ConfigDlg.cxx $(SRC_DIR)\MainDialogPanel.cxx $(SRC_DIR)\MainDialogStatusBar.cxx $(SRC_DIR)\BuildLlama.cxx $(SRC_DIR)\BuildDialogWin.cxx $(SRC_DIR)\ProcessRunner.cxx
-HDRS = $(INC_DIR)\prc.hxx $(INC_DIR)\MainDialog.hxx $(INC_DIR)\MainDialogMenu.hxx $(INC_DIR)\ConfigFile.hxx $(INC_DIR)\ConfigDlg.hxx $(INC_DIR)\MainDialogPanel.hxx $(INC_DIR)\MainDialogStatusBar.hxx $(INC_DIR)\BuildLlama.hxx $(INC_DIR)\BuildDialogWin.hxx $(INC_DIR)\ProcessRunner.hxx
+# Leave HDRS empty here so nested nmake can be invoked with HDRS set at runtime.
+HDRS =
 
 PCH_FILE = $(OBJ_DIR)\prc.pch
-
-OBJS = \
-	$(OBJ_DIR)\prc.obj \
-	$(OBJ_DIR)\main.obj \
-	$(OBJ_DIR)\MainDialog.obj \
-	$(OBJ_DIR)\MainDialogMenu.obj \
-	$(OBJ_DIR)\ConfigFile.obj \
-	$(OBJ_DIR)\ConfigDlg.obj \
-	$(OBJ_DIR)\MainDialogPanel.obj \
-	$(OBJ_DIR)\MainDialogStatusBar.obj \
-	$(OBJ_DIR)\resource.res \
-	$(OBJ_DIR)\BuildLlama.obj \
-	$(OBJ_DIR)\BuildDialogWin.obj \
-	$(OBJ_DIR)\ProcessRunner.obj
 
 TARGET = $(BIN_DIR)\KiHelperMini.exe
 
 # `release` is the only build target
 release: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(PCH_FILE) $(HDRS)
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+	@echo Building precompiled header...
+	@nmake -nologo -f NMakefile $(OBJ_DIR)\prc.obj
+	@echo Building resources...
+	@nmake -nologo -f NMakefile $(OBJ_DIR)\resource.res
+	@echo Building sources (incremental)...
+	@setlocal EnableDelayedExpansion & set "HDRS=" & for /f "delims=" %%H in ('dir /b /a-d $(INC_DIR)\*.hxx') do @(if "!HDRS!"=="" (set "HDRS=$(INC_DIR)\%%H") else (set "HDRS=!HDRS! $(INC_DIR)\%%H")) & for /f "delims=" %%F in ('dir /b /a-d $(SRC_DIR)\*.cxx') do @(if /I not "%%~nxF"=="prc.cxx" (echo Checking $(SRC_DIR)\%%F & nmake -nologo -f NMakefile HDRS="!HDRS!" $(OBJ_DIR)\%%~nF.obj)) & endlocal
 	@echo Linking $@...
-	@$(LINK) $(LDFLAGS) /OUT:$@ $(OBJS) $(WX_LIBS) $(SYS_LIBS)
+	@$(LINK) $(LDFLAGS) /OUT:$@ $(OBJ_DIR)\*.obj $(OBJ_DIR)\*.res $(WX_LIBS) $(SYS_LIBS)
 	@echo Copying required wxWidgets DLLs...
 	@copy /Y "./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll\*.dll" "$(BIN_DIR)\"
 	@echo Copying config.xml...
 	@copy /Y "config.xml" "$(BIN_DIR)\"
+	@echo Copying extract_llama.bat...
+	@if not exist "$(BIN_DIR)\scripts" mkdir "$(BIN_DIR)\scripts"
+	@copy /Y "extract_llama.bat" "$(BIN_DIR)\scripts\"
 
 # Run the release build and, if successful, execute the produced binary
 runr: release
@@ -81,16 +82,7 @@ $(OBJ_DIR)\prc.obj $(PCH_FILE): $(SRC_DIR)\prc.cxx $(INC_DIR)\prc.hxx
 	@echo Compiling $<...
 	@$(CXX) $(CXXFLAGS) /Yu"prc.hxx" /Fp"$(PCH_FILE)" /c /Fo$@ $<
 
-$(OBJ_DIR)\main.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\MainDialog.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\MainDialogMenu.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\ConfigFile.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\ConfigDlg.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\MainDialogPanel.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\MainDialogStatusBar.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\BuildLlama.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\BuildDialogWin.obj: $(HDRS) $(PCH_FILE)
-$(OBJ_DIR)\ProcessRunner.obj: $(HDRS) $(PCH_FILE)
+# Per-object explicit header prerequisites removed — inference rule handles dependencies.
 
 # Inference rule for resources in res directory
 {$(RES_DIR)}.rc{$(OBJ_DIR)}.res:
