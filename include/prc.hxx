@@ -104,10 +104,10 @@ enum ButtIDs
     ID_SHOW_CONF_FOLDER  = wxID_HIGHEST + 1000,
     ID_DONLOAD,
     ID_CANCEL_DOWNLOAD,
-    ID_OPEN_LLAMA_SOURCE_LIN,
-    ID_CHECK_CMAKE_LIN,
-    ID_DOWNLOAD_LLAMA_LIN,
-    ID_UNZIP_LLAMA
+    ID_UNZIP_LLAMA,
+    ID_OPEN_LLAMA_SOURCE,
+    ID_CHECK_CMAKE,
+    ID_DOWNLOAD_LLAMA
 };
 
 int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent);

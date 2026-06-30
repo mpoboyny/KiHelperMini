@@ -4,14 +4,9 @@
 
 #include "prc.hxx"
 #include "BuildDialogWin.hxx"
+#include "DownlodDialog.hxx"
 #include "ProcessRunner.hxx"
 #include <wx/statline.h>
-
-enum
-{
-    ID_OPEN_LLAMA_SOURCE = wxID_HIGHEST + 200,
-    ID_CHECK_CMAKE = wxID_HIGHEST + 201
-};
 
 BuildDialogWin::BuildDialogWin(wxWindow* parent)
     : wxDialog(parent, wxID_ANY, "Build (Windows)", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
@@ -51,16 +46,20 @@ BuildDialogWin::BuildDialogWin(wxWindow* parent)
 
     wxStaticText* sourceLabel = new wxStaticText(this, wxID_ANY, "llama.cpp source:");
     toolsRow->Add(sourceLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
-
-    m_llamaSource = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize);
+    
+    m_llamaSource = new wxTextCtrl(this, wxID_ANY, g_ConfDir + DownlodDialog::s_defSaveDir, wxDefaultPosition, wxDefaultSize);
     m_llamaSource->SetName("llama_source");
     toolsRow->Add(m_llamaSource, 1, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 10);
 
     toolsBox->Add(toolsRow, 0, wxEXPAND);
 
     wxBoxSizer* toolsActionRow = new wxBoxSizer(wxHORIZONTAL);
-    m_sourceButton = new wxButton(this, ID_OPEN_LLAMA_SOURCE, "llama.cpp source");
+    m_sourceButton = new wxButton(this, ID_OPEN_LLAMA_SOURCE, "llama.cpp source folder");
     toolsActionRow->Add(m_sourceButton, 0, wxALL, 10);
+    m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA, "Download llama.cpp master");
+    toolsActionRow->Add(m_downloadButton, 0, wxALL, 10);
+    m_unzipButton = new wxButton(this, ID_UNZIP_LLAMA, "Unzip llama.cpp source");
+    toolsActionRow->Add(m_unzipButton, 0, wxALL, 10);
     toolsActionRow->AddStretchSpacer(1);
     toolsBox->Add(toolsActionRow, 0, wxEXPAND);
 
@@ -86,6 +85,8 @@ BuildDialogWin::BuildDialogWin(wxWindow* parent)
 
     Bind(wxEVT_BUTTON, &BuildDialogWin::OnCheckCMake, this, ID_CHECK_CMAKE);
     Bind(wxEVT_BUTTON, &BuildDialogWin::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
+    Bind(wxEVT_BUTTON, &BuildDialogWin::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
+    Bind(wxEVT_BUTTON, &BuildDialogWin::OnUnzipLlama, this, ID_UNZIP_LLAMA);
 
     m_cmakePathText->SetValue(CMakePath());
 }
@@ -129,11 +130,29 @@ void BuildDialogWin::OnCheckCMake(wxCommandEvent& event)
 
 void BuildDialogWin::OnOpenLlamaSource(wxCommandEvent& event)
 {
-    wxString sourcePath = wxFileName::FileName(wxGetCwd()).GetVolume() + wxFileName::GetPathSeparator() + "source";
-    if (!wxDirExists(sourcePath)) {
-        sourcePath = wxGetCwd();
+    wxString sourcePath = m_llamaSource->GetValue();
+    wxDirDialog dlg(this, "Select llama.cpp source folder", wxGetCwd(),
+                    wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    wxString currPath = sourcePath.Trim();
+    if (!currPath.IsEmpty())
+        dlg.SetPath(currPath);
+    if (dlg.ShowModal() != wxID_OK) {
+        return;
     }
 
+    sourcePath = dlg.GetPath();
     m_llamaSource->SetValue(sourcePath);
-    wxLaunchDefaultApplication(sourcePath);
+}
+
+void BuildDialogWin::OnDownloadLlama(wxCommandEvent& event)
+{
+    DownlodDialog dlg(this);
+    dlg.ShowModal();
+    if (dlg.GetDownloadResult()) {
+        m_llamaSource->SetValue(dlg.GetSavedFile());
+    }
+}
+
+void BuildDialogWin::OnUnzipLlama(wxCommandEvent& event)
+{
 }

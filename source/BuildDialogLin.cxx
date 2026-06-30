@@ -39,7 +39,7 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     m_cmakePathText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(300, -1), wxTE_READONLY);
     m_cmakePathText->SetName("cmake_path");
     cmakeRow->Add(m_cmakePathText, 1, wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 10);
-    m_checkButton = new wxButton(this, ID_CHECK_CMAKE_LIN, "Check");
+    m_checkButton = new wxButton(this, ID_CHECK_CMAKE, "Check");
     cmakeRow->Add(m_checkButton, 0, wxALL, 10);
     toolsBox->Add(cmakeRow, 0, wxEXPAND);
 
@@ -52,9 +52,9 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     toolsBox->Add(toolsRow, 0, wxEXPAND);
 
     wxBoxSizer* toolsActionRow = new wxBoxSizer(wxHORIZONTAL);
-    m_sourceButton = new wxButton(this, ID_OPEN_LLAMA_SOURCE_LIN, "llama.cpp source folder");
+    m_sourceButton = new wxButton(this, ID_OPEN_LLAMA_SOURCE, "llama.cpp source folder");
     toolsActionRow->Add(m_sourceButton, 0, wxALL, 10);
-    m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA_LIN, "Download llama.cpp master");
+    m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA, "Download llama.cpp master");
     toolsActionRow->Add(m_downloadButton, 0, wxALL, 10);
     m_unzipButton = new wxButton(this, ID_UNZIP_LLAMA, "Unzip llama.cpp source");
     toolsActionRow->Add(m_unzipButton, 0, wxALL, 10);
@@ -82,9 +82,9 @@ BuildDialogLin::BuildDialogLin(wxWindow* parent)
     SetSize(700, 500);
     CentreOnParent();
 
-    Bind(wxEVT_BUTTON, &BuildDialogLin::OnCheckCMake, this, ID_CHECK_CMAKE_LIN);
-    Bind(wxEVT_BUTTON, &BuildDialogLin::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE_LIN);
-    Bind(wxEVT_BUTTON, &BuildDialogLin::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA_LIN);
+    Bind(wxEVT_BUTTON, &BuildDialogLin::OnCheckCMake, this, ID_CHECK_CMAKE);
+    Bind(wxEVT_BUTTON, &BuildDialogLin::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
+    Bind(wxEVT_BUTTON, &BuildDialogLin::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
     Bind(wxEVT_BUTTON, &BuildDialogLin::OnUnzipLlama, this, ID_UNZIP_LLAMA);
 
     m_cmakePathText->SetValue(CMakePath());
