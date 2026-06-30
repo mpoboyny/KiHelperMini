@@ -65,8 +65,25 @@ $(TARGET): $(PCH_FILE) $(HDRS)
 	@if not exist "$(BIN_DIR)\scripts" mkdir "$(BIN_DIR)\scripts"
 	@copy /Y "extract_llama.bat" "$(BIN_DIR)\scripts\"
 
-# Run the release build and, if successful, execute the produced binary
-runr: release
+# Run the release-like build (but build objects here) and then execute the produced binary
+runr:
+	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+	@echo Building precompiled header...
+	@nmake -nologo -f NMakefile $(OBJ_DIR)\prc.obj
+	@echo Building resources...
+	@nmake -nologo -f NMakefile $(OBJ_DIR)\resource.res
+	@echo Building sources (incremental)...
+	@setlocal EnableDelayedExpansion & set "HDRS=" & for /f "delims=" %%H in ('dir /b /a-d $(INC_DIR)\*.hxx') do @(if "!HDRS!"=="" (set "HDRS=$(INC_DIR)\%%H") else (set "HDRS=!HDRS! $(INC_DIR)\%%H")) & for /f "delims=" %%F in ('dir /b /a-d $(SRC_DIR)\*.cxx') do @(if /I not "%%~nxF"=="prc.cxx" (nmake -nologo -f NMakefile HDRS="!HDRS!" $(OBJ_DIR)\%%~nF.obj)) & endlocal
+	@echo Linking $(TARGET)...
+	@$(LINK) $(LDFLAGS) /OUT:$(TARGET) $(OBJ_DIR)\*.obj $(OBJ_DIR)\*.res $(WX_LIBS) $(SYS_LIBS)
+	@echo Copying required wxWidgets DLLs...
+	@copy /Y "./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll\*.dll" "$(BIN_DIR)\"
+	@echo Copying config.xml...
+	@copy /Y "config.xml" "$(BIN_DIR)\"
+	@echo Copying extract_llama.bat...
+	@if not exist "$(BIN_DIR)\scripts" mkdir "$(BIN_DIR)\scripts"
+	@copy /Y "extract_llama.bat" "$(BIN_DIR)\scripts\"
 	@echo Running $(TARGET)...
 	@$(TARGET)
 

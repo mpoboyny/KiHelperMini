@@ -7,6 +7,60 @@
 #include "DownlodDialog.hxx"
 #include "ProcessRunner.hxx"
 #include "../resources/app.xpm"
+#include "../resources/fileopen.xpm"
+#include "../resources/folder_open.xpm"
+
+// Small integrated split-button control: main button + arrow button + separator
+class SplitButton : public wxPanel
+{
+public:
+    SplitButton(wxWindow* parent, wxWindowID idMain, const wxString& labelMain, wxWindowID idArrow = wxID_ANY)
+        : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxBORDER_SIMPLE)
+    {
+        wxBoxSizer* s = new wxBoxSizer(wxHORIZONTAL);
+        m_main = new wxButton(this, idMain, labelMain);
+        wxBitmap mainBmp(folder_open_xpm);
+        if (mainBmp.IsOk()) {
+            m_main->SetBitmap(mainBmp);
+        }
+
+        // separator (fixed 1px width)
+        wxStaticLine* sep = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(1, -1), wxLI_VERTICAL);
+
+        // Use stock wxWidgets arrow art, no custom drawing.
+        wxSize mainBest = m_main->GetBestSize();
+        int arrowH = 12;
+        if (mainBest.GetY() > 0) {
+            int cand = mainBest.GetY() - 8;
+            arrowH = (cand > 12) ? cand : 12;
+        }
+
+        wxBitmap arrowBmp = wxArtProvider::GetBitmap(wxART_GO_DOWN, wxART_BUTTON, wxSize(12, arrowH));
+        if (!arrowBmp.IsOk()) {
+            arrowBmp = wxArtProvider::GetBitmap(wxART_GO_DOWN, wxART_MENU, wxSize(12, arrowH));
+        }
+
+        m_arrow = new wxBitmapButton(this, idArrow, arrowBmp, wxDefaultPosition, wxSize(26, -1), wxBORDER_NONE);
+        m_arrow->SetToolTip("Options");
+
+        // try to match the arrow's height to the main button
+        if (mainBest.GetY() > 0) {
+            m_arrow->SetMinSize(wxSize(26, mainBest.GetY()));
+        }
+
+        s->Add(m_main, 1, wxEXPAND, 0);
+        s->Add(sep, 0, wxEXPAND | wxLEFT | wxRIGHT, 0);
+        s->Add(m_arrow, 0, wxEXPAND, 0);
+        SetSizerAndFit(s);
+    }
+
+    wxButton* GetMainButton() { return m_main; }
+    wxBitmapButton* GetArrowButton() { return m_arrow; }
+
+private:
+    wxButton* m_main{nullptr};
+    wxBitmapButton* m_arrow{nullptr};
+};
 
 BuildDialog::BuildDialog(wxWindow* parent)
     : wxDialog(parent, wxID_ANY, "Build (Linux)", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
@@ -52,8 +106,11 @@ BuildDialog::BuildDialog(wxWindow* parent)
     toolsBox->Add(toolsRow, 0, wxEXPAND);
 
     wxBoxSizer* toolsActionRow = new wxBoxSizer(wxHORIZONTAL);
-    m_sourceButton = new wxButton(this, ID_OPEN_LLAMA_SOURCE, "llama.cpp source folder");
-    toolsActionRow->Add(m_sourceButton, 0, wxALL, 10);
+    SplitButton* split = new SplitButton(this, ID_OPEN_LLAMA_SOURCE, "llama.cpp source folder", wxID_ANY);
+    m_sourceSplit = split;
+    m_sourceButton = split->GetMainButton();
+    m_sourceMenuButton = split->GetArrowButton();
+    toolsActionRow->Add(m_sourceSplit, 0, wxALL, 10);
     m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA, "Download llama.cpp master");
     toolsActionRow->Add(m_downloadButton, 0, wxALL, 10);
     m_unzipButton = new wxButton(this, ID_UNZIP_LLAMA, "Unzip llama.cpp source");
@@ -86,6 +143,9 @@ BuildDialog::BuildDialog(wxWindow* parent)
     Bind(wxEVT_BUTTON, &BuildDialog::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
     Bind(wxEVT_BUTTON, &BuildDialog::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
     Bind(wxEVT_BUTTON, &BuildDialog::OnUnzipLlama, this, ID_UNZIP_LLAMA);
+
+    // small dropdown part for the source button
+    m_sourceMenuButton->Bind(wxEVT_BUTTON, &BuildDialog::OnSourceButton, this);
 
     m_cmakePathText->SetValue(CMakePath());
 }
@@ -176,4 +236,67 @@ void BuildDialog::OnDownloadLlama(wxCommandEvent& event)
 
 void BuildDialog::OnUnzipLlama(wxCommandEvent &event)
 {
+}
+
+void BuildDialog::OnSourceButton(wxCommandEvent& event)
+{
+    TrFu;
+    wxMenu* srcMenu = new wxMenu();
+    wxMenuItem* miOpen = srcMenu->Append(wxID_ANY, "Open folder");
+    miOpen->SetBitmap(wxBitmap(folder_open_xpm));
+    wxMenuItem* miShow = srcMenu->Append(wxID_ANY, "Show files...");
+    miShow->SetBitmap(wxBitmap(fileopen_xpm));
+
+    // Bind menu selections to handlers temporarily
+    this->Bind(wxEVT_MENU, &BuildDialog::OnOpenLlamaSource, this, miOpen->GetId());
+    this->Bind(wxEVT_MENU, &BuildDialog::OnShowFiles, this, miShow->GetId());
+
+    wxPoint pos = m_sourceMenuButton->GetPosition();
+    wxPoint screenPos = m_sourceSplit->ClientToScreen(pos);
+    wxPoint dlgPos = this->ScreenToClient(screenPos);
+    dlgPos.y += m_sourceMenuButton->GetSize().GetHeight();
+    PopupMenu(srcMenu, dlgPos);
+
+    // Unbind and clean up
+    this->Unbind(wxEVT_MENU, &BuildDialog::OnOpenLlamaSource, this, miOpen->GetId());
+    this->Unbind(wxEVT_MENU, &BuildDialog::OnShowFiles, this, miShow->GetId());
+    delete srcMenu;
+}
+
+void BuildDialog::OnShowFiles(wxCommandEvent& event)
+{
+    TrFu;
+    wxString sourcePath = m_llamaSource->GetValue().Trim();
+    if (sourcePath.IsEmpty()) {
+        ShowGenericMessageBox("Please select llama.cpp source folder first.", "Show files", wxOK | wxICON_INFORMATION, this);
+        return;
+    }
+
+    wxFileName fn(sourcePath);
+    wxString dirToOpen;
+    if (fn.DirExists()) {
+        dirToOpen = fn.GetFullPath();
+    } else if (fn.FileExists()) {
+        dirToOpen = fn.GetPath();
+    } else {
+        ShowGenericMessageBox("Invalid source folder.", "Show files", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+#if defined(_WIN32) || defined(__gnu_linux__)
+    wxString cmd;
+#if defined(_WIN32)
+    cmd = wxString::Format("explorer.exe \"%s\"", dirToOpen);
+#else
+    cmd = wxString::Format("xdg-open \"%s\"", dirToOpen);
+#endif
+    long pid = wxExecute(cmd, wxEXEC_ASYNC);
+    if (pid != -1) {
+        return;
+    }
+
+    ShowGenericMessageBox("Failed to launch file manager.", "Show files", wxOK | wxICON_ERROR, this);
+#else
+    ShowGenericMessageBox("Opening file manager is not supported on this platform.", "Show files", wxOK | wxICON_INFORMATION, this);
+#endif
 }

@@ -19,8 +19,12 @@ private:
     void OnOpenLlamaSource(wxCommandEvent& event);
     void OnDownloadLlama(wxCommandEvent& event);
     void OnUnzipLlama(wxCommandEvent& event);
+    void OnSourceButton(wxCommandEvent& event);
+    void OnShowFiles(wxCommandEvent& event);
 
     wxButton* m_sourceButton;
+    wxButton* m_sourceMenuButton;
+    wxPanel* m_sourceSplit;
     wxButton* m_downloadButton;
     wxButton* m_checkButton;
     wxButton* m_unzipButton;
