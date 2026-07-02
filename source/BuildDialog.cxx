@@ -6,64 +6,13 @@
 #include "BuildDialog.hxx"
 #include "DownlodDialog.hxx"
 #include "ProcessRunner.hxx"
+#include "SplitButton.hxx"
 #include "../resources/app.xpm"
 #include "../resources/fileopen.xpm"
 #include "../resources/folder_open.xpm"
 
-// Small integrated split-button control: main button + arrow button + separator
-class SplitButton : public wxPanel
-{
-public:
-    SplitButton(wxWindow* parent, wxWindowID idMain, const wxString& labelMain, wxWindowID idArrow = wxID_ANY)
-        : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL | wxBORDER_SIMPLE)
-    {
-        wxBoxSizer* s = new wxBoxSizer(wxHORIZONTAL);
-        m_main = new wxButton(this, idMain, labelMain);
-        wxBitmap mainBmp(folder_open_xpm);
-        if (mainBmp.IsOk()) {
-            m_main->SetBitmap(mainBmp);
-        }
-
-        // separator (fixed 1px width)
-        wxStaticLine* sep = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(1, -1), wxLI_VERTICAL);
-
-        // Use stock wxWidgets arrow art, no custom drawing.
-        wxSize mainBest = m_main->GetBestSize();
-        int arrowH = 12;
-        if (mainBest.GetY() > 0) {
-            int cand = mainBest.GetY() - 8;
-            arrowH = (cand > 12) ? cand : 12;
-        }
-
-        wxBitmap arrowBmp = wxArtProvider::GetBitmap(wxART_GO_DOWN, wxART_BUTTON, wxSize(12, arrowH));
-        if (!arrowBmp.IsOk()) {
-            arrowBmp = wxArtProvider::GetBitmap(wxART_GO_DOWN, wxART_MENU, wxSize(12, arrowH));
-        }
-
-        m_arrow = new wxBitmapButton(this, idArrow, arrowBmp, wxDefaultPosition, wxSize(26, -1), wxBORDER_NONE);
-        m_arrow->SetToolTip("Options");
-
-        // try to match the arrow's height to the main button
-        if (mainBest.GetY() > 0) {
-            m_arrow->SetMinSize(wxSize(26, mainBest.GetY()));
-        }
-
-        s->Add(m_main, 1, wxEXPAND, 0);
-        s->Add(sep, 0, wxEXPAND | wxLEFT | wxRIGHT, 0);
-        s->Add(m_arrow, 0, wxEXPAND, 0);
-        SetSizerAndFit(s);
-    }
-
-    wxButton* GetMainButton() { return m_main; }
-    wxBitmapButton* GetArrowButton() { return m_arrow; }
-
-private:
-    wxButton* m_main{nullptr};
-    wxBitmapButton* m_arrow{nullptr};
-};
-
 BuildDialog::BuildDialog(wxWindow* parent)
-    : wxDialog(parent, wxID_ANY, "Build (Linux)", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+    : wxDialog(parent, wxID_ANY, "Build", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
     TrFu;
     SetIcon(wxIcon(app_xpm));
@@ -111,22 +60,15 @@ BuildDialog::BuildDialog(wxWindow* parent)
     m_sourceButton = split->GetMainButton();
     m_sourceMenuButton = split->GetArrowButton();
     toolsActionRow->Add(m_sourceSplit, 0, wxALL, 10);
-    m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA, "Download llama.cpp master");
+    m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA, "Download llama.cpp master", wxDefaultPosition, wxSize(-1, SplitButton::s_defButtHeight));
     toolsActionRow->Add(m_downloadButton, 0, wxALL, 10);
-    m_unzipButton = new wxButton(this, ID_UNZIP_LLAMA, "Unzip llama.cpp source");
+    m_unzipButton = new wxButton(this, ID_UNZIP_LLAMA, "Unzip llama.cpp source", wxDefaultPosition, wxSize(-1, SplitButton::s_defButtHeight));
     toolsActionRow->Add(m_unzipButton, 0, wxALL, 10);
 
     toolsActionRow->AddStretchSpacer(1);
     toolsBox->Add(toolsActionRow, 0, wxEXPAND);
 
     top->Add(toolsBox, 0, wxALL | wxEXPAND, 12);
-
-    wxStaticBoxSizer* commandBox = new wxStaticBoxSizer(wxVERTICAL, this, "Build command");
-    wxStaticText* commandText = new wxStaticText(this, wxID_ANY,
-        "make clean release", wxDefaultPosition, wxDefaultSize, wxALIGN_LEFT);
-    commandText->SetFont(commandText->GetFont().Bold());
-    commandBox->Add(commandText, 0, wxALL | wxEXPAND, 10);
-    top->Add(commandBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
     wxStdDialogButtonSizer* btns = new wxStdDialogButtonSizer();
     btns->AddButton(new wxButton(this, wxID_OK, "Run"));

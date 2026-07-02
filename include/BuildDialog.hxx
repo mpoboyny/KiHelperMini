@@ -1,14 +1,13 @@
 //
-// BuildDialogLin.hxx
+// BuildDialog.hxx
 //
 
 #ifndef BUILDDIALOG_HXX
 #define BUILDDIALOG_HXX
 
-#include "prc.hxx"
-
 class BuildDialog : public wxDialog
 {
+
 public:
     BuildDialog(wxWindow* parent);
     ~BuildDialog() = default;
