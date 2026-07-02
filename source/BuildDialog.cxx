@@ -6,16 +6,17 @@
 #include "BuildDialog.hxx"
 #include "DownlodDialog.hxx"
 #include "ProcessRunner.hxx"
-#include "SplitButton.hxx"
+#include "BuildToolBar.hxx"
 #include "../resources/app.xpm"
-#include "../resources/fileopen.xpm"
-#include "../resources/folder_open.xpm"
 
 BuildDialog::BuildDialog(wxWindow* parent)
-    : wxDialog(parent, wxID_ANY, "Build", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+    : wxFrame(parent, wxID_ANY, "Build", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
+    , m_parent(parent)
 {
     TrFu;
     SetIcon(wxIcon(app_xpm));
+
+    SetToolBar(new BuildToolBar(this));
 
     wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
 
@@ -54,20 +55,6 @@ BuildDialog::BuildDialog(wxWindow* parent)
     toolsRow->Add(m_llamaSource, 1, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 10);
     toolsBox->Add(toolsRow, 0, wxEXPAND);
 
-    wxBoxSizer* toolsActionRow = new wxBoxSizer(wxHORIZONTAL);
-    SplitButton* split = new SplitButton(this, ID_OPEN_LLAMA_SOURCE, "llama.cpp source folder", wxID_ANY);
-    m_sourceSplit = split;
-    m_sourceButton = split->GetMainButton();
-    m_sourceMenuButton = split->GetArrowButton();
-    toolsActionRow->Add(m_sourceSplit, 0, wxALL, 10);
-    m_downloadButton = new wxButton(this, ID_DOWNLOAD_LLAMA, "Download llama.cpp master", wxDefaultPosition, wxSize(-1, SplitButton::s_defButtHeight));
-    toolsActionRow->Add(m_downloadButton, 0, wxALL, 10);
-    m_unzipButton = new wxButton(this, ID_UNZIP_LLAMA, "Unzip llama.cpp source", wxDefaultPosition, wxSize(-1, SplitButton::s_defButtHeight));
-    toolsActionRow->Add(m_unzipButton, 0, wxALL, 10);
-
-    toolsActionRow->AddStretchSpacer(1);
-    toolsBox->Add(toolsActionRow, 0, wxEXPAND);
-
     top->Add(toolsBox, 0, wxALL | wxEXPAND, 12);
 
     wxStdDialogButtonSizer* btns = new wxStdDialogButtonSizer();
@@ -82,14 +69,25 @@ BuildDialog::BuildDialog(wxWindow* parent)
     CentreOnParent();
 
     Bind(wxEVT_BUTTON, &BuildDialog::OnCheckCMake, this, ID_CHECK_CMAKE);
-    Bind(wxEVT_BUTTON, &BuildDialog::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
-    Bind(wxEVT_BUTTON, &BuildDialog::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
-    Bind(wxEVT_BUTTON, &BuildDialog::OnUnzipLlama, this, ID_UNZIP_LLAMA);
-
-    // small dropdown part for the source button
-    m_sourceMenuButton->Bind(wxEVT_BUTTON, &BuildDialog::OnSourceButton, this);
+    Bind(wxEVT_MENU, &BuildDialog::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
+    Bind(wxEVT_MENU, &BuildDialog::OnShowFiles, this, ID_SHOW_FILES);
+    Bind(wxEVT_MENU, &BuildDialog::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
+    Bind(wxEVT_MENU, &BuildDialog::OnUnzipLlama, this, ID_UNZIP_LLAMA);
+    Bind(wxEVT_CLOSE_WINDOW, &BuildDialog::OnClose, this);
 
     m_cmakePathText->SetValue(CMakePath());
+}
+
+int BuildDialog::ShowModalLike()
+{
+    if (m_parent) {
+        m_parent->Disable();
+    }
+    Show();
+    Raise();
+    wxModalEventLoop eventLoop(this);
+    eventLoop.Run();
+    return wxID_OK;
 }
 
 #ifdef _WIN32
@@ -167,44 +165,6 @@ void BuildDialog::OnOpenLlamaSource(wxCommandEvent& event)
     m_llamaSource->SetValue(sourcePath);
 }
 
-void BuildDialog::OnDownloadLlama(wxCommandEvent& event)
-{
-    DownlodDialog dlg(this);
-    dlg.ShowModal();
-    if (dlg.GetDownloadResult()) {
-        m_llamaSource->SetValue(dlg.GetSavedFile());
-    }
-}
-
-void BuildDialog::OnUnzipLlama(wxCommandEvent &event)
-{
-}
-
-void BuildDialog::OnSourceButton(wxCommandEvent& event)
-{
-    TrFu;
-    wxMenu* srcMenu = new wxMenu();
-    wxMenuItem* miOpen = srcMenu->Append(wxID_ANY, "Open folder");
-    miOpen->SetBitmap(wxBitmap(folder_open_xpm));
-    wxMenuItem* miShow = srcMenu->Append(wxID_ANY, "Show files...");
-    miShow->SetBitmap(wxBitmap(fileopen_xpm));
-
-    // Bind menu selections to handlers temporarily
-    this->Bind(wxEVT_MENU, &BuildDialog::OnOpenLlamaSource, this, miOpen->GetId());
-    this->Bind(wxEVT_MENU, &BuildDialog::OnShowFiles, this, miShow->GetId());
-
-    wxPoint pos = m_sourceMenuButton->GetPosition();
-    wxPoint screenPos = m_sourceSplit->ClientToScreen(pos);
-    wxPoint dlgPos = this->ScreenToClient(screenPos);
-    dlgPos.y += m_sourceMenuButton->GetSize().GetHeight();
-    PopupMenu(srcMenu, dlgPos);
-
-    // Unbind and clean up
-    this->Unbind(wxEVT_MENU, &BuildDialog::OnOpenLlamaSource, this, miOpen->GetId());
-    this->Unbind(wxEVT_MENU, &BuildDialog::OnShowFiles, this, miShow->GetId());
-    delete srcMenu;
-}
-
 void BuildDialog::OnShowFiles(wxCommandEvent& event)
 {
     TrFu;
@@ -241,4 +201,26 @@ void BuildDialog::OnShowFiles(wxCommandEvent& event)
 #else
     ShowGenericMessageBox("Opening file manager is not supported on this platform.", "Show files", wxOK | wxICON_INFORMATION, this);
 #endif
+}
+
+void BuildDialog::OnDownloadLlama(wxCommandEvent& event)
+{
+    DownlodDialog dlg(this);
+    dlg.ShowModal();
+    if (dlg.GetDownloadResult()) {
+        m_llamaSource->SetValue(dlg.GetSavedFile());
+    }
+}
+
+void BuildDialog::OnUnzipLlama(wxCommandEvent& event)
+{
+}
+
+void BuildDialog::OnClose(wxCloseEvent& event)
+{
+    if (m_parent) {
+        m_parent->Enable();
+        m_parent->Raise();
+    }
+    Destroy();
 }

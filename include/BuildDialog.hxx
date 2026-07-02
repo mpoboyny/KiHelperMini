@@ -5,30 +5,28 @@
 #ifndef BUILDDIALOG_HXX
 #define BUILDDIALOG_HXX
 
-class BuildDialog : public wxDialog
+class BuildDialog : public wxFrame
 {
 
 public:
     BuildDialog(wxWindow* parent);
     ~BuildDialog() = default;
 
+    int ShowModalLike();
+
 private:
     wxString CMakePath();
     void OnCheckCMake(wxCommandEvent& event);
     void OnOpenLlamaSource(wxCommandEvent& event);
+    void OnShowFiles(wxCommandEvent& event);
     void OnDownloadLlama(wxCommandEvent& event);
     void OnUnzipLlama(wxCommandEvent& event);
-    void OnSourceButton(wxCommandEvent& event);
-    void OnShowFiles(wxCommandEvent& event);
+    void OnClose(wxCloseEvent& event);
 
-    wxButton* m_sourceButton;
-    wxButton* m_sourceMenuButton;
-    wxPanel* m_sourceSplit;
-    wxButton* m_downloadButton;
     wxButton* m_checkButton;
-    wxButton* m_unzipButton;
     wxTextCtrl* m_llamaSource;
     wxTextCtrl* m_cmakePathText;
+    wxWindow* m_parent{nullptr};
 };
 
 #endif // BUILDDIALOG_HXX

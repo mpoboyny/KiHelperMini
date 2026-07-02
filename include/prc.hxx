@@ -45,6 +45,7 @@
 #include <wx/clipbrd.h>
 #include <wx/dataobj.h>
 #include <wx/utils.h>
+#include <wx/evtloop.h>
 
 #include <memory>
 #include <utility>
@@ -106,6 +107,7 @@ enum ButtIDs
     ID_CANCEL_DOWNLOAD,
     ID_UNZIP_LLAMA,
     ID_OPEN_LLAMA_SOURCE,
+    ID_SHOW_FILES,
     ID_CHECK_CMAKE,
     ID_DOWNLOAD_LLAMA
 };

@@ -110,8 +110,7 @@ void CMainDialog::OnBuildLlama(wxCommandEvent& event)
 {
 #if defined(_WIN32) || defined(__gnu_linux__)
     BuildDialog winDlg(this);
-    winDlg.ShowModal();
-    winDlg.Destroy();
+    winDlg.ShowModalLike();
 #else
     BuildLlama dlg(this);
     dlg.ShowModal();
