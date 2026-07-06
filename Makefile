@@ -45,9 +45,9 @@ release: $(PCH_GCH)
 	@strip --strip-unneeded $(BIN_DIR)/$(TARGET_NAME)
 	@echo Copying config.xml...
 	@cp -f "$(BASE_DIR)/config.xml" "$(BIN_DIR)/"
-	@echo Copying extract_llama.sh...
+	@echo Copying scripts...
 	@mkdir -p "$(BIN_DIR)/scripts"
-	@cp -f "$(BASE_DIR)/extract_llama.sh" "$(BIN_DIR)/scripts/"
+	@cp -f "$(BASE_DIR)/scripts/"* "$(BIN_DIR)/scripts/"
 
 # --- Run Phonies ---
 rund:
