@@ -9,6 +9,9 @@ BIN_DIR_ROOT := $(BASE_DIR)/bin
 # --- Konfiguration ---
 TARGET_NAME := KiHelperMini
 OS_DEF      := LINUX_OS
+OPEN_FILE_PNG_OPT := -b,binary,resources/open-file.png,-b,default
+OPEN_FILE_PNG_OBJ := $(OBJ_DIR)/open-file_png.o
+OPEN_FILE_PNG_LD  := $(shell printf '%s' "$(OPEN_FILE_PNG_OPT)" | tr ',' ' ')
 
 # System Libs (Reihenfolge: CUDA vor System/Math/GOMP)
 SYS_LIBS   := -lpthread -lm -ldl -lrt -lcublas -lcurand -lcudart -lcuda -lgomp
@@ -65,13 +68,17 @@ runddd:
 # --- Internal Build Logic ---
 _build:
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
-	$(eval CURRENT_OBJECTS := $(patsubst $(SRC_DIR)/%.cxx, $(OBJ_DIR)/%.o, $(SOURCES)))
+	$(eval CURRENT_OBJECTS := $(patsubst $(SRC_DIR)/%.cxx, $(OBJ_DIR)/%.o, $(SOURCES)) $(OPEN_FILE_PNG_OBJ))
 	@$(MAKE) .inner_link OBJECTS="$(CURRENT_OBJECTS)"
 
 .inner_link: $(OBJECTS)
 	$(eval OUT_NAME := $(if $(findstring debug,$(BIN_DIR)),$(TARGET_NAME)_debug,$(TARGET_NAME)))
 	@echo "Linking $(OUT_NAME)..."
 	$(CXX) $(OBJECTS) $(shell $(WX_CONF_PATH) --libs std,net,xml,stc,richtext) $(LDFLAGS) -o $(BIN_DIR)/$(OUT_NAME)
+
+$(OPEN_FILE_PNG_OBJ): $(BASE_DIR)/resources/open-file.png
+	@mkdir -p $(dir $@)
+	ld -r $(OPEN_FILE_PNG_LD) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx
 	@mkdir -p $(dir $@)
