@@ -5,9 +5,43 @@
 #include "prc.hxx"
 #include "ToolBarDropDown.hxx"
 
-namespace
+/*------ ToolBarDropDownItem -----*/
+
+ToolBarDropDownItem::ToolBarDropDownItem(wxWindow* parent,
+                                         const wxBitmap& bitmap,
+                                         const wxString& title,
+                                         const wxString& subtitle,
+                                         int commandId)
+    : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
+    , m_commandId(commandId)
+    , m_bitmap(bitmap)
+    , m_title(title)
+    , m_subtitle(subtitle)
 {
-void PostToolbarCommand(wxWindow* source, int id)
+    SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
+    SetCursor(wxCursor(wxCURSOR_HAND));
+    SetBackgroundStyle(wxBG_STYLE_PAINT);
+
+    wxClientDC dc(this);
+    int textW = 0;
+    int textH = 0;
+    dc.GetTextExtent(m_title, &textW, &textH);
+    int subW = 0;
+    int subH = 0;
+    dc.GetTextExtent(m_subtitle, &subW, &subH);
+
+    int w = 16 + 8 + std::max(textW, subW) + 24;
+    int h = std::max(16, textH + subH + 4) + 16;
+    SetMinSize(wxSize(w, h));
+    SetInitialSize(GetMinSize());
+
+    Bind(wxEVT_PAINT, &ToolBarDropDownItem::OnPaint, this);
+    Bind(wxEVT_LEFT_UP, &ToolBarDropDownItem::OnClick, this);
+    Bind(wxEVT_ENTER_WINDOW, &ToolBarDropDownItem::OnEnterWindow, this);
+    Bind(wxEVT_LEAVE_WINDOW, &ToolBarDropDownItem::OnLeaveWindow, this);
+}
+
+void ToolBarDropDownItem::PostToolbarCommand(wxWindow* source, int id)
 {
     wxWindow* target = wxGetTopLevelParent(source);
     if (target == nullptr) {
@@ -19,120 +53,77 @@ void PostToolbarCommand(wxWindow* source, int id)
     wxPostEvent(target, event);
 }
 
-class ToolBarDropDownItem : public wxPanel
+void ToolBarDropDownItem::Highlight(bool on)
 {
-public:
-    ToolBarDropDownItem(wxWindow* parent,
-                        const wxBitmap& bitmap,
-                        const wxString& title,
-                        const wxString& subtitle,
-                        int commandId)
-        : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
-        , m_commandId(commandId)
-        , m_bitmap(bitmap)
-        , m_title(title)
-        , m_subtitle(subtitle)
-    {
-        SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
-        SetCursor(wxCursor(wxCURSOR_HAND));
-        SetBackgroundStyle(wxBG_STYLE_PAINT);
+    if (m_hover == on) {
+        return;
+    }
+    m_hover = on;
+    Refresh();
+}
 
-        wxClientDC dc(this);
-        int textW = 0;
-        int textH = 0;
-        dc.GetTextExtent(m_title, &textW, &textH);
-        int subW = 0;
-        int subH = 0;
-        dc.GetTextExtent(m_subtitle, &subW, &subH);
+void ToolBarDropDownItem::OnPaint(wxPaintEvent&)
+{
+    wxAutoBufferedPaintDC dc(this);
+    wxColour bg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)
+                          : wxSystemSettings::GetColour(wxSYS_COLOUR_MENU);
+    dc.SetBackground(wxBrush(bg));
+    dc.Clear();
 
-        int w = 16 + 8 + std::max(textW, subW) + 24;
-        int h = std::max(16, textH + subH + 4) + 16;
-        SetMinSize(wxSize(w, h));
-        SetInitialSize(GetMinSize());
+    wxColour fg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT)
+                          : wxSystemSettings::GetColour(wxSYS_COLOUR_MENUTEXT);
+    wxColour subFg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT)
+                             : wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
 
-        Bind(wxEVT_PAINT, &ToolBarDropDownItem::OnPaint, this);
-        Bind(wxEVT_LEFT_UP, &ToolBarDropDownItem::OnClick, this);
-        Bind(wxEVT_ENTER_WINDOW, &ToolBarDropDownItem::OnEnterWindow, this);
-        Bind(wxEVT_LEAVE_WINDOW, &ToolBarDropDownItem::OnLeaveWindow, this);
+    dc.SetTextForeground(fg);
+    dc.DrawBitmap(m_bitmap, 8, (GetClientSize().GetHeight() - m_bitmap.GetHeight()) / 2, true);
+
+    wxFont titleFont = GetFont();
+    dc.SetFont(titleFont);
+    int textX = 8 + m_bitmap.GetWidth() + 8;
+    int y = 8;
+    dc.DrawText(m_title, textX, y);
+
+    int titleW = 0;
+    int titleH = 0;
+    dc.GetTextExtent(m_title, &titleW, &titleH);
+    dc.SetPen(wxPen(wxSystemSettings::GetColour(wxSYS_COLOUR_3DLIGHT)));
+    int lineY = y + titleH + 2;
+    dc.DrawLine(textX, lineY, GetClientSize().GetWidth() - 8, lineY);
+
+    wxFont subFont = GetFont();
+    if (subFont.GetPointSize() > 0) {
+        subFont.SetPointSize(subFont.GetPointSize() - 1);
+    }
+    dc.SetFont(subFont);
+    dc.SetTextForeground(subFg);
+    dc.DrawText(m_subtitle, textX, lineY + 3);
+}
+
+void ToolBarDropDownItem::OnEnterWindow(wxMouseEvent& event)
+{
+    Highlight(true);
+    event.Skip();
+}
+
+void ToolBarDropDownItem::OnLeaveWindow(wxMouseEvent& event)
+{
+    Highlight(false);
+    event.Skip();
+}
+
+void ToolBarDropDownItem::OnClick(wxMouseEvent& event)
+{
+    wxPopupTransientWindow* popup = wxDynamicCast(GetParent(), wxPopupTransientWindow);
+    if (popup != nullptr) {
+        popup->Dismiss();
     }
 
-private:
-    int m_commandId;
-    wxBitmap m_bitmap;
-    wxString m_title;
-    wxString m_subtitle;
-    bool m_hover = false;
+    PostToolbarCommand(this, m_commandId);
+    event.Skip();
+}
 
-    void Highlight(bool on)
-    {
-        if (m_hover == on) {
-            return;
-        }
-        m_hover = on;
-        Refresh();
-    }
-
-    void OnPaint(wxPaintEvent&)
-    {
-        wxAutoBufferedPaintDC dc(this);
-        wxColour bg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)
-                              : wxSystemSettings::GetColour(wxSYS_COLOUR_MENU);
-        dc.SetBackground(wxBrush(bg));
-        dc.Clear();
-
-        wxColour fg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT)
-                              : wxSystemSettings::GetColour(wxSYS_COLOUR_MENUTEXT);
-        wxColour subFg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT)
-                                 : wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
-
-        dc.SetTextForeground(fg);
-        dc.DrawBitmap(m_bitmap, 8, (GetClientSize().GetHeight() - m_bitmap.GetHeight()) / 2, true);
-
-        wxFont titleFont = GetFont();
-        dc.SetFont(titleFont);
-        int textX = 8 + m_bitmap.GetWidth() + 8;
-        int y = 8;
-        dc.DrawText(m_title, textX, y);
-
-        int titleW = 0;
-        int titleH = 0;
-        dc.GetTextExtent(m_title, &titleW, &titleH);
-        dc.SetPen(wxPen(wxSystemSettings::GetColour(wxSYS_COLOUR_3DLIGHT)));
-        int lineY = y + titleH + 2;
-        dc.DrawLine(textX, lineY, GetClientSize().GetWidth() - 8, lineY);
-
-        wxFont subFont = GetFont();
-        if (subFont.GetPointSize() > 0) {
-            subFont.SetPointSize(subFont.GetPointSize() - 1);
-        }
-        dc.SetFont(subFont);
-        dc.SetTextForeground(subFg);
-        dc.DrawText(m_subtitle, textX, lineY + 3);
-    }
-
-    void OnEnterWindow(wxMouseEvent& event)
-    {
-        Highlight(true);
-        event.Skip();
-    }
-
-    void OnLeaveWindow(wxMouseEvent& event)
-    {
-        Highlight(false);
-        event.Skip();
-    }
-
-    void OnClick(wxMouseEvent& event)
-    {
-        wxPopupTransientWindow* popup = wxDynamicCast(GetParent(), wxPopupTransientWindow);
-        if (popup != nullptr) {
-            popup->Dismiss();
-        }
-
-        PostToolbarCommand(this, m_commandId);
-        event.Skip();
-    }
-};
+/*------ ToolBarDropDownPopup -----*/
 
 class ToolBarDropDownPopup : public wxPopupTransientWindow
 {
@@ -165,7 +156,6 @@ protected:
         Destroy();
     }
 };
-} // namespace
 
 ToolBarDropDown::ToolBarDropDown(wxWindow* parent)
     : m_parent(parent)
