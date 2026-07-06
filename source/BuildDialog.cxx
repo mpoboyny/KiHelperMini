@@ -5,6 +5,7 @@
 #include "prc.hxx"
 #include "BuildDialog.hxx"
 #include "DownlodDialog.hxx"
+#include "DialogUnzipLlama.hxx"
 #include "ProcessRunner.hxx"
 #include "BuildToolBar.hxx"
 #include "../resources/app.xpm"
@@ -222,6 +223,8 @@ void BuildDialog::OnDownloadLlama(wxCommandEvent& event)
 
 void BuildDialog::OnUnzipLlama(wxCommandEvent& event)
 {
+    DialogUnzipLlama dlg(this);
+    dlg.ShowModal();
 }
 
 void BuildDialog::OnClose(wxCloseEvent& event)

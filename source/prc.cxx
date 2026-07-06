@@ -35,6 +35,39 @@ const wxString g_ConfFile = []() {
     return targetPath;
 }();
 
+const wxString g_ScriptDir = []() -> wxString {
+    wxFileName exeFn(wxStandardPaths::Get().GetExecutablePath());
+    wxFileName scriptsFn;
+    scriptsFn.AssignDir(exeFn.GetPath());
+    scriptsFn.AppendDir("scripts");
+
+    if (!scriptsFn.DirExists()) {
+        return wxEmptyString;
+    }
+
+    return scriptsFn.GetPathWithSep();
+}();
+
+const wxString g_ScriptExtraLlamaPath = []() -> wxString {
+    const wxString scriptFileName = "extract_llama.sh";
+    #if defined(_WIN32)
+        const wxString scriptFileName = "extract_llama.bat";
+    #endif
+
+    wxFileName scriptsFn(g_ScriptDir);
+    if (g_ScriptDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+    scriptsFn.AppendDir(wxEmptyString);
+    wxString scriptPath = g_ScriptDir + scriptFileName;
+    wxFileName scriptFn(scriptPath);
+    if (!scriptFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return scriptPath;
+}();
+
 int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent) {
     wxGenericMessageDialog dlg(parent, message, caption, style);
     return dlg.ShowModal();

@@ -48,6 +48,7 @@
 #include <wx/evtloop.h>
 #include <wx/popupwin.h>
 #include <wx/dcbuffer.h>
+#include <wx/textfile.h>
 
 #include <memory>
 #include <utility>
@@ -85,6 +86,8 @@ extern const wchar_t           *g_APP_NAME;
 extern const wxString          g_ConfDir;
 extern const wxString          g_ConfFileName;
 extern const wxString          g_ConfFile;
+extern const wxString          g_ScriptDir;
+extern const wxString          g_ScriptExtraLlamaPath;
 
 enum GuiStatus
 {
