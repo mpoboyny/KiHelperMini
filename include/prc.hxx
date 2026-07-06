@@ -46,6 +46,8 @@
 #include <wx/dataobj.h>
 #include <wx/utils.h>
 #include <wx/evtloop.h>
+#include <wx/popupwin.h>
+#include <wx/dcbuffer.h>
 
 #include <memory>
 #include <utility>

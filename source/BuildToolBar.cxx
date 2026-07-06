@@ -5,8 +5,6 @@
 #include "prc.hxx"
 #include "BuildToolBar.hxx"
 
-#include <wx/popupwin.h>
-
 #include "../resources/fileopen.xpm"
 #include "../resources/folder_open.xpm"
 #include "../resources/archive-extract.xpm"
@@ -33,67 +31,82 @@ public:
                                         const wxString& title,
                                         const wxString& subtitle,
                                         int commandId)
-                : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
+                                : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
                 , m_commandId(commandId)
+                                , m_bitmap(bitmap)
+                                , m_title(title)
+                                , m_subtitle(subtitle)
         {
-                SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
-                SetCursor(wxCursor(wxCURSOR_HAND));
+                                SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
+                                SetCursor(wxCursor(wxCURSOR_HAND));
+                                SetBackgroundStyle(wxBG_STYLE_PAINT);
 
-                wxBoxSizer* row = new wxBoxSizer(wxHORIZONTAL);
+                                wxClientDC dc(this);
+                                int textW = 0;
+                                int textH = 0;
+                                dc.GetTextExtent(m_title, &textW, &textH);
+                                int subW = 0;
+                                int subH = 0;
+                                dc.GetTextExtent(m_subtitle, &subW, &subH);
 
-                wxStaticBitmap* icon = new wxStaticBitmap(this, wxID_ANY, bitmap);
-                row->Add(icon, 0, wxALL | wxALIGN_TOP, 8);
+                                int w = 16 + 8 + std::max(textW, subW) + 24;
+                                int h = std::max(16, textH + subH + 4) + 16;
+                                SetMinSize(wxSize(w, h));
+                                SetInitialSize(GetMinSize());
 
-                wxBoxSizer* textSizer = new wxBoxSizer(wxVERTICAL);
-
-                wxStaticText* titleText = new wxStaticText(this, wxID_ANY, title);
-                wxFont titleFont = titleText->GetFont();
-                titleFont.SetWeight(wxFONTWEIGHT_BOLD);
-                titleText->SetFont(titleFont);
-
-                wxStaticText* subtitleText = new wxStaticText(this, wxID_ANY, subtitle);
-                wxFont subtitleFont = subtitleText->GetFont();
-                if (subtitleFont.GetPointSize() > 0) {
-                        subtitleFont.SetPointSize(subtitleFont.GetPointSize() - 1);
-                        subtitleText->SetFont(subtitleFont);
-                }
-                subtitleText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT));
-
-                textSizer->Add(titleText, 0, wxBOTTOM, 2);
-                textSizer->Add(subtitleText, 0);
-
-                row->Add(textSizer, 1, wxALL | wxALIGN_CENTER_VERTICAL, 8);
-                SetSizerAndFit(row);
-
-                BindClicks(this);
-                BindClicks(icon);
-                BindClicks(titleText);
-                BindClicks(subtitleText);
+                                Bind(wxEVT_PAINT, &FolderPopupItem::OnPaint, this);
+                                Bind(wxEVT_LEFT_UP, &FolderPopupItem::OnClick, this);
+                                Bind(wxEVT_ENTER_WINDOW, &FolderPopupItem::OnEnterWindow, this);
+                                Bind(wxEVT_LEAVE_WINDOW, &FolderPopupItem::OnLeaveWindow, this);
         }
 
 private:
         int m_commandId;
-
-        void BindClicks(wxWindow* window)
-        {
-                window->Bind(wxEVT_LEFT_UP, &FolderPopupItem::OnClick, this);
-                window->Bind(wxEVT_ENTER_WINDOW, &FolderPopupItem::OnEnterWindow, this);
-                window->Bind(wxEVT_LEAVE_WINDOW, &FolderPopupItem::OnLeaveWindow, this);
-        }
+                wxBitmap m_bitmap;
+                wxString m_title;
+                wxString m_subtitle;
+                bool m_hover = false;
 
         void Highlight(bool on)
         {
-                SetBackgroundColour(on ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)
-                                                                : wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
-
-                wxWindowList& children = GetChildren();
-                for (wxWindowList::compatibility_iterator it = children.GetFirst(); it; it = it->GetNext()) {
-                        it->GetData()->SetBackgroundColour(GetBackgroundColour());
-                }
-
-                Refresh();
-                Update();
+                                if (m_hover == on) {
+                                                return;
+                                }
+                                m_hover = on;
+                                Refresh();
         }
+
+                void OnPaint(wxPaintEvent& event)
+                {
+                                wxAutoBufferedPaintDC dc(this);
+                                wxColour bg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)
+                                                                                                        : wxSystemSettings::GetColour(wxSYS_COLOUR_MENU);
+                                dc.SetBackground(wxBrush(bg));
+                                dc.Clear();
+
+                                wxColour fg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT)
+                                                                                                        : wxSystemSettings::GetColour(wxSYS_COLOUR_MENUTEXT);
+                                wxColour subFg = m_hover ? wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT)
+                                                                                                                        : wxSystemSettings::GetColour(wxSYS_COLOUR_GRAYTEXT);
+
+                                dc.SetTextForeground(fg);
+                                dc.DrawBitmap(m_bitmap, 8, (GetClientSize().GetHeight() - m_bitmap.GetHeight()) / 2, true);
+
+                                wxFont titleFont = GetFont();
+                                titleFont.SetWeight(wxFONTWEIGHT_BOLD);
+                                dc.SetFont(titleFont);
+                                int textX = 8 + m_bitmap.GetWidth() + 8;
+                                int y = 8;
+                                dc.DrawText(m_title, textX, y);
+
+                                wxFont subFont = GetFont();
+                                if (subFont.GetPointSize() > 0) {
+                                                subFont.SetPointSize(subFont.GetPointSize() - 1);
+                                }
+                                dc.SetFont(subFont);
+                                dc.SetTextForeground(subFg);
+                                dc.DrawText(m_subtitle, textX, y + titleFont.GetPointSize() + 2);
+                }
 
         void OnEnterWindow(wxMouseEvent& event)
         {
