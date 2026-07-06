@@ -7,6 +7,7 @@
 
 #include "../resources/edit-4.xpm"
 #include "../resources/restart.xpm"
+#include "../resources/build.xpm"
 
 CMainDialogMenu::CMainDialogMenu() 
     : wxMenuBar()
@@ -37,6 +38,7 @@ CMainDialogMenu::CMainDialogMenu()
     wxMenu* buildMenu = new wxMenu();
     // Add llama.cpp as a direct menu item under Build
     wxMenuItem* llamaItem = new wxMenuItem(buildMenu, ID_BUILD_LLAMA, "llama.cpp", "Build llama.cpp");
+    llamaItem->SetBitmap(wxBitmap(build_xpm));
     buildMenu->Append(llamaItem);
     Append(buildMenu, "&Build");
 

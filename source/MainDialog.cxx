@@ -78,7 +78,7 @@ void CMainDialog::OnAbout(wxCommandEvent& event)
     
     aboutInfo.SetName(g_APP_NAME);
     aboutInfo.SetVersion("1.0.0");
-    aboutInfo.SetDescription("Light AI Assistant Utility.\nThis program use llama.cpp.\nBuilt with wxWidgets.\nIt is free software, no license, no warranty.\nYou use it on own risk ;)\n");
+    aboutInfo.SetDescription("Light AI Assistant Utility.\nThis program use llama.cpp.\nBuilt with wxWidgets.\nIt is a free software, no license, no warranty.\nYou use it on own risk ;)\n");
     aboutInfo.SetCopyright("(C) 2026 Mykhaylo Poboynyy");
     // aboutInfo.SetWebSite("https://your-website.com");
     aboutInfo.SetIcon(wxIcon(app_xpm));
