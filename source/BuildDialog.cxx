@@ -83,10 +83,18 @@ int BuildDialog::ShowModalLike()
     if (m_parent) {
         m_parent->Disable();
     }
+    m_eventLoop = nullptr;
     Show();
     Raise();
     wxModalEventLoop eventLoop(this);
+    m_eventLoop = &eventLoop;
     eventLoop.Run();
+    m_eventLoop = nullptr;
+    if (m_parent) {
+        m_parent->Enable();
+        m_parent->Raise();
+    }
+    Hide();
     return wxID_OK;
 }
 
@@ -222,5 +230,9 @@ void BuildDialog::OnClose(wxCloseEvent& event)
         m_parent->Enable();
         m_parent->Raise();
     }
-    Destroy();
+    Hide();
+
+    if (m_eventLoop) {
+        m_eventLoop->Exit();
+    }
 }

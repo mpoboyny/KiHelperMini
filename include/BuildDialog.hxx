@@ -27,6 +27,7 @@ private:
     wxTextCtrl* m_llamaSource;
     wxTextCtrl* m_cmakePathText;
     wxWindow* m_parent{nullptr};
+    wxEventLoopBase* m_eventLoop{nullptr};
 };
 
 #endif // BUILDDIALOG_HXX

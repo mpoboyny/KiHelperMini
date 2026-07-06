@@ -93,11 +93,17 @@ private:
                                 dc.DrawBitmap(m_bitmap, 8, (GetClientSize().GetHeight() - m_bitmap.GetHeight()) / 2, true);
 
                                 wxFont titleFont = GetFont();
-                                titleFont.SetWeight(wxFONTWEIGHT_BOLD);
                                 dc.SetFont(titleFont);
                                 int textX = 8 + m_bitmap.GetWidth() + 8;
                                 int y = 8;
                                 dc.DrawText(m_title, textX, y);
+
+                                int titleW = 0;
+                                int titleH = 0;
+                                dc.GetTextExtent(m_title, &titleW, &titleH);
+                                dc.SetPen(wxPen(wxSystemSettings::GetColour(wxSYS_COLOUR_3DLIGHT)));
+                                int lineY = y + titleH + 2;
+                                dc.DrawLine(textX, lineY, GetClientSize().GetWidth() - 8, lineY);
 
                                 wxFont subFont = GetFont();
                                 if (subFont.GetPointSize() > 0) {
@@ -105,7 +111,7 @@ private:
                                 }
                                 dc.SetFont(subFont);
                                 dc.SetTextForeground(subFg);
-                                dc.DrawText(m_subtitle, textX, y + titleFont.GetPointSize() + 2);
+                                dc.DrawText(m_subtitle, textX, lineY + 3);
                 }
 
         void OnEnterWindow(wxMouseEvent& event)
