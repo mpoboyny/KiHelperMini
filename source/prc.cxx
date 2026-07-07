@@ -49,16 +49,16 @@ const wxString g_ScriptDir = []() -> wxString {
 }();
 
 const wxString g_ScriptExtraLlamaPath = []() -> wxString {
+#if defined(__gnu_linux__)
     const wxString scriptFileName = "extract_llama.sh";
-    #if defined(_WIN32)
-        const wxString scriptFileName = "extract_llama.bat";
-    #endif
+#elif defined(_WIN32)
+    const wxString scriptFileName = "extract_llama.bat";
+#endif
 
-    wxFileName scriptsFn(g_ScriptDir);
     if (g_ScriptDir.IsEmpty()) {
         return wxEmptyString;
     }
-    scriptsFn.AppendDir(wxEmptyString);
+
     wxString scriptPath = g_ScriptDir + scriptFileName;
     wxFileName scriptFn(scriptPath);
     if (!scriptFn.FileExists()) {

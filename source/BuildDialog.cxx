@@ -17,6 +17,9 @@ BuildDialog::BuildDialog(wxWindow* parent)
     TrFu;
     SetIcon(wxIcon(app_xpm));
 
+    const wxColour contentBg = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
+    SetBackgroundColour(contentBg);
+
     SetToolBar(new BuildToolBar(this));
 
     wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
@@ -38,6 +41,7 @@ BuildDialog::BuildDialog(wxWindow* parent)
     top->Add(new wxStaticLine(this), 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
 
     wxStaticBoxSizer* toolsBox = new wxStaticBoxSizer(wxVERTICAL, this, "Tools");
+    toolsBox->GetStaticBox()->SetBackgroundColour(contentBg);
     wxBoxSizer* cmakeRow = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* cmakeLabel = new wxStaticText(this, wxID_ANY, "CMake:");
     cmakeRow->Add(cmakeLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
