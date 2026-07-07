@@ -36,6 +36,8 @@ SRC_DIR = source
 INC_DIR = include
 RES_DIR = resources
 
+SRC_FILES = $(SRC_DIR)\*.cxx
+
 # Leave HDRS empty here so nested nmake can be invoked with HDRS set at runtime.
 HDRS =
 
@@ -43,9 +45,7 @@ PCH_FILE = $(OBJ_DIR)\prc.pch
 
 TARGET = $(BIN_DIR)\KiHelperMini.exe
 
-release: $(TARGET)
-
-$(TARGET): $(PCH_FILE) $(HDRS)
+$(TARGET): $(SRC_FILES) $(PCH_FILE) $(HDRS)
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 	@echo Building precompiled header...
@@ -63,6 +63,8 @@ $(TARGET): $(PCH_FILE) $(HDRS)
 	@echo Copying extract_llama.bat...
 	@if not exist "$(BIN_DIR)\scripts" mkdir "$(BIN_DIR)\scripts"
 	@copy /Y "scripts\*" "$(BIN_DIR)\scripts\"
+
+release: $(TARGET)
 
 runr: release
 	@echo Running $(TARGET)...
