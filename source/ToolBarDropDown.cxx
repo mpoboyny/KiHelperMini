@@ -11,12 +11,12 @@ ToolBarDropDownItem::ToolBarDropDownItem(wxWindow* parent,
                                          const wxBitmap& bitmap,
                                          const wxString& title,
                                          const wxString& subtitle,
-                                         int commandId)
+                                         std::function<void()> onClick)
     : wxPanel(parent, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxBORDER_NONE)
-    , m_commandId(commandId)
     , m_bitmap(bitmap)
     , m_title(title)
     , m_subtitle(subtitle)
+    , m_onClick(std::move(onClick))
 {
     SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
     SetCursor(wxCursor(wxCURSOR_HAND));
@@ -39,18 +39,6 @@ ToolBarDropDownItem::ToolBarDropDownItem(wxWindow* parent,
     Bind(wxEVT_LEFT_UP, &ToolBarDropDownItem::OnClick, this);
     Bind(wxEVT_ENTER_WINDOW, &ToolBarDropDownItem::OnEnterWindow, this);
     Bind(wxEVT_LEAVE_WINDOW, &ToolBarDropDownItem::OnLeaveWindow, this);
-}
-
-void ToolBarDropDownItem::PostToolbarCommand(wxWindow* source, int id)
-{
-    wxWindow* target = wxGetTopLevelParent(source);
-    if (target == nullptr) {
-        target = source;
-    }
-
-    wxCommandEvent event(wxEVT_MENU, id);
-    event.SetEventObject(source);
-    wxPostEvent(target, event);
 }
 
 void ToolBarDropDownItem::Highlight(bool on)
@@ -114,12 +102,15 @@ void ToolBarDropDownItem::OnLeaveWindow(wxMouseEvent& event)
 
 void ToolBarDropDownItem::OnClick(wxMouseEvent& event)
 {
+    if (m_onClick) {
+        m_onClick();
+    }
+
     wxPopupTransientWindow* popup = wxDynamicCast(GetParent(), wxPopupTransientWindow);
     if (popup != nullptr) {
         popup->Dismiss();
     }
 
-    PostToolbarCommand(this, m_commandId);
     event.Skip();
 }
 
@@ -140,7 +131,7 @@ public:
                                                item.bitmap,
                                                item.title,
                                                item.subtitle,
-                                               item.commandId),
+                                               item.onClick),
                        0,
                        wxEXPAND | (i > 0 ? wxTOP : 0),
                        i > 0 ? 1 : 0);
@@ -165,9 +156,9 @@ ToolBarDropDown::ToolBarDropDown(wxWindow* parent)
 void ToolBarDropDown::AddItem(const wxBitmap& bitmap,
                               const wxString& title,
                               const wxString& subtitle,
-                              int commandId)
+                              std::function<void()> onClick)
 {
-    m_items.push_back({bitmap, title, subtitle, commandId});
+    m_items.push_back({bitmap, title, subtitle, std::move(onClick)});
 }
 
 void ToolBarDropDown::Popup(const wxPoint& screenPosition)

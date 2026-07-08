@@ -14,15 +14,13 @@ public:
                         const wxBitmap& bitmap,
                         const wxString& title,
                         const wxString& subtitle,
-                        int commandId);
-
-    static void PostToolbarCommand(wxWindow* source, int id);
+                        std::function<void()> onClick);
 
 private:
-    int m_commandId;
     wxBitmap m_bitmap;
     wxString m_title;
     wxString m_subtitle;
+    std::function<void()> m_onClick;
     bool m_hover = false;
 
     void Highlight(bool on);
@@ -42,7 +40,7 @@ public:
         wxBitmap bitmap;
         wxString title;
         wxString subtitle;
-        int commandId = wxID_ANY;
+        std::function<void()> onClick;
     };
 
     explicit ToolBarDropDown(wxWindow* parent);
@@ -50,7 +48,7 @@ public:
     void AddItem(const wxBitmap& bitmap,
                  const wxString& title,
                  const wxString& subtitle,
-                 int commandId);
+                 std::function<void()> onClick);
 
     void Popup(const wxPoint& screenPosition);
 

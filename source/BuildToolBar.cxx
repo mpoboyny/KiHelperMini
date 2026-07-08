@@ -39,13 +39,35 @@ BuildToolBar::BuildToolBar(wxWindow* parent)
         popup.AddItem(wxBitmap(folder_open_xpm),
                       "Open folder",
                       "Open the llama.cpp source folder",
-                      ID_OPEN_LLAMA_SOURCE);
+                      [this]() {
+                          RunHandler(ID_OPEN_LLAMA_SOURCE);
+                      });
         popup.AddItem(wxBitmap(fileopen_xpm),
                       "Show files...",
                       "Open the folder in your file manager",
-                      ID_SHOW_FILES);
+                      [this]() {
+                          RunHandler(ID_SHOW_FILES);
+                      });
         popup.Popup(ClientToScreen(wxPoint(0, GetSize().GetHeight())));
     }, ID_OPEN_LLAMA_SOURCE);
 
     Realize();
+}
+
+bool BuildToolBar::RunHandler(int toolId)
+{
+    auto handler = m_handlers.find(toolId);
+    if (handler == m_handlers.end()) {
+        return false;
+    }
+
+    handler->second();
+    return true;
+}
+
+void BuildToolBar::OnTool(wxCommandEvent& event)
+{
+    if (!RunHandler(event.GetId())) {
+        event.Skip();
+    }
 }

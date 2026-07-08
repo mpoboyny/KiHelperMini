@@ -20,7 +20,12 @@ BuildDialog::BuildDialog(wxWindow* parent)
     const wxColour contentBg = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
     SetBackgroundColour(contentBg);
 
-    SetToolBar(new BuildToolBar(this));
+    BuildToolBar *toolBuildBar = new BuildToolBar(this);
+    toolBuildBar->UseHandler(ID_OPEN_LLAMA_SOURCE, &BuildDialog::OnOpenLlamaSource);
+    toolBuildBar->UseHandler(ID_SHOW_FILES, &BuildDialog::OnShowFiles);
+    toolBuildBar->UseHandler(ID_DOWNLOAD_LLAMA, &BuildDialog::OnDownloadLlama);
+    toolBuildBar->UseHandler(ID_UNZIP_LLAMA, &BuildDialog::OnUnzipLlama);
+    SetToolBar(toolBuildBar);
 
     wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
 
@@ -164,6 +169,7 @@ void BuildDialog::OnCheckCMake(wxCommandEvent& event)
 
 void BuildDialog::OnOpenLlamaSource(wxCommandEvent& event)
 {
+    TrFu;
     wxString sourcePath = m_llamaSource->GetValue();
     wxDirDialog dlg(this, "Select llama.cpp source folder", wxGetCwd(),
                     wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
