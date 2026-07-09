@@ -62,6 +62,9 @@
 #include <vector>
 #include <thread>
 #include <atomic>
+#include <filesystem>
+#include <limits.h>
+#include <unistd.h>
 
 #ifdef _WIN32 
 #   ifndef MP_UNICODE
@@ -83,6 +86,7 @@ extern const int               g_DefaultTxtSize;
 extern const wchar_t           *g_DefaultTxtFontName;
 
 extern const wchar_t           *g_APP_NAME;
+extern wxString                g_WorkDir;
 extern const wxString          g_ConfDir;
 extern const wxString          g_ConfFileName;
 extern const wxString          g_ConfFile;
@@ -117,6 +121,7 @@ enum ButtIDs
     ID_DOWNLOAD_LLAMA
 };
 
+void SetWorkingDir();
 int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent);
 bool RemoveDirectoryContents(const wxString& path);
 

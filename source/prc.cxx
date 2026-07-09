@@ -9,6 +9,8 @@ const wchar_t *g_DefaultTxtFontName = L"Sans";
 
 const wchar_t *g_APP_NAME = L"KiHelper-Mini";
 
+wxString g_WorkDir;
+
 const wxString g_ConfDir = []() {
     wxFileName fn;
     fn.AssignDir(wxStandardPaths::Get().GetDocumentsDir());
@@ -68,7 +70,48 @@ const wxString g_ScriptExtraLlamaPath = []() -> wxString {
     return scriptPath;
 }();
 
-int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent) {
+void SetWorkingDir()
+{
+    TrFu;
+    std::filesystem::path workDirPath;
+
+#ifdef _WIN32
+    wchar_t buffer[MAX_PATH];
+    DWORD len = GetModuleFileNameW(nullptr, buffer, MAX_PATH);
+    if (len != 0 && len < MAX_PATH) {
+        workDirPath = std::filesystem::path(buffer).parent_path();
+    }
+#else
+    char buffer[PATH_MAX];
+    ssize_t len = ::readlink("/proc/self/exe", buffer, sizeof(buffer) - 1);
+    if (len > 0) {
+        buffer[len] = '\0';
+        workDirPath = std::filesystem::path(buffer).parent_path();
+    }
+#endif
+
+    if (workDirPath.empty()) {
+        workDirPath = std::filesystem::current_path();
+    }
+
+    std::error_code ec;
+    std::filesystem::current_path(workDirPath, ec);
+    
+    std::filesystem::path currentPath = std::filesystem::current_path(ec);
+    if (!ec) {
+        g_WorkDir = wxString::FromUTF8(currentPath.string());
+        if (!g_WorkDir.empty()) {
+            wxFileName workFn(g_WorkDir);
+            if (workFn.DirExists()) {
+                g_WorkDir = workFn.GetPathWithSep();
+            }
+        }
+    }
+    TrStr(g_WorkDir);
+}
+
+int ShowGenericMessageBox(const wxString &message, const wxString &caption, int style, wxWindow *parent)
+{
     wxGenericMessageDialog dlg(parent, message, caption, style);
     return dlg.ShowModal();
 }

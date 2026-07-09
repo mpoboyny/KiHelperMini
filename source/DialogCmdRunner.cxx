@@ -14,18 +14,40 @@ DialogCmdRunner::DialogCmdRunner(wxWindow* parent,
 {
     SetClientSize(dialogSize);
 
+    const wxSize minSize(700, 500);
+
+    wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
+
+    wxBoxSizer* headerRow = new wxBoxSizer(wxHORIZONTAL);
+
     wxStaticText* title = new wxStaticText(this, wxID_ANY, headerText);
     wxFont titleFont = title->GetFont();
     titleFont.SetWeight(wxFONTWEIGHT_BOLD);
     title->SetFont(titleFont);
-    title->SetPosition(wxPoint(10, 10));
+    headerRow->Add(title, 0, wxRIGHT | wxALIGN_CENTER_VERTICAL, 16);
 
-    m_textCtrl = new wxStyledTextCtrl(this, wxID_ANY, wxPoint(10, 35), wxSize(dialogSize.GetWidth() - 20, dialogSize.GetHeight() - 85));
+    wxStaticText* workDir = new wxStaticText(this, wxID_ANY, "Work directory: " + g_WorkDir);
+    headerRow->Add(workDir, 0, wxALIGN_CENTER_VERTICAL);
+
+    top->Add(headerRow, 0, wxALL, 10);
+
+    top->Add(new wxStaticLine(this), 0, wxEXPAND | wxLEFT | wxRIGHT, 10);
+
+    m_textCtrl = new wxStyledTextCtrl(this, wxID_ANY);
+    top->Add(m_textCtrl, 1, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
+
+    wxBoxSizer* buttonRow = new wxBoxSizer(wxHORIZONTAL);
+    buttonRow->AddStretchSpacer(1);
 
     wxButton* closeBtn = new wxButton(this, wxID_OK, "Close");
-    closeBtn->SetSize(wxSize(80, 28));
-    closeBtn->SetPosition(wxPoint(GetClientSize().GetWidth() - closeBtn->GetSize().GetWidth() - 10,
-                                  GetClientSize().GetHeight() - closeBtn->GetSize().GetHeight() - 10));
+    buttonRow->Add(closeBtn, 0, wxALL, 10);
+
+    top->Add(buttonRow, 0, wxEXPAND);
+
+    SetSizer(top);
+    SetMinSize(minSize);
+    top->SetMinSize(minSize);
+    top->SetSizeHints(this);
 
     Bind(wxEVT_BUTTON, [this](wxCommandEvent&) {
         EndModal(wxID_OK);

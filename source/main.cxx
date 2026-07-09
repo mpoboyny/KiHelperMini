@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 #endif
 {
     wxDISABLE_DEBUG_SUPPORT();
-    
+    SetWorkingDir();
     wxApp::SetInstance(new wxApp());
 
 #ifdef __WXMSW__
