@@ -4,6 +4,7 @@
 
 #include "prc.hxx"
 #include "DialogCmdRunner.hxx"
+#include "ProcessRunner.hxx"
 
 DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
                                  const wxString &dialogTitle,
@@ -36,9 +37,11 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
     wxBoxSizer* buttonRow = new wxBoxSizer(wxHORIZONTAL);
     buttonRow->AddStretchSpacer(1);
 
-    wxButton* closeBtn = new wxButton(this, wxID_OK, "Close");
+    wxButton* closeBtn = new wxButton(this, wxID_CANCEL, "Close");
     buttonRow->Add(closeBtn, 0, wxALL, 10);
-
+    wxButton* doItBtn = new wxButton(this, wxID_OK, "Do it");
+    buttonRow->Add(doItBtn, 0, wxALL, 10);
+    Bind(wxEVT_BUTTON, &DialogCmdRunner::OnDialogDoIt, this, wxID_OK);
     top->Add(buttonRow, 0, wxEXPAND);
 
     SetSizer(top);
@@ -47,8 +50,8 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
     top->SetSizeHints(this);
 
     Bind(wxEVT_BUTTON, [this](wxCommandEvent&) {
-        EndModal(wxID_OK);
-    }, wxID_OK);
+        EndModal(wxID_CANCEL);
+    }, wxID_CANCEL);
 
     CentreOnParent();
 }
@@ -114,4 +117,53 @@ wxString DialogCmdRunner::GetScriptContentWithReplacements(const wxString &scrip
         }
     }
     return content;
+}
+
+void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
+{
+    TrFu;
+
+    if (!m_textCtrl) {
+        ShowGenericMessageBox("No script content available.", "Run script", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    wxString scriptContent = m_textCtrl->GetText();
+    wxFile tempFile;
+    wxString tempPath = wxFileName::CreateTempFileName("DialogCmdRunner-", &tempFile);
+    if (tempPath.IsEmpty() || !tempFile.IsOpened()) {
+        ShowGenericMessageBox("Failed to create a temporary script file.", "Run script", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    if (!tempFile.Write(scriptContent, wxConvUTF8) || !tempFile.Flush()) {
+        tempFile.Close();
+        wxRemoveFile(tempPath);
+        ShowGenericMessageBox("Failed to write the temporary script file.", "Run script", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    tempFile.Close();
+
+    wxFileName scriptFn(tempPath);
+    scriptFn.SetExt("sh");
+    wxString scriptPath = scriptFn.GetFullPath();
+    if (scriptPath != tempPath && !wxRenameFile(tempPath, scriptPath, true)) {
+        wxRemoveFile(tempPath);
+        ShowGenericMessageBox("Failed to prepare the temporary script file.", "Run script", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    if (!wxFileName(scriptPath).SetPermissions(wxS_IRUSR | wxS_IWUSR | wxS_IXUSR)) {
+        Tr("Warning: could not set execute permissions on temporary script: " << scriptPath);
+    }
+
+    ProcessRunner runner;
+    if (!runner.RunAsyncInNewWindow(scriptPath)) {
+        wxRemoveFile(scriptPath);
+        ShowGenericMessageBox("Failed to launch the script in a new window.", "Run script", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    EndModal(wxID_OK);
 }

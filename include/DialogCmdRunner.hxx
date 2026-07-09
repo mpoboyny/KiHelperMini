@@ -26,6 +26,7 @@ protected:
     wxString GetScriptContentWithReplacements(const wxString &scriptPath);
     virtual void LoadScript() = 0;
     
+    void OnDialogDoIt(wxCommandEvent& event);
 };
 
 #endif // DIALOGCMDRUNNER_HXX
