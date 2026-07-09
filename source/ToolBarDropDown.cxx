@@ -102,13 +102,13 @@ void ToolBarDropDownItem::OnLeaveWindow(wxMouseEvent& event)
 
 void ToolBarDropDownItem::OnClick(wxMouseEvent& event)
 {
-    if (m_onClick) {
-        m_onClick();
-    }
-
     wxPopupTransientWindow* popup = wxDynamicCast(GetParent(), wxPopupTransientWindow);
     if (popup != nullptr) {
         popup->Dismiss();
+    }
+
+    if (m_onClick) {
+        m_onClick();
     }
 
     event.Skip();
