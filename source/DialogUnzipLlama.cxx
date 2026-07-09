@@ -5,13 +5,22 @@
 #include "prc.hxx"
 #include "DialogUnzipLlama.hxx"
 
-DialogUnzipLlama::DialogUnzipLlama(wxWindow* parent)
+DialogUnzipLlama::DialogUnzipLlama(wxWindow* parent, const wxString &llamaSorceDir)
     : DialogCmdRunner(parent, "Unzip llama.cpp", "extract_llama.sh", wxSize(800, 600))
+    , m_llamaSourceDir(llamaSorceDir)
 {
     TrFu;
 
     SetupHighlighting();
     LoadScript();
+}
+
+void DialogUnzipLlama::SetupReplacements()
+{
+    // m_llamaSourceDir
+    m_scriptReplacements = {
+        { "<!-- llama.cpp-master.zip -->", g_WorkDir }
+    };
 }
 
 void DialogUnzipLlama::LoadScript()
@@ -32,6 +41,6 @@ void DialogUnzipLlama::LoadScript()
     }
 
     m_textCtrl->SetText(content);
-    m_textCtrl->SetReadOnly(true);
+    m_textCtrl->SetReadOnly(false);
     m_textCtrl->SetSavePoint();
 }

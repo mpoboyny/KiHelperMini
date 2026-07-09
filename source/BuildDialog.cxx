@@ -58,7 +58,7 @@ BuildDialog::BuildDialog(wxWindow* parent)
     toolsBox->Add(cmakeRow, 0, wxEXPAND);
 
     wxBoxSizer* toolsRow = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* sourceLabel = new wxStaticText(this, wxID_ANY, "llama.cpp source:");
+    wxStaticText* sourceLabel = new wxStaticText(this, wxID_ANY, "llama.cpp source directory:");
     toolsRow->Add(sourceLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
     m_llamaSource = new wxTextCtrl(this, wxID_ANY, wxFileName(g_ConfDir + DownlodDialog::s_defSaveDir).GetFullPath(), wxDefaultPosition, wxDefaultSize);
     m_llamaSource->SetName("llama_source");
@@ -233,7 +233,7 @@ void BuildDialog::OnDownloadLlama(wxCommandEvent& event)
 
 void BuildDialog::OnUnzipLlama(wxCommandEvent& event)
 {
-    DialogUnzipLlama dlg(this);
+    DialogUnzipLlama dlg(this, m_llamaSource->GetValue().Trim());
     dlg.ShowModal();
 }
 

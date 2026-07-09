@@ -9,11 +9,13 @@
 
 class DialogUnzipLlama : public DialogCmdRunner
 {
+    wxString m_llamaSourceDir;
 public:
-    DialogUnzipLlama(wxWindow* parent);
+    DialogUnzipLlama(wxWindow* parent, const wxString &llamaSorceDir);
     ~DialogUnzipLlama() = default;
 
 private:
+    void  SetupReplacements() override;
     void LoadScript() override;
 };
 
