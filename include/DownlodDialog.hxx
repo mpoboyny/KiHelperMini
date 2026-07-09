@@ -5,8 +5,6 @@
 #ifndef DOWNLODDIALOG_HXX
 #define DOWNLODDIALOG_HXX
 
-#include "prc.hxx"
-
 class DownlodDialog : public wxDialog
 {
     static const wxString s_defLink;
