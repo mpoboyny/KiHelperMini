@@ -1,7 +1,13 @@
 #!/bin/bash
 
-mkdir -p ./llama.cpp
+LLAMA_ROOT_DIR=<! llama_root_dir -->
+LLAMA_ZIP="llama.cpp-master.zip"
 
-unzip -q <!-- llama.cpp-master.zip --> -d ./llama.cpp
+cd $LLAMA_ROOT_DIR
+
+mkdir -p ./llama.cpp
+unzip -q $LLAMA_ZIP -d ./llama.cpp
 
 echo Extraction complete: ./llama.cpp
+
+# working directory will restored

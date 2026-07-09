@@ -5,16 +5,13 @@
 #include "prc.hxx"
 #include "DialogCmdRunner.hxx"
 
-DialogCmdRunner::DialogCmdRunner(wxWindow* parent,
-                                 const wxString& dialogTitle,
-                                 const wxString& headerText,
-                                 const wxSize& dialogSize)
-    : wxDialog(parent, wxID_ANY, dialogTitle, wxDefaultPosition, dialogSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
-    , m_textCtrl(nullptr)
+DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
+                                 const wxString &dialogTitle,
+                                 const wxString &headerText,
+                                 const wxSize &dialogSize)
+    : wxDialog(parent, wxID_ANY, dialogTitle, wxDefaultPosition, dialogSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_textCtrl(nullptr)
 {
     SetClientSize(dialogSize);
-
-    const wxSize minSize(700, 500);
 
     wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
 
@@ -45,8 +42,8 @@ DialogCmdRunner::DialogCmdRunner(wxWindow* parent,
     top->Add(buttonRow, 0, wxEXPAND);
 
     SetSizer(top);
-    SetMinSize(minSize);
-    top->SetMinSize(minSize);
+    SetMinSize(dialogSize);
+    top->SetMinSize(dialogSize);
     top->SetSizeHints(this);
 
     Bind(wxEVT_BUTTON, [this](wxCommandEvent&) {
@@ -84,4 +81,37 @@ void DialogCmdRunner::SetupHighlighting()
     m_textCtrl->SetKeyWords(0, "if then else elif fi do done for while case esac in function select until break continue return exit local export readonly declare typeset shift source dot");
     m_textCtrl->SetWrapMode(wxSTC_WRAP_NONE);
     m_textCtrl->SetTabWidth(4);
+}
+
+
+void DialogCmdRunner::UseReplacements(wxString &content)
+{
+    TrFu;
+    // Replace placeholders in the content with actual values from m_scriptReplacements
+    for (const auto& [placeholder, replacement] : m_scriptReplacements) {
+        Tr("UseReplacement: replacing " << placeholder << " with " << replacement);
+        content.Replace(placeholder, replacement);
+    }
+}
+
+
+wxString DialogCmdRunner::GetScriptContentWithReplacements(const wxString &scriptPath)
+{
+    wxString content;
+    if (scriptPath.IsEmpty()) {
+        content = wxString::Format("Script not found: %s", scriptPath);
+    } else {
+        wxTextFile file(scriptPath);
+        if (!file.Open()) {
+            content = wxString::Format("Cannot open script file:\n%s", scriptPath);
+        } 
+        else {
+            for (size_t i = 0; i < file.GetLineCount(); ++i) {
+                content += file.GetLine(i);
+                content += "\n";
+            }
+            UseReplacements(content);
+        }
+    }
+    return content;
 }
