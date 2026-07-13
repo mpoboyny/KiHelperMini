@@ -42,28 +42,25 @@ bool CopyStreamToFile(wxInputStream& input, const wxString& targetPath)
     return HasZipSignature(targetPath);
 }
 
-bool DownloadToFile(const wxString& url, const wxString& targetPath)
+bool DownloadWithRequest(wxWebRequestSync& request, const wxString& targetPath)
 {
-    wxWebRequestSync request = wxWebSessionSync::GetDefault().CreateRequest(url);
-    if (request.IsOk()) {
-        request.SetMethod("GET");
-        request.SetHeader("User-Agent", "KiHelperMiniDir");
+    auto result = request.Execute();
+    wxWebResponse response = request.GetResponse();
 
-        auto result = request.Execute();
-        wxWebResponse response = request.GetResponse();
-
-        if (result.state == wxWebRequestSync::State_Completed &&
-            response.IsOk() &&
-            response.GetStatus() >= 200 && response.GetStatus() < 300) {
-            wxInputStream* responseStream = response.GetStream();
-            if (responseStream && CopyStreamToFile(*responseStream, targetPath)) {
-                return true;
-            }
+    if (result.state == wxWebRequestSync::State_Completed &&
+        response.IsOk() &&
+        response.GetStatus() >= 200 && response.GetStatus() < 300) {
+        wxInputStream* responseStream = response.GetStream();
+        if (responseStream && CopyStreamToFile(*responseStream, targetPath)) {
+            return true;
         }
     }
 
-    wxRemoveFile(targetPath);
+    return false;
+}
 
+bool DownloadWithUrl(const wxString& url, const wxString& targetPath)
+{
     wxURL directUrl(url);
     if (directUrl.GetError() != wxURL_NOERR) {
         return false;
@@ -75,6 +72,23 @@ bool DownloadToFile(const wxString& url, const wxString& targetPath)
     }
 
     return CopyStreamToFile(*input, targetPath);
+}
+
+bool UpdateDownloadProgress(wxGauge* progress, wxStaticText* text, wxWebRequestSync& request)
+{
+    const wxFileOffset expected = request.GetBytesExpectedToReceive();
+    const wxFileOffset received = request.GetBytesReceived();
+
+    if (expected > 0) {
+        const int percent = static_cast<int>((received * 100) / expected);
+        progress->SetValue(std::max(0, std::min(100, percent)));
+        text->SetLabel(wxString::Format("Downloading... %d%%", percent));
+        return true;
+    }
+
+    progress->Pulse();
+    text->SetLabel("Downloading...");
+    return false;
 }
 }
 
@@ -143,25 +157,64 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
     wxString targetPath = targetInfo.GetFullPath();
     TrStr(targetPath);
 
-    std::atomic<bool> downloadFinished{false};
-    bool downloadOk = false;
+    wxWebRequestSync request = wxWebSessionSync::GetDefault().CreateRequest(url);
+    if (request.IsOk()) {
+        request.SetMethod("GET");
+        request.SetHeader("User-Agent", "KiHelperMiniDir");
 
-    std::thread worker([&]() {
-        downloadOk = DownloadToFile(url, targetPath);
-        downloadFinished = true;
+        std::atomic<bool> downloadFinished{false};
+        bool downloadOk = false;
+
+        std::thread worker([&]() {
+            downloadOk = DownloadWithRequest(request, targetPath);
+            downloadFinished = true;
+        });
+
+        while (!downloadFinished) {
+            UpdateDownloadProgress(progress, text, request);
+            dlg->Update();
+            wxYieldIfNeeded();
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
+
+        if (worker.joinable()) {
+            worker.join();
+        }
+
+        if (downloadOk) {
+            progress->SetValue(100);
+            text->SetLabel("Downloading... 100%");
+            dlg->Destroy();
+            return true;
+        }
+    }
+
+    wxRemoveFile(targetPath);
+
+    text->SetLabel("Trying fallback download...");
+    progress->Pulse();
+    dlg->Update();
+    wxYieldIfNeeded();
+
+    std::atomic<bool> fallbackFinished{false};
+    bool fallbackOk = false;
+
+    std::thread fallbackWorker([&]() {
+        fallbackOk = DownloadWithUrl(url, targetPath);
+        fallbackFinished = true;
     });
 
-    while (!downloadFinished) {
+    while (!fallbackFinished) {
         progress->Pulse();
         dlg->Update();
         wxYieldIfNeeded();
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
-    if (worker.joinable()) {
-        worker.join();
+    if (fallbackWorker.joinable()) {
+        fallbackWorker.join();
     }
 
     dlg->Destroy();
-    return downloadOk;
+    return fallbackOk;
 }
