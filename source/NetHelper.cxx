@@ -41,6 +41,41 @@ bool CopyStreamToFile(wxInputStream& input, const wxString& targetPath)
     output.Close();
     return HasZipSignature(targetPath);
 }
+
+bool DownloadToFile(const wxString& url, const wxString& targetPath)
+{
+    wxWebRequestSync request = wxWebSessionSync::GetDefault().CreateRequest(url);
+    if (request.IsOk()) {
+        request.SetMethod("GET");
+        request.SetHeader("User-Agent", "KiHelperMiniDir");
+
+        auto result = request.Execute();
+        wxWebResponse response = request.GetResponse();
+
+        if (result.state == wxWebRequestSync::State_Completed &&
+            response.IsOk() &&
+            response.GetStatus() >= 200 && response.GetStatus() < 300) {
+            wxInputStream* responseStream = response.GetStream();
+            if (responseStream && CopyStreamToFile(*responseStream, targetPath)) {
+                return true;
+            }
+        }
+    }
+
+    wxRemoveFile(targetPath);
+
+    wxURL directUrl(url);
+    if (directUrl.GetError() != wxURL_NOERR) {
+        return false;
+    }
+
+    std::unique_ptr<wxInputStream> input(directUrl.GetInputStream());
+    if (!input || !input->IsOk()) {
+        return false;
+    }
+
+    return CopyStreamToFile(*input, targetPath);
+}
 }
 
 bool NetHelper::IsUrlAvaliable(const wxString& url)
@@ -101,30 +136,6 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
     dlg->CenterOnParent();
     dlg->Show();
 
-    
-    dlg->Update();
-    wxYieldIfNeeded();
-
-    wxWebRequestSync request = wxWebSessionSync::GetDefault().CreateRequest(url);
-    
-    if (!request.IsOk()) {
-        dlg->Destroy();
-        return false;
-    }
-
-    request.SetMethod("GET");
-    request.SetHeader("User-Agent", "KiHelperMiniDir");
-
-    progress->Pulse();
-    dlg->Update();
-    wxYieldIfNeeded();
-
-    auto result = request.Execute();
-
-    dlg->Destroy();
-
-    wxWebResponse response = request.GetResponse();
-
     wxFileName targetInfo;
     targetInfo.AssignDir(to);
     targetInfo.SetFullName("llama.cpp-master.zip");
@@ -132,26 +143,25 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
     wxString targetPath = targetInfo.GetFullPath();
     TrStr(targetPath);
 
-    if (result.state == wxWebRequestSync::State_Completed &&
-        response.IsOk() &&
-        response.GetStatus() >= 200 && response.GetStatus() < 300) {
-        wxInputStream* responseStream = response.GetStream();
-        if (responseStream && CopyStreamToFile(*responseStream, targetPath)) {
-            return true;
-        }
+    std::atomic<bool> downloadFinished{false};
+    bool downloadOk = false;
+
+    std::thread worker([&]() {
+        downloadOk = DownloadToFile(url, targetPath);
+        downloadFinished = true;
+    });
+
+    while (!downloadFinished) {
+        progress->Pulse();
+        dlg->Update();
+        wxYieldIfNeeded();
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
-    wxRemoveFile(targetPath);
-
-    wxURL directUrl(url);
-    if (directUrl.GetError() != wxURL_NOERR) {
-        return false;
+    if (worker.joinable()) {
+        worker.join();
     }
 
-    std::unique_ptr<wxInputStream> input(directUrl.GetInputStream());
-    if (!input || !input->IsOk()) {
-        return false;
-    }
-
-    return CopyStreamToFile(*input, targetPath);
+    dlg->Destroy();
+    return downloadOk;
 }
