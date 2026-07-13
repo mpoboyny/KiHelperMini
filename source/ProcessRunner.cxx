@@ -47,10 +47,26 @@ bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
 
 #elif defined(__gnu_linux__)
 
-bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
+bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath, int displayIndex)
 {
     TrFu;
-    wxString command = wxString::Format("xterm -hold -e \"%s\"", scriptPath);
+    wxRect screenRect = wxDisplay(displayIndex).GetClientArea();
+
+    int targetWidth = 500;
+    int targetHeight = 300;
+
+    int posX = screenRect.x + (screenRect.width - targetWidth) / 2;
+    int posY = screenRect.y + (screenRect.height - targetHeight) / 2;
+
+    wxString command = wxString::Format(
+        "xterm -geometry +%d+%d "
+        "-xrm \"XTerm*vt100.geometry: %dx%d\\nXTerm*selectToClipboard: true\" "
+        "-fa Monospace -fs 12 -hold -e \"%s\"", 
+        posX, posY,                 
+        targetWidth, targetHeight,  
+        scriptPath
+    );
+
     long pid = wxExecute(command, wxEXEC_ASYNC);
     return pid > 0;
 }

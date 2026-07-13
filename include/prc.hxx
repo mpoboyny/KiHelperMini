@@ -49,6 +49,7 @@
 #include <wx/popupwin.h>
 #include <wx/dcbuffer.h>
 #include <wx/textfile.h>
+#include <wx/display.h>
 
 #include <memory>
 #include <utility>
