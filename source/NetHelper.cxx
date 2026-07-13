@@ -7,9 +7,8 @@
 #include "../resources/app.xpm"
 #include <wx/wfstream.h>
 
-namespace
-{
-bool HasZipSignature(const wxString& filePath)
+/* static  */
+bool NetHelper::HasZipSignature(const wxString& filePath)
 {
     wxFile file(filePath);
     if (!file.IsOpened()) {
@@ -24,7 +23,8 @@ bool HasZipSignature(const wxString& filePath)
     return zipSignature[0] == 'P' && zipSignature[1] == 'K';
 }
 
-bool CopyStreamToFile(wxInputStream& input, const wxString& targetPath)
+/* static  */
+bool NetHelper::CopyStreamToFile(wxInputStream& input, const wxString& targetPath)
 {
     wxFileOutputStream output(targetPath);
     if (!output.IsOk()) {
@@ -42,7 +42,8 @@ bool CopyStreamToFile(wxInputStream& input, const wxString& targetPath)
     return HasZipSignature(targetPath);
 }
 
-bool DownloadWithRequest(wxWebRequestSync& request, const wxString& targetPath)
+/* static  */
+bool NetHelper::DownloadWithRequest(wxWebRequestSync& request, const wxString& targetPath)
 {
     auto result = request.Execute();
     wxWebResponse response = request.GetResponse();
@@ -59,7 +60,8 @@ bool DownloadWithRequest(wxWebRequestSync& request, const wxString& targetPath)
     return false;
 }
 
-bool DownloadWithUrl(const wxString& url, const wxString& targetPath)
+/* static  */
+bool NetHelper::DownloadWithUrl(const wxString& url, const wxString& targetPath)
 {
     wxURL directUrl(url);
     if (directUrl.GetError() != wxURL_NOERR) {
@@ -74,7 +76,8 @@ bool DownloadWithUrl(const wxString& url, const wxString& targetPath)
     return CopyStreamToFile(*input, targetPath);
 }
 
-bool UpdateDownloadProgress(wxGauge* progress, wxStaticText* text, wxWebRequestSync& request)
+/* static  */
+bool NetHelper::UpdateDownloadProgress(wxGauge* progress, wxStaticText* text, wxWebRequestSync& request)
 {
     const wxFileOffset expected = request.GetBytesExpectedToReceive();
     const wxFileOffset received = request.GetBytesReceived();
@@ -89,7 +92,6 @@ bool UpdateDownloadProgress(wxGauge* progress, wxStaticText* text, wxWebRequestS
     progress->Pulse();
     text->SetLabel("Downloading...");
     return false;
-}
 }
 
 bool NetHelper::IsUrlAvaliable(const wxString& url)
