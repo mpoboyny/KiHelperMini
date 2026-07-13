@@ -9,5 +9,3 @@ mkdir -p ./llama.cpp
 unzip -q $LLAMA_ZIP -d ./llama.cpp
 
 echo Extraction complete: ./llama.cpp
-
-# working directory will restored

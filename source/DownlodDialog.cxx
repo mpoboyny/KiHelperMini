@@ -8,7 +8,7 @@
 #include "NetHelper.hxx"
 
 /*static*/
-const wxString DownlodDialog::s_defLink = "https://github.com/ggml-org/llama.cpp/archive/refs/heads/master.zip";
+const wxString DownlodDialog::s_defLink = "https://codeload.github.com/ggml-org/llama.cpp/zip/refs/heads/master";
 /*static*/
 const wxSize DownlodDialog::s_defSize = wxSize(600, 250);
 /*static*/

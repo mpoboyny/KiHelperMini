@@ -5,6 +5,43 @@
 #include "prc.hxx"
 #include "NetHelper.hxx"
 #include "../resources/app.xpm"
+#include <wx/wfstream.h>
+
+namespace
+{
+bool HasZipSignature(const wxString& filePath)
+{
+    wxFile file(filePath);
+    if (!file.IsOpened()) {
+        return false;
+    }
+
+    char zipSignature[4] = {0, 0, 0, 0};
+    if (file.Read(zipSignature, sizeof(zipSignature)) != sizeof(zipSignature)) {
+        return false;
+    }
+
+    return zipSignature[0] == 'P' && zipSignature[1] == 'K';
+}
+
+bool CopyStreamToFile(wxInputStream& input, const wxString& targetPath)
+{
+    wxFileOutputStream output(targetPath);
+    if (!output.IsOk()) {
+        return false;
+    }
+
+    output.Write(input);
+    if (!output.IsOk()) {
+        output.Close();
+        wxRemoveFile(targetPath);
+        return false;
+    }
+
+    output.Close();
+    return HasZipSignature(targetPath);
+}
+}
 
 bool NetHelper::IsUrlAvaliable(const wxString& url)
 {
@@ -68,8 +105,6 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
     dlg->Update();
     wxYieldIfNeeded();
 
-    std::atomic<bool> downloadFinished{false};
-    bool requestOk = false;
     wxWebRequestSync request = wxWebSessionSync::GetDefault().CreateRequest(url);
     
     if (!request.IsOk()) {
@@ -78,48 +113,17 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
     }
 
     request.SetMethod("GET");
-    request.SetStorage(wxWebRequest::Storage_File);
+    request.SetHeader("User-Agent", "KiHelperMiniDir");
 
-    auto networkTask = [&request, &downloadFinished, &requestOk]() {
-        auto result = request.Execute();
-        if (!!result) { 
-            requestOk = true;
-        }
-        downloadFinished = true;
-    };
+    progress->Pulse();
+    dlg->Update();
+    wxYieldIfNeeded();
 
-    std::thread workerThread(networkTask);
-
-    while (!downloadFinished) {
-        progress->Pulse();
-        wxYieldIfNeeded();
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-    }
-
-    if (workerThread.joinable()) {
-        workerThread.join();
-    }
+    auto result = request.Execute();
 
     dlg->Destroy();
 
-    if (!requestOk) { 
-        return false; 
-    }
-
     wxWebResponse response = request.GetResponse();
-    if (!response.IsOk()) {
-        return false;
-    }
-
-    if (response.GetStatus() < 200 || response.GetStatus() >= 300) {
-        return false;
-    }
-    
-    wxString tempFile = response.GetDataFile(); 
-    TrStr(tempFile);
-    if (tempFile.IsEmpty()) {
-        return false;
-    }
 
     wxFileName targetInfo;
     targetInfo.AssignDir(to);
@@ -127,29 +131,27 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
     
     wxString targetPath = targetInfo.GetFullPath();
     TrStr(targetPath);
-    bool res = false;
 
-    try {
-        res = wxCopyFile(tempFile, targetPath, true);
-    }
-    catch (const std::exception& e) {
-        TrStr(e.what());
-        return false;
-    }
-    catch(...) {
-        TrStr("Exception occurred while copying temporary file.");
-        return false;
-    }
-    
-    try {
-        wxRemoveFile(tempFile);
-    }
-    catch (const std::exception& e) {
-        TrStr(wxString("Ignore: ") + e.what());
-    }
-    catch(...) {
-        TrStr(wxString("Ignore: ") + "Exception occurred while removing the temporary file.");
+    if (result.state == wxWebRequestSync::State_Completed &&
+        response.IsOk() &&
+        response.GetStatus() >= 200 && response.GetStatus() < 300) {
+        wxInputStream* responseStream = response.GetStream();
+        if (responseStream && CopyStreamToFile(*responseStream, targetPath)) {
+            return true;
+        }
     }
 
-    return res; 
+    wxRemoveFile(targetPath);
+
+    wxURL directUrl(url);
+    if (directUrl.GetError() != wxURL_NOERR) {
+        return false;
+    }
+
+    std::unique_ptr<wxInputStream> input(directUrl.GetInputStream());
+    if (!input || !input->IsOk()) {
+        return false;
+    }
+
+    return CopyStreamToFile(*input, targetPath);
 }

@@ -50,7 +50,7 @@ bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
 bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath)
 {
     TrFu;
-    wxString command = wxString::Format("x-terminal-emulator -e sh -c '%s'", scriptPath);
+    wxString command = wxString::Format("xterm -hold -e \"%s\"", scriptPath);
     long pid = wxExecute(command, wxEXEC_ASYNC);
     return pid > 0;
 }
