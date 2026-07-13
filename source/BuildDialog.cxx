@@ -11,7 +11,7 @@
 #include "../resources/app.xpm"
 
 BuildDialog::BuildDialog(wxWindow* parent)
-    : wxFrame(parent, wxID_ANY, "Build", wxDefaultPosition, wxSize(700, 500), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
+    : wxFrame(parent, wxID_ANY, "Build", wxDefaultPosition, wxSize(700, 450), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
     , m_parent(parent)
 {
     TrFu;
@@ -36,12 +36,6 @@ BuildDialog::BuildDialog(wxWindow* parent)
     wxStaticText* title = new wxStaticText(this, wxID_ANY, "Build llama.cpp");
     title->SetFont(titleFont);
     top->Add(title, 0, wxALL | wxEXPAND, 12);
-
-    wxStaticText* info = new wxStaticText(this, wxID_ANY,
-        "Check the tools below.",
-        wxDefaultPosition, wxSize(660, -1), wxALIGN_LEFT);
-    info->Wrap(660);
-    top->Add(info, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
     top->Add(new wxStaticLine(this), 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
 
@@ -77,19 +71,33 @@ BuildDialog::BuildDialog(wxWindow* parent)
    
     top->Add(toolsBox, 0, wxALL | wxEXPAND, 12);
 
-    wxStdDialogButtonSizer* btns = new wxStdDialogButtonSizer();
-    btns->AddButton(new wxButton(this, wxID_OK, "Run"));
-    btns->AddButton(new wxButton(this, wxID_CANCEL));
-    btns->Realize();
-    top->Add(btns, 0, wxALIGN_CENTER | wxALL, 12);
+    wxStaticBoxSizer* toolsBoxBuild = new wxStaticBoxSizer(wxVERTICAL, this, "Let it build");
+    toolsBoxBuild->GetStaticBox()->SetBackgroundColour(contentBg);
+
+    wxBoxSizer* cudaRow = new wxBoxSizer(wxHORIZONTAL);
+    m_withCudaRadio = new wxRadioButton(this, wxID_ANY, "With CUDA", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+    cudaRow->Add(m_withCudaRadio, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
+    m_noCudaRadio = new wxRadioButton(this, wxID_ANY, "No CUDA");
+    m_noCudaRadio->SetValue(true);
+    cudaRow->Add(m_noCudaRadio, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
+    toolsBoxBuild->Add(cudaRow, 0, wxEXPAND);
+
+    wxBoxSizer* buildRow = new wxBoxSizer(wxHORIZONTAL);
+    m_buildCmakeButton = new wxButton(this, ID_BUILD_CMAKE, "Build CMake");
+    buildRow->Add(m_buildCmakeButton, 0, wxALL, 10);
+    m_buildGccButton = new wxButton(this, ID_BUILD_GCC, "Build g++");
+    buildRow->Add(m_buildGccButton, 0, wxALL, 10);
+    toolsBoxBuild->Add(buildRow, 0, wxEXPAND);
+
+    top->Add(toolsBoxBuild, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 6);
 
     SetSizer(top);
-    top->SetSizeHints(this);
-    SetSize(700, 500);
     CentreOnParent();
 
     Bind(wxEVT_BUTTON, &BuildDialog::OnCheckCMake, this, ID_CHECK_CMAKE);
     Bind(wxEVT_BUTTON, &BuildDialog::OnCheckGcc, this, ID_CHECK_GCC);
+    Bind(wxEVT_BUTTON, &BuildDialog::OnBuildCMake, this, ID_BUILD_CMAKE);
+    Bind(wxEVT_BUTTON, &BuildDialog::OnBuildGcc, this, ID_BUILD_GCC);
     Bind(wxEVT_MENU, &BuildDialog::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
     Bind(wxEVT_MENU, &BuildDialog::OnShowFiles, this, ID_SHOW_FILES);
     Bind(wxEVT_MENU, &BuildDialog::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
@@ -201,6 +209,16 @@ void BuildDialog::OnCheckGcc(wxCommandEvent &event)
     }
 
     ShowGenericMessageBox(output, "g++ version", wxOK | wxICON_INFORMATION, this);
+}
+
+void BuildDialog::OnBuildCMake(wxCommandEvent& event)
+{
+    ShowGenericMessageBox("Build CMake is not implemented yet.", "Build CMake", wxOK | wxICON_INFORMATION, this);
+}
+
+void BuildDialog::OnBuildGcc(wxCommandEvent& event)
+{
+    ShowGenericMessageBox("Build g++ is not implemented yet.", "Build g++", wxOK | wxICON_INFORMATION, this);
 }
 
 void BuildDialog::OnOpenLlamaSource(wxCommandEvent& event)

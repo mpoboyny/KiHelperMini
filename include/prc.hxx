@@ -120,7 +120,9 @@ enum ButtIDs
     ID_SHOW_FILES,
     ID_CHECK_CMAKE,
     ID_DOWNLOAD_LLAMA,
-    ID_CHECK_GCC
+    ID_CHECK_GCC,
+    ID_BUILD_CMAKE,
+    ID_BUILD_GCC,
 };
 
 void SetWorkingDir();
