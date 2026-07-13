@@ -119,7 +119,8 @@ enum ButtIDs
     ID_OPEN_LLAMA_SOURCE,
     ID_SHOW_FILES,
     ID_CHECK_CMAKE,
-    ID_DOWNLOAD_LLAMA
+    ID_DOWNLOAD_LLAMA,
+    ID_CHECK_GCC
 };
 
 void SetWorkingDir();

@@ -45,7 +45,7 @@ BuildDialog::BuildDialog(wxWindow* parent)
 
     top->Add(new wxStaticLine(this), 0, wxEXPAND | wxLEFT | wxRIGHT, 12);
 
-    wxStaticBoxSizer* toolsBox = new wxStaticBoxSizer(wxVERTICAL, this, "Tools");
+    wxStaticBoxSizer* toolsBox = new wxStaticBoxSizer(wxVERTICAL, this, "Tools and source directory");
     toolsBox->GetStaticBox()->SetBackgroundColour(contentBg);
     wxBoxSizer* cmakeRow = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* cmakeLabel = new wxStaticText(this, wxID_ANY, "CMake:");
@@ -53,18 +53,28 @@ BuildDialog::BuildDialog(wxWindow* parent)
     m_cmakePathText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(300, -1), wxTE_READONLY);
     m_cmakePathText->SetName("cmake_path");
     cmakeRow->Add(m_cmakePathText, 1, wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 10);
-    m_checkButton = new wxButton(this, ID_CHECK_CMAKE, "Check");
-    cmakeRow->Add(m_checkButton, 0, wxALL, 10);
+    m_checkCmakeButton = new wxButton(this, ID_CHECK_CMAKE, "Check");
+    cmakeRow->Add(m_checkCmakeButton, 0, wxALL, 10);
     toolsBox->Add(cmakeRow, 0, wxEXPAND);
 
+    wxBoxSizer* gppRow = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* gppLabel = new wxStaticText(this, wxID_ANY, "g++ :");
+    gppRow->Add(gppLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
+    m_gppInfoText = new wxTextCtrl(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(300, -1), wxTE_READONLY);
+    m_gppInfoText->SetName("gpp_info");
+    gppRow->Add(m_gppInfoText, 1, wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 10);
+    m_checkGccButton = new wxButton(this, ID_CHECK_GCC, "Check");
+    gppRow->Add(m_checkGccButton, 0, wxALL, 10);
+    toolsBox->Add(gppRow, 0, wxEXPAND);
+
     wxBoxSizer* toolsRow = new wxBoxSizer(wxHORIZONTAL);
-    wxStaticText* sourceLabel = new wxStaticText(this, wxID_ANY, "llama.cpp source directory:");
+    wxStaticText* sourceLabel = new wxStaticText(this, wxID_ANY, "Folder of llama.cpp :");
     toolsRow->Add(sourceLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
     m_llamaSource = new wxTextCtrl(this, wxID_ANY, wxFileName(g_ConfDir + DownlodDialog::s_defSaveDir).GetFullPath(), wxDefaultPosition, wxDefaultSize);
     m_llamaSource->SetName("llama_source");
     toolsRow->Add(m_llamaSource, 1, wxALL | wxEXPAND | wxALIGN_CENTER_VERTICAL, 10);
     toolsBox->Add(toolsRow, 0, wxEXPAND);
-
+   
     top->Add(toolsBox, 0, wxALL | wxEXPAND, 12);
 
     wxStdDialogButtonSizer* btns = new wxStdDialogButtonSizer();
@@ -79,6 +89,7 @@ BuildDialog::BuildDialog(wxWindow* parent)
     CentreOnParent();
 
     Bind(wxEVT_BUTTON, &BuildDialog::OnCheckCMake, this, ID_CHECK_CMAKE);
+    Bind(wxEVT_BUTTON, &BuildDialog::OnCheckGcc, this, ID_CHECK_GCC);
     Bind(wxEVT_MENU, &BuildDialog::OnOpenLlamaSource, this, ID_OPEN_LLAMA_SOURCE);
     Bind(wxEVT_MENU, &BuildDialog::OnShowFiles, this, ID_SHOW_FILES);
     Bind(wxEVT_MENU, &BuildDialog::OnDownloadLlama, this, ID_DOWNLOAD_LLAMA);
@@ -86,6 +97,13 @@ BuildDialog::BuildDialog(wxWindow* parent)
     Bind(wxEVT_CLOSE_WINDOW, &BuildDialog::OnClose, this);
 
     m_cmakePathText->SetValue(CMakePath());
+
+    ProcessRunner runner;
+    wxString gppOutput = runner.Run("whereis", "g++");
+    if (!gppOutput.IsEmpty()) {
+        wxString firstLine = gppOutput.BeforeFirst('\n');
+        m_gppInfoText->SetValue(firstLine.AfterFirst(':').Trim(false));
+    }
 }
 
 int BuildDialog::ShowModalLike()
@@ -165,6 +183,24 @@ void BuildDialog::OnCheckCMake(wxCommandEvent& event)
     }
 
     ShowGenericMessageBox(output, "CMake version", wxOK | wxICON_INFORMATION, this);
+}
+
+void BuildDialog::OnCheckGcc(wxCommandEvent &event)
+{
+    wxString gppPath = m_gppInfoText->GetValue();
+    if (gppPath.IsEmpty()) {
+        ShowGenericMessageBox("Please find g++ first.", "Check g++", wxOK | wxICON_INFORMATION, this);
+        return;
+    }
+
+    ProcessRunner runner;
+    wxString output = runner.Run(gppPath, "--version");
+    if (output.IsEmpty()) {
+        ShowGenericMessageBox("Failed to run g++.", "Check g++", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    ShowGenericMessageBox(output, "g++ version", wxOK | wxICON_INFORMATION, this);
 }
 
 void BuildDialog::OnOpenLlamaSource(wxCommandEvent& event)

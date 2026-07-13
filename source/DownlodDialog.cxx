@@ -10,7 +10,7 @@
 /*static*/
 const wxString DownlodDialog::s_defLink = "https://codeload.github.com/ggml-org/llama.cpp/zip/refs/heads/master";
 /*static*/
-const wxSize DownlodDialog::s_defSize = wxSize(600, 250);
+const wxSize DownlodDialog::s_defSize = wxSize(600, 200);
 /*static*/
 const wxString DownlodDialog::s_defSaveDir = "llama.cpp-source/";
 
