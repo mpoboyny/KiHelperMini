@@ -159,11 +159,18 @@ void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
     }
 
     ProcessRunner runner;
-    if (!runner.RunAsyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this))) {
+    if (!runner.RunSyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this))) {
         wxRemoveFile(scriptPath);
         ShowGenericMessageBox("Failed to launch the script in a new window.", "Run script", wxOK | wxICON_ERROR, this);
         return;
     }
 
-    EndModal(wxID_OK);
+    wxRemoveFile(scriptPath);
+
+    if (IsModal()) {
+        EndModal(wxID_OK);
+    }
+    else {
+        Close();
+    }
 }

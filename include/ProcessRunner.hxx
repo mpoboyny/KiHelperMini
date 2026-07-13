@@ -15,6 +15,7 @@ public:
 
     wxString Run(const wxString& exePath, const wxString& args);
     bool RunAsyncInNewWindow(const wxString& scriptPath, int displayIndex);
+    bool RunSyncInNewWindow(const wxString& scriptPath, int displayIndex);
 };
 
 #endif // PROCESSRUNNER_HXX
