@@ -93,6 +93,8 @@ extern const wxString          g_ConfFileName;
 extern const wxString          g_ConfFile;
 extern const wxString          g_ScriptDir;
 extern const wxString          g_ScriptExtraLlamaPath;
+extern const wxString          g_ScriptBuildCmakePath;
+extern const wxString          g_ScriptRunCmakePath;
 
 enum GuiStatus
 {

@@ -70,6 +70,46 @@ const wxString g_ScriptExtraLlamaPath = []() -> wxString {
     return scriptPath;
 }();
 
+const wxString g_ScriptBuildCmakePath = []() -> wxString {
+#if defined(__gnu_linux__)
+    const wxString scriptFileName = "build_cmake.sh";
+#elif defined(_WIN32)
+    const wxString scriptFileName = "build_cmake.bat";
+#endif
+
+    if (g_ScriptDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+
+    wxString scriptPath = g_ScriptDir + scriptFileName;
+    wxFileName scriptFn(scriptPath);
+    if (!scriptFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return scriptPath;
+}();
+
+const wxString g_ScriptRunCmakePath = []() -> wxString {
+#if defined(__gnu_linux__)
+    const wxString scriptFileName = "run_cmake.sh";
+#elif defined(_WIN32)
+    const wxString scriptFileName = "run_cmake.bat";
+#endif
+
+    if (g_ScriptDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+
+    wxString scriptPath = g_ScriptDir + scriptFileName;
+    wxFileName scriptFn(scriptPath);
+    if (!scriptFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return scriptPath;
+}();
+
 void SetWorkingDir()
 {
     TrFu;

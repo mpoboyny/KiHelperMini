@@ -6,6 +6,7 @@
 #include "BuildDialog.hxx"
 #include "DownlodDialog.hxx"
 #include "DialogUnzipLlama.hxx"
+#include "DialogRunCmake.hxx"
 #include "ProcessRunner.hxx"
 #include "BuildToolBar.hxx"
 #include "../resources/app.xpm"
@@ -83,9 +84,9 @@ BuildDialog::BuildDialog(wxWindow* parent)
     toolsBoxBuild->Add(cudaRow, 0, wxEXPAND);
 
     wxBoxSizer* buildRow = new wxBoxSizer(wxHORIZONTAL);
-    m_buildCmakeButton = new wxButton(this, ID_BUILD_CMAKE, "Build CMake");
+    m_buildCmakeButton = new wxButton(this, ID_BUILD_CMAKE, "Run CMake");
     buildRow->Add(m_buildCmakeButton, 0, wxALL, 10);
-    m_buildGccButton = new wxButton(this, ID_BUILD_GCC, "Build g++");
+    m_buildGccButton = new wxButton(this, ID_BUILD_GCC, "Build with CMake");
     buildRow->Add(m_buildGccButton, 0, wxALL, 10);
     toolsBoxBuild->Add(buildRow, 0, wxEXPAND);
 
@@ -213,7 +214,8 @@ void BuildDialog::OnCheckGcc(wxCommandEvent &event)
 
 void BuildDialog::OnBuildCMake(wxCommandEvent& event)
 {
-    ShowGenericMessageBox("Build CMake is not implemented yet.", "Build CMake", wxOK | wxICON_INFORMATION, this);
+    DialogRunCmake dlg(this, m_llamaSource->GetValue().Trim(), m_withCudaRadio->GetValue());
+    dlg.ShowModal();
 }
 
 void BuildDialog::OnBuildGcc(wxCommandEvent& event)
