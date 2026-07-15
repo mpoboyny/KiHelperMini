@@ -6,7 +6,7 @@
 #include "DialogUnzipLlama.hxx"
 
 DialogUnzipLlama::DialogUnzipLlama(wxWindow* parent, const wxString &llamaSorceDir)
-    : DialogCmdRunner(parent, "Unzip llama.cpp", "extract_llama.sh", wxSize(800, 600))
+    : DialogCmdRunner(parent, "Unzip llama.cpp", wxFileName(g_ScriptExtraLlamaPath).GetFullName(), wxSize(800, 600))
     , m_llamaSourceDir(llamaSorceDir)
 {
     TrFu;

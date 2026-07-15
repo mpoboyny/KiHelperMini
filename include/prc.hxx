@@ -65,7 +65,10 @@
 #include <atomic>
 #include <filesystem>
 #include <limits.h>
+
+#if defined(__gnu_linux__)
 #include <unistd.h>
+#endif
 
 #ifdef _WIN32 
 #   ifndef MP_UNICODE
