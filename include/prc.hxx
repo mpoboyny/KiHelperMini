@@ -128,6 +128,7 @@ enum ButtIDs
     ID_CHECK_GCC,
     ID_BUILD_CMAKE,
     ID_BUILD_GCC,
+    ID_RUN_SAMPLE,
 };
 
 void SetWorkingDir();

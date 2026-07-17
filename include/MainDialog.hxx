@@ -9,12 +9,14 @@ class CMainDialogMenu;
 class ConfigFile;
 class CMainDialogStatusBar;
 class CMainDialogPanel;
+class CMainRunPanel;
 
 class CMainDialog : public wxFrame 
 {
     CMainDialogMenu* m_menuBar;
     CMainDialogStatusBar* m_statusBar;
     CMainDialogPanel* m_mainPanel;
+    CMainRunPanel* m_runPanel;
     
     public:
         CMainDialog();

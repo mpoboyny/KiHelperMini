@@ -7,6 +7,7 @@
 #include "ConfigFile.hxx"
 #include "ConfigDlg.hxx"
 #include "MainDialogPanel.hxx"
+#include "MainRunPanel.hxx"
 
 #include "MainDialog.hxx"
 #include "MainDialogStatusBar.hxx"
@@ -26,8 +27,16 @@ CMainDialog::CMainDialog()
     
     m_menuBar = new CMainDialogMenu();
     SetMenuBar(m_menuBar);
+
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     
     m_mainPanel = new CMainDialogPanel(this, m_ConfFile.get());
+    mainSizer->Add(m_mainPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 5);
+
+    m_runPanel = new CMainRunPanel(this);
+    mainSizer->Add(m_runPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+
+    SetSizer(mainSizer);
 
     // create and register status bar so wxFrame lays it out at the bottom
     m_statusBar = new CMainDialogStatusBar(this);
