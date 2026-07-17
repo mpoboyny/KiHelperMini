@@ -11,8 +11,9 @@
 #include "BuildToolBar.hxx"
 #include "../resources/app.xpm"
 
-BuildDialog::BuildDialog(wxWindow* parent)
+BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
     : wxFrame(parent, wxID_ANY, "Build", wxDefaultPosition, wxSize(700, 450), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
+    , m_defBinOuDir(defBinOuDir)
     , m_parent(parent)
 {
     TrFu;
@@ -77,9 +78,9 @@ BuildDialog::BuildDialog(wxWindow* parent)
 
     wxBoxSizer* cudaRow = new wxBoxSizer(wxHORIZONTAL);
     m_withCudaRadio = new wxRadioButton(this, wxID_ANY, "With CUDA", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+    m_withCudaRadio->SetValue(true);
     cudaRow->Add(m_withCudaRadio, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
     m_noCudaRadio = new wxRadioButton(this, wxID_ANY, "No CUDA");
-    m_noCudaRadio->SetValue(true);
     cudaRow->Add(m_noCudaRadio, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
     toolsBoxBuild->Add(cudaRow, 0, wxEXPAND);
 
@@ -214,7 +215,8 @@ void BuildDialog::OnCheckGcc(wxCommandEvent &event)
 
 void BuildDialog::OnBuildCMake(wxCommandEvent& event)
 {
-    DialogRunCmake dlg(this, m_llamaSource->GetValue().Trim(), m_withCudaRadio->GetValue());
+    // defBinOuDir
+    DialogRunCmake dlg(this, m_llamaSource->GetValue().Trim(), m_defBinOuDir, m_withCudaRadio->GetValue());
     dlg.ShowModal();
 }
 

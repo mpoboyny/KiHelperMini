@@ -19,7 +19,7 @@
                 <Model File="/home/LocalKiModels/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
             </Models>
             <LLamaCpp>
-                <Bin Path="/home/tato/GitHub/KiHelperMiniDir/llama.cpp/release-shared_x64-cuda/bin/" />
+                <Bin Path="/home/tato/GitHub/KiHelperMiniDir/llama.cpp/release-shared_x64/bin/" />
             </LLamaCpp>
         </System>
     </Systems>

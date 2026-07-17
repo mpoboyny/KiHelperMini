@@ -9,7 +9,7 @@ class BuildDialog : public wxFrame
 {
 
 public:
-    BuildDialog(wxWindow* parent);
+    BuildDialog(wxWindow* parent, wxString defBinOuDir);
     ~BuildDialog() = default;
 
     int ShowModalLike();
@@ -35,6 +35,7 @@ private:
     wxTextCtrl* m_llamaSource;
     wxTextCtrl* m_cmakePathText;
     wxTextCtrl* m_gppInfoText;
+    wxString m_defBinOuDir;
     wxWindow* m_parent{nullptr};
     wxEventLoopBase* m_eventLoop{nullptr};
 };

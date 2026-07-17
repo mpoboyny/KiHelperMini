@@ -27,8 +27,7 @@ CMainDialog::CMainDialog()
     m_menuBar = new CMainDialogMenu();
     SetMenuBar(m_menuBar);
     
-    // wxFrame automatically handles sizing a single child wxPanel to fill its client area.
-    new CMainDialogPanel(this, m_ConfFile.get());
+    m_mainPanel = new CMainDialogPanel(this, m_ConfFile.get());
 
     // create and register status bar so wxFrame lays it out at the bottom
     m_statusBar = new CMainDialogStatusBar(this);
@@ -109,7 +108,7 @@ void CMainDialog::OnBuild(wxCommandEvent& event)
 void CMainDialog::OnBuildLlama(wxCommandEvent& event)
 {
 #if defined(_WIN32) || defined(__gnu_linux__)
-    BuildDialog winDlg(this);
+    BuildDialog winDlg(this, m_mainPanel->GetLlamaBinPath());
     winDlg.ShowModalLike();
 #else
     BuildLlama dlg(this);

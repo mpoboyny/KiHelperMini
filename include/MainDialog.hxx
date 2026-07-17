@@ -8,11 +8,13 @@
 class CMainDialogMenu;
 class ConfigFile;
 class CMainDialogStatusBar;
+class CMainDialogPanel;
 
 class CMainDialog : public wxFrame 
 {
     CMainDialogMenu* m_menuBar;
     CMainDialogStatusBar* m_statusBar;
+    CMainDialogPanel* m_mainPanel;
     
     public:
         CMainDialog();

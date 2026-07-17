@@ -5,9 +5,10 @@
 #include "prc.hxx"
 #include "DialogRunCmake.hxx"
 
-DialogRunCmake::DialogRunCmake(wxWindow* parent, const wxString& llamaSorceDir, bool isCudaEnabled)
+DialogRunCmake::DialogRunCmake(wxWindow *parent, const wxString &llamaSorceDir, const wxString& defOutDir, bool isCudaEnabled)
     : DialogCmdRunner(parent, "Run CMake", "run_cmake.sh", wxSize(800, 600))
     , m_llamaSourceDir(llamaSorceDir)
+    , m_defOutDir(defOutDir)
     , m_isCudaEnabled(isCudaEnabled)
 {
     TrFu;
@@ -27,9 +28,10 @@ void DialogRunCmake::SetupReplacements()
     wxString llamaSrc = llamaSrcFn.GetPathWithSep();
     wxString llamaCudaFlag = m_isCudaEnabled ? "ON" : "OFF";
     wxFileName llamaBinFn;
-    llamaBinFn.AssignDir(m_llamaSourceDir);
-    llamaBinFn.AppendDir("llama.cpp-bin");
+    llamaBinFn.AssignDir(m_defOutDir);
+    llamaBinFn.AppendDir(wxString((m_isCudaEnabled ? "withCuda" : "noCuda")));
     wxString llamaBin = llamaBinFn.GetPathWithSep();
+
 
     m_scriptReplacements = {
         { "<!-- llama_src_dir -->", llamaSrc },

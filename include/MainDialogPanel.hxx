@@ -16,6 +16,8 @@ class CMainDialogPanel : public wxPanel
     public:
         CMainDialogPanel(wxWindow* parent, ConfigFile *cfgFile = nullptr);
 
+        inline wxString GetLlamaBinPath() const { return m_txtLlamaBin->GetValue(); }
+
     private:
         wxTextCtrl* m_txtLlamaBin;
         wxButton* m_btnOpenFolder;

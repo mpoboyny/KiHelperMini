@@ -10,9 +10,10 @@
 class DialogRunCmake : public DialogCmdRunner
 {
     wxString m_llamaSourceDir;
+    wxString m_defOutDir;
     bool m_isCudaEnabled;
 public:
-    DialogRunCmake(wxWindow* parent, const wxString& llamaSorceDir, bool isCudaEnabled);
+    DialogRunCmake(wxWindow* parent, const wxString& llamaSorceDir, const wxString& defOutDir, bool isCudaEnabled);
     ~DialogRunCmake() = default;
 
 private:
