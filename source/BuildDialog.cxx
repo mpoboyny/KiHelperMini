@@ -7,6 +7,7 @@
 #include "DownlodDialog.hxx"
 #include "DialogUnzipLlama.hxx"
 #include "DialogRunCmake.hxx"
+#include "DialogRunGcc.hxx"
 #include "ProcessRunner.hxx"
 #include "BuildToolBar.hxx"
 #include "../resources/app.xpm"
@@ -222,7 +223,8 @@ void BuildDialog::OnBuildCMake(wxCommandEvent& event)
 
 void BuildDialog::OnBuildGcc(wxCommandEvent& event)
 {
-    ShowGenericMessageBox("Build g++ is not implemented yet.", "Build g++", wxOK | wxICON_INFORMATION, this);
+    DialogRunGcc dlg(this, m_llamaSource->GetValue().Trim(), m_withCudaRadio->GetValue());
+    dlg.ShowModal();
 }
 
 void BuildDialog::OnOpenLlamaSource(wxCommandEvent& event)
