@@ -7,7 +7,7 @@
 #include "ConfigFile.hxx"
 #include "ConfigDlg.hxx"
 #include "MainDialogPanel.hxx"
-#include "MainRunPanel.hxx"
+#include "MainRunChatPanel.hxx"
 
 #include "MainDialog.hxx"
 #include "MainDialogStatusBar.hxx"
@@ -16,11 +16,17 @@
 
 #include "../resources/app.xpm"
 
+/* static */
+const wxSize CMainDialog::s_defMinSize = wxSize(1000, 700);
+
+
 CMainDialog::CMainDialog()
-    : wxFrame(NULL, wxID_ANY, g_APP_NAME, wxDefaultPosition, wxSize(900, 800))
+    : wxFrame(NULL, wxID_ANY, g_APP_NAME, wxDefaultPosition, s_defMinSize)
     , m_ConfFile(std::make_unique<ConfigFile>())
 {
     TrFu;
+    
+    SetMinSize(s_defMinSize);
     
     SetIcon(wxIcon(app_xpm));
     SetFont(wxFont(wxFontInfo(g_DefaultTxtSize).FaceName(g_DefaultTxtFontName)));
@@ -33,7 +39,7 @@ CMainDialog::CMainDialog()
     m_mainPanel = new CMainDialogPanel(this, m_ConfFile.get());
     mainSizer->Add(m_mainPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 5);
 
-    m_runPanel = new CMainRunPanel(this);
+    m_runPanel = new CMainRunChatPanel(this, m_ConfFile->GetLLamaBinPath());
     mainSizer->Add(m_runPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     SetSizer(mainSizer);

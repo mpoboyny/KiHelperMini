@@ -9,15 +9,17 @@ class CMainDialogMenu;
 class ConfigFile;
 class CMainDialogStatusBar;
 class CMainDialogPanel;
-class CMainRunPanel;
+class CMainRunChatPanel;
 
 class CMainDialog : public wxFrame 
 {
     CMainDialogMenu* m_menuBar;
     CMainDialogStatusBar* m_statusBar;
     CMainDialogPanel* m_mainPanel;
-    CMainRunPanel* m_runPanel;
+    CMainRunChatPanel* m_runPanel;
     
+    static const wxSize s_defMinSize;
+
     public:
         CMainDialog();
         

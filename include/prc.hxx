@@ -65,6 +65,8 @@
 #include <atomic>
 #include <filesystem>
 #include <limits.h>
+#include <wx/filedlg.h>
+#include <wx/generic/filedlgg.h> 
 
 #if defined(__gnu_linux__)
 #include <unistd.h>
@@ -131,6 +133,7 @@ enum ButtIDs
     ID_BUILD_CMAKE,
     ID_BUILD_GCC,
     ID_RUN_SAMPLE,
+    ID_SELECT_CHAT_FILE
 };
 
 void SetWorkingDir();
