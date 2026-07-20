@@ -4,7 +4,6 @@
 
 #ifndef CONFIG_FILE_HXX
 #define CONFIG_FILE_HXX
-#include <wx/arrstr.h>
 
 class ConfigFile
 {
@@ -26,6 +25,14 @@ public:
         bool Current;
     };
 
+    struct ModelInfo
+    {
+        wxString Path;
+        bool Current;
+    };
+
+    typedef std::list<ConfigFile::ModelInfo> ModelList;
+
     ConfigFile();
     ~ConfigFile();
 
@@ -33,7 +40,7 @@ public:
     operator wxString() const;
 
     wxString GetLLamaBinPath();
-    wxArrayString GetModels() const;
+    ModelList GetModels() const;
     wxString GetCurrentSysName() const;
 };
 

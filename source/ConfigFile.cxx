@@ -72,9 +72,9 @@ wxString ConfigFile::GetCurrentSysName() const
 #endif
 }
 
-wxArrayString ConfigFile::GetModels() const
+ConfigFile::ModelList ConfigFile::GetModels() const
 {
-    wxArrayString res;
+    ConfigFile::ModelList res;
     wxString err;
     if (HaveError(err))
         return res;
@@ -126,7 +126,7 @@ wxArrayString ConfigFile::GetModels() const
                     fn = full;
                 }
 
-                res.Add(fn.GetFullPath());
+                res.push_back({fn.GetFullPath(), model->GetAttribute("Current", "false").CmpNoCase("true") == 0});
             }
             // return after processing Models for matched system
             return res;

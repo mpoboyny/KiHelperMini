@@ -181,3 +181,5 @@ bool RemoveDirectoryContents(const wxString& path)
 
     return true;
 }
+
+wxColour g_ColorLightGreen = wxColour(220, 245, 220); // Light green

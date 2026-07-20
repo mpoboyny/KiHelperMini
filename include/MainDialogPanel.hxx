@@ -8,7 +8,7 @@
 class ConfigFile;
 class wxTextCtrl;
 class wxButton;
-class wxListBox;
+class wxListCtrl;
 
 class CMainDialogPanel : public wxPanel 
 {
@@ -21,7 +21,7 @@ class CMainDialogPanel : public wxPanel
     private:
         wxTextCtrl* m_txtLlamaBin;
         wxButton* m_btnOpenFolder;
-        wxListBox* m_listModels;
+        wxListCtrl* m_listModels;
 
         void OnOpenFolder(wxCommandEvent& event);
 };

@@ -99,6 +99,8 @@ extern const wxString          g_ScriptExtraLlamaPath;
 extern const wxString          g_ScriptBuildCmakePath;
 extern const wxString          g_ScriptRunCmakePath;
 
+extern wxColour g_ColorLightGreen;
+
 enum GuiStatus
 {
     GuiStatus_Info,

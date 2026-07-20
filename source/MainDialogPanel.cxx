@@ -47,11 +47,30 @@ CMainDialogPanel::CMainDialogPanel(wxWindow* parent, ConfigFile *cfgFile)
     wxStaticText* lblModels = new wxStaticText(this, wxID_ANY, "Models:");
     cfgSizer->Add(lblModels, 0, wxLEFT | wxTOP, 4);
 
-    wxArrayString models = m_confFile ? m_confFile->GetModels() : wxArrayString();
-    if (models.IsEmpty()) {
-        models.Add("No models configured");
+   ConfigFile::ModelList models = m_confFile ? m_confFile->GetModels() : ConfigFile::ModelList();
+    if (models.empty()) {
+        models.push_back({"No models configured", false});
     }
-    m_listModels = new wxListBox(this, wxID_ANY, wxDefaultPosition, wxSize(600,75), models, wxLB_SINGLE | wxLB_ALWAYS_SB);
+
+    // 1. Modus auf wxLC_REPORT ändern und Header mit wxLC_NO_HEADER verstecken
+    m_listModels = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(600, 75), wxLC_REPORT | wxLC_NO_HEADER | wxLC_SINGLE_SEL);
+
+    // 2. Eine unsichtbare Spalte hinzufügen, die sich über die gesamte Breite (z.B. 580 Pixel) erstreckt
+    m_listModels->InsertColumn(0, "Path", wxLIST_FORMAT_LEFT, 580);
+
+    for (const auto& model : models) {
+        long index = m_listModels->GetItemCount();
+        
+        // 3. Eintrag einfügen
+        m_listModels->InsertItem(index, model.Path);
+        
+        if (model.Current) {
+            // Tr(model.Path << " is marked as current model");
+            m_listModels->SetItemBackgroundColour(index, g_ColorLightGreen);
+        }
+    }
+
+
     cfgSizer->Add(m_listModels, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 4);
 
     // Outer sizer with 5px margin around the group
