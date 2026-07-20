@@ -17,7 +17,7 @@
 #include "../resources/app.xpm"
 
 CMainDialog::CMainDialog()
-    : wxFrame(NULL, wxID_ANY, g_APP_NAME, wxDefaultPosition, wxSize(900, 700), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
+    : wxFrame(NULL, wxID_ANY, g_APP_NAME, wxDefaultPosition, wxSize(900, 800))
     , m_ConfFile(std::make_unique<ConfigFile>())
 {
     TrFu;

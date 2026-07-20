@@ -21,10 +21,7 @@ CMainRunPanel::CMainRunPanel(wxWindow* parent)
     wxStaticText* infoText = new wxStaticText(this, wxID_ANY, "Execution controls will be here.");
     runSizer->Add(infoText, 0, wxALL, 4);
 
-    wxBoxSizer* outerSizer = new wxBoxSizer(wxVERTICAL);
-    outerSizer->Add(runSizer, 0, wxEXPAND | wxALL, 5);
-    SetSizer(outerSizer);
-
+    SetSizer(runSizer);
     Bind(wxEVT_TOOL, &CMainRunPanel::OnRunSample, this, ID_RUN_SAMPLE);
 
     Layout();

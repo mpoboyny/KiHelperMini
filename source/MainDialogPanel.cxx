@@ -52,24 +52,16 @@ CMainDialogPanel::CMainDialogPanel(wxWindow* parent, ConfigFile *cfgFile)
         models.push_back({"No models configured", false});
     }
 
-    // 1. Modus auf wxLC_REPORT ändern und Header mit wxLC_NO_HEADER verstecken
     m_listModels = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(600, 75), wxLC_REPORT | wxLC_NO_HEADER | wxLC_SINGLE_SEL);
-
-    // 2. Eine unsichtbare Spalte hinzufügen, die sich über die gesamte Breite (z.B. 580 Pixel) erstreckt
     m_listModels->InsertColumn(0, "Path", wxLIST_FORMAT_LEFT, 580);
-
     for (const auto& model : models) {
         long index = m_listModels->GetItemCount();
-        
-        // 3. Eintrag einfügen
         m_listModels->InsertItem(index, model.Path);
         
         if (model.Current) {
-            // Tr(model.Path << " is marked as current model");
             m_listModels->SetItemBackgroundColour(index, g_ColorLightGreen);
         }
     }
-
 
     cfgSizer->Add(m_listModels, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 4);
 
