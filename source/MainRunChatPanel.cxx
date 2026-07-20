@@ -3,53 +3,62 @@
 //
 
 #include "prc.hxx"
+#include "ConfigFile.hxx"
 #include "MainRunChatPanel.hxx"
 
 /*static*/
 const wxString CMainRunChatPanel::s_ChatFileName = "llama-cli";
 
-CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, wxString defDirChatFileDir)
+CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFile)
     : wxPanel(parent, wxID_ANY)
 {
     TrFu;
 
-    // 1. Haupt-Sizer für das Panel (Vertikal)
+    // 1. Main vertical sizer for the entire panel
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
-    // 2. Die StaticBox "Run chat" erstellen (wird nun der Hauptcontainer)
+    // 2. Create the "Run chat" StaticBox container
     wxStaticBox* runGroupBox = new wxStaticBox(this, wxID_ANY, "Run chat");
     wxStaticBoxSizer* runSizer = new wxStaticBoxSizer(runGroupBox, wxVERTICAL);
 
-    // 3. Horizontale Zeile für die Dateiauswahl INNERHALB der Box erstellen
+    // 3. File path selection row
     wxBoxSizer* fileRowSizer = new wxBoxSizer(wxHORIZONTAL);
-
-    // Wichtig: 'runGroupBox' als Parent übergeben, damit die Controls IN der Box liegen
     wxStaticText* labelFilePath = new wxStaticText(runGroupBox, wxID_ANY, "File path:");
 
-    wxFileName targetFn(defDirChatFileDir);
+    // Construct the default binary path plattform-independently
+    wxFileName targetFn(confFile.GetLLamaBinPath());
     targetFn.AppendDir("bin");
     targetFn.SetFullName(s_ChatFileName);
+
     m_textFilePath = new wxTextCtrl(runGroupBox, wxID_ANY, targetFn.GetFullPath(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     wxButton* btnSelectFile = new wxButton(runGroupBox, ID_SELECT_CHAT_FILE, "Select file");
 
-    // Elemente in die horizontale Zeile einfügen
     fileRowSizer->Add(labelFilePath, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
-    fileRowSizer->Add(m_textFilePath, 1, wxEXPAND | wxRIGHT, 5); // Streckt das Textfeld automatisch
+    fileRowSizer->Add(m_textFilePath, 1, wxEXPAND | wxRIGHT, 5); 
     fileRowSizer->Add(btnSelectFile, 0, wxALIGN_CENTER_VERTICAL);
 
-    // Die Dateizeile ganz oben in den runSizer der StaticBox packen
+    // 4. Parameters label row
+    wxBoxSizer* paramRowSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* labelParams = new wxStaticText(runGroupBox, wxID_ANY, "Parameters:");
+    paramRowSizer->Add(labelParams, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+
+    m_textChatParams = new wxTextCtrl(runGroupBox, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0);
+    paramRowSizer->Add(m_textChatParams, 1, wxEXPAND | wxRIGHT, 5);
+
+    for (const auto& param : confFile.GetChatParameters(confFile.GetCurrentSysName())) {
+        wxString paramText = param.Name + " " + param.Value;
+        m_textChatParams->AppendText(paramText + " ");
+    }
+
+    // 5. Add inner row sizers to the runSizer FIRST
     runSizer->Add(fileRowSizer, 0, wxEXPAND | wxALL, 10);
-
-    // HIER kannst du später weitere Chat-Elemente direkt unter die Dateizeile einfügen:
-    // runSizer->Add(m_chatHistory, 1, wxEXPAND | wxALL, 10);
-
-    // Den runSizer in den mainSizer des Panels packen (nimmt den restlichen Platz ein)
+    runSizer->Add(paramRowSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    
+    // 6. Add the main container to the panel's layout LAST
     mainSizer->Add(runSizer, 1, wxEXPAND | wxALL, 10);
-
-    // Sizer dem Panel zuweisen
     SetSizer(mainSizer);
     
-    // Event-Bindings
+    // Event Bindings
     Bind(wxEVT_TOOL, &CMainRunChatPanel::OnRunSample, this, ID_RUN_SAMPLE);
     Bind(wxEVT_BUTTON, &CMainRunChatPanel::OnSelectFile, this, ID_SELECT_CHAT_FILE);
 

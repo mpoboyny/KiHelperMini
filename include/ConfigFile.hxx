@@ -30,8 +30,14 @@ public:
         wxString Path;
         bool Current;
     };
-
     typedef std::list<ConfigFile::ModelInfo> ModelList;
+
+    struct ChatParameter
+    {
+        wxString Name;
+        wxString Value;
+    };
+    typedef std::list<ConfigFile::ChatParameter> ChatParameterList;
 
     ConfigFile();
     ~ConfigFile();
@@ -39,9 +45,10 @@ public:
     bool HaveError(wxString &ErrorMsg) const;
     operator wxString() const;
 
-    wxString GetLLamaBinPath();
+    wxString GetLLamaBinPath() const;
     ModelList GetModels() const;
     wxString GetCurrentSysName() const;
+    ChatParameterList GetChatParameters(wxString sysName) const;
 };
 
 #endif //CONFIG_FILE_HXX

@@ -39,7 +39,7 @@ CMainDialog::CMainDialog()
     m_mainPanel = new CMainDialogPanel(this, m_ConfFile.get());
     mainSizer->Add(m_mainPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 5);
 
-    m_runPanel = new CMainRunChatPanel(this, m_ConfFile->GetLLamaBinPath());
+    m_runPanel = new CMainRunChatPanel(this, *m_ConfFile);
     mainSizer->Add(m_runPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     SetSizer(mainSizer);
