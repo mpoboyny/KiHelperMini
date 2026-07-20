@@ -21,6 +21,25 @@
             <LLamaCpp>
                 <Bin Path="/home/tato/Dokumente/.KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
             </LLamaCpp>
+            <LlamaChatParameters>
+                <!-- Temperature: Controls randomness. Higher values (e.g., 1.0) make output more creative, lower values (e.g., 0.2) make it more deterministic. -->
+                <Parameter Name="--temp" Value="0.7" />
+                
+                <!-- Top-K Sampling: Limits the next-token pool to the K most likely tokens. Reduces the chance of generating nonsense. -->
+                <Parameter Name="--top_k" Value="40" />
+                
+                <!-- Top-P Sampling (Nucleus): Limits token pool to a cumulative probability threshold. Works dynamically compared to Top-K. -->
+                <Parameter Name="--top_p" Value="0.9" />
+                
+                <!-- Repeat Penalty: Discourages the model from repeating the same phrases or looping text. Higher values enforce variation. -->
+                <Parameter Name="--repeat_penalty" Value="1.1" />
+                
+                <!-- CPU Threads: Number of physical CPU cores allocated for computing parts of the model not offloaded to the GPU. -->
+                <Parameter Name="--n_threads" Value="4" />
+                
+                <!-- GPU Layers: Number of neural network layers offloaded to the VRAM of your graphics card for faster hardware acceleration. -->
+                <Parameter Name="-ngl" Value="24" /> 
+            </LlamaChatParameters>
         </System>
     </Systems>
 </Settings>

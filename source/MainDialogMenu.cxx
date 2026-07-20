@@ -28,12 +28,12 @@ CMainDialogMenu::CMainDialogMenu()
     fileMenu->Append(resetItem);
 
 
-    // Edit Menu
+    // Config Menu
     wxMenu* menuEdit = new wxMenu();
     wxMenuItem* settingsItem = new wxMenuItem(menuEdit, ID_SETTINGS, "Settings", "Open configuration settings");
     settingsItem->SetBitmap(wxBitmap(edit_xpm));
     menuEdit->Append(settingsItem);
-    Append(menuEdit, "&Edit");
+    Append(menuEdit, "&Config");
 
     wxMenu* buildMenu = new wxMenu();
     // Add llama.cpp as a direct menu item under Build
