@@ -45,22 +45,18 @@ PCH_FILE = $(OBJ_DIR)\prc.pch
 
 TARGET = $(BIN_DIR)\KiHelperMini.exe
 
-$(TARGET): $(SRC_FILES) $(PCH_FILE) $(HDRS)
+$(TARGET): $(SRC_FILES) $(PCH_FILE) $(OBJ_DIR)\resource.res $(HDRS)
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 	@echo Building precompiled header...
 	@nmake -nologo -f NMakefile $(OBJ_DIR)\prc.obj
-	@echo Building resources...
-	@nmake -nologo -f NMakefile $(OBJ_DIR)\resource.res
 	@echo Building sources (incremental)...
 	@setlocal EnableDelayedExpansion & set "HDRS=" & for /f "delims=" %%H in ('dir /b /a-d $(INC_DIR)\*.hxx') do @(if "!HDRS!"=="" (set "HDRS=$(INC_DIR)\%%H") else (set "HDRS=!HDRS! $(INC_DIR)\%%H")) & for /f "delims=" %%F in ('dir /b /a-d $(SRC_DIR)\*.cxx') do @(if /I not "%%~nxF"=="prc.cxx" (nmake -nologo -f NMakefile HDRS="!HDRS!" $(OBJ_DIR)\%%~nF.obj)) & endlocal
 	@echo Linking $@...
-	@$(LINK) $(LDFLAGS) /OUT:$@ $(OBJ_DIR)\*.obj $(OBJ_DIR)\*.res $(WX_LIBS) $(SYS_LIBS)
+	$(LINK) $(LDFLAGS) /OUT:$@ $(OBJ_DIR)\*.obj $(OBJ_DIR)\*.res $(WX_LIBS) $(SYS_LIBS)
 	@echo Copying required wxWidgets DLLs...
 	@copy /Y "./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll\*.dll" "$(BIN_DIR)\"
-	@echo Copying config.xml...
 	@copy /Y "config.xml" "$(BIN_DIR)\"
-	@echo Copying scripts...
 	@if not exist "$(BIN_DIR)\scripts" mkdir "$(BIN_DIR)\scripts"
 	@copy /Y "scripts\*" "$(BIN_DIR)\scripts\"
 
@@ -80,12 +76,10 @@ $(OBJ_DIR)\prc.obj $(PCH_FILE): $(SRC_DIR)\prc.cxx $(INC_DIR)\prc.hxx
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 	@$(CXX) $(CXXFLAGS) /Yu"prc.hxx" /Fp"$(PCH_FILE)" /c /Fo$@ $<
 
-# Per-object explicit header prerequisites removed — inference rule handles dependencies.
-
-# Inference rule for resources in res directory
-{$(RES_DIR)}.rc{$(OBJ_DIR)}.res:
+# Resource compilation (Clean and quiet production rule)
+$(OBJ_DIR)\resource.res: $(RES_DIR)\resource.rc
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
-	@rc /nologo $(WX_INCLUDE) /fo$@ $<
+	@rc /nologo $(WX_INCLUDE) /i $(RES_DIR) /fo$@ $(RES_DIR)\resource.rc
 
 clean:
 	@if exist obj rmdir /S /Q obj

@@ -1,2 +1,8 @@
-// The icon for the executable
+//
+//resource.rc
+//
+
+// Define your custom application icon
+APP_ICON ICON "app.ico"
+
 #include "wx/msw/wx.rc"

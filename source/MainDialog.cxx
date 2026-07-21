@@ -27,8 +27,13 @@ CMainDialog::CMainDialog()
     TrFu;
     
     SetMinSize(s_defMinSize);
-    
-    SetIcon(wxIcon(app_xpm));
+   #ifdef _WIN32
+        // Explicitly load the icon named APP_ICON from resources
+        SetIcon(wxICON(APP_ICON));
+    #else
+        SetIcon(wxIcon(app_xpm));
+    #endif
+
     SetFont(wxFont(wxFontInfo(g_DefaultTxtSize).FaceName(g_DefaultTxtFontName)));
     
     m_menuBar = new CMainDialogMenu();
