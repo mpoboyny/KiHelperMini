@@ -26,13 +26,15 @@ CMainDialog::CMainDialog()
 {
     TrFu;
     
-    SetMinSize(s_defMinSize);
+   SetMinSize(s_defMinSize);
    #ifdef _WIN32
         // Explicitly load the icon named APP_ICON from resources
         SetIcon(wxICON(APP_ICON));
     #else
         SetIcon(wxIcon(app_xpm));
     #endif
+
+    SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
 
     SetFont(wxFont(wxFontInfo(g_DefaultTxtSize).FaceName(g_DefaultTxtFontName)));
     
