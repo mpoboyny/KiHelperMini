@@ -97,7 +97,6 @@ void DialogCmdRunner::UseReplacements(wxString &content)
     }
 }
 
-
 wxString DialogCmdRunner::GetScriptContentWithReplacements(const wxString &scriptPath)
 {
     wxString content;

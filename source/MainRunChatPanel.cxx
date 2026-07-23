@@ -5,6 +5,7 @@
 #include "prc.hxx"
 #include "ConfigFile.hxx"
 #include "MainRunChatPanel.hxx"
+#include "ProcessRunner.hxx"
 
 /*static*/
 const wxString CMainRunChatPanel::s_ChatFileName = "llama-cli";
@@ -46,26 +47,31 @@ CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFil
         m_textChatParams->AppendText(paramText + " ");
     }
 
+    wxBoxSizer* doSizer = new wxBoxSizer(wxHORIZONTAL);
+    m_buttChatDoIt = new wxButton(runGroupBox, ID_RUN_CHAT, "Do it", wxDefaultPosition, wxSize(-1, FromDIP(28)));
+    m_buttChatShowHelp = new wxButton(runGroupBox, ID_RUN_CHAT_HELP, "Help", wxDefaultPosition, wxSize(-1, FromDIP(28)));
+
+    doSizer->Add(m_buttChatDoIt, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);    
+    doSizer->Add(m_buttChatShowHelp, 0, wxALIGN_CENTER_VERTICAL);
+
     // 5. Add inner row sizers to the runSizer FIRST
     runSizer->Add(fileRowSizer, 0, wxEXPAND | wxALL, 10);
     runSizer->Add(paramRowSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    runSizer->Add(doSizer, 0, wxEXPAND | wxLEFT | wxBOTTOM, 10);
+
     
     // 6. Add the main container to the panel's layout LAST
     mainSizer->Add(runSizer, 1, wxEXPAND | wxALL, 10);
     SetSizer(mainSizer);
     
     // Event Bindings
-    Bind(wxEVT_TOOL, &CMainRunChatPanel::OnRunSample, this, ID_RUN_SAMPLE);
     Bind(wxEVT_BUTTON, &CMainRunChatPanel::OnSelectFile, this, ID_SELECT_CHAT_FILE);
+    Bind(wxEVT_BUTTON, &CMainRunChatPanel::OnRunChat, this, ID_RUN_CHAT);
+    Bind(wxEVT_BUTTON, &CMainRunChatPanel::OnRunChatHelp, this, ID_RUN_CHAT_HELP);
 
     Layout();
 }
 
-
-void CMainRunChatPanel::OnRunSample(wxCommandEvent& WXUNUSED(event))
-{
-    ShowGenericMessageBox("Sample execute action.", "Execute", wxOK | wxICON_INFORMATION, this);
-}
 
 void CMainRunChatPanel::OnSelectFile(wxCommandEvent& event)
 {
@@ -117,4 +123,14 @@ void CMainRunChatPanel::OnSelectFile(wxCommandEvent& event)
         // Displays the full absolute path as text in your text control
         m_textChatFilePath->SetValue(openFileDialog.GetPath());
     }
+}
+
+void CMainRunChatPanel::OnRunChat(wxCommandEvent &event)
+{
+    TrFu;
+}
+
+void CMainRunChatPanel::OnRunChatHelp(wxCommandEvent &event)
+{
+    TrFu;
 }

@@ -132,8 +132,9 @@ enum ButtIDs
     ID_CHECK_GCC,
     ID_BUILD_CMAKE,
     ID_BUILD_GCC,
-    ID_RUN_SAMPLE,
-    ID_SELECT_CHAT_FILE
+    ID_SELECT_CHAT_FILE,
+    ID_RUN_CHAT,
+    ID_RUN_CHAT_HELP,
 };
 
 void SetWorkingDir();
