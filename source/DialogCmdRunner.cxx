@@ -86,38 +86,6 @@ void DialogCmdRunner::SetupHighlighting()
     m_textCtrl->SetTabWidth(4);
 }
 
-
-void DialogCmdRunner::UseReplacements(wxString &content)
-{
-    TrFu;
-    // Replace placeholders in the content with actual values from m_scriptReplacements
-    for (const auto& [placeholder, replacement] : m_scriptReplacements) {
-        Tr("UseReplacement: replacing " << placeholder << " with " << replacement);
-        content.Replace(placeholder, replacement);
-    }
-}
-
-wxString DialogCmdRunner::GetScriptContentWithReplacements(const wxString &scriptPath)
-{
-    wxString content;
-    if (scriptPath.IsEmpty()) {
-        content = wxString::Format("Script not found: %s", scriptPath);
-    } else {
-        wxTextFile file(scriptPath);
-        if (!file.Open()) {
-            content = wxString::Format("Cannot open script file:\n%s", scriptPath);
-        } 
-        else {
-            for (size_t i = 0; i < file.GetLineCount(); ++i) {
-                content += file.GetLine(i);
-                content += "\n";
-            }
-            UseReplacements(content);
-        }
-    }
-    return content;
-}
-
 void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
 {
     TrFu;

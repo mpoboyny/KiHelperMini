@@ -12,13 +12,15 @@ class DialogRunGcc : public DialogCmdRunner
     wxString m_llamaSourceDir;
     bool m_isCudaEnabled;
 
+    void SetupReplacements(ScriptReplacementsList &replacements);
+    void LoadScript() override;
 public:
     DialogRunGcc(wxWindow* parent, const wxString& llamaSorceDir, bool isCudaEnabled);
     ~DialogRunGcc() = default;
 
 private:
-    void SetupReplacements() override;
-    void LoadScript() override;
+    
+    
 };
 
 #endif // DIALOGRUNGCC_HXX

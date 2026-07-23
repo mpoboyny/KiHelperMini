@@ -137,6 +137,8 @@ enum ButtIDs
     ID_RUN_CHAT_HELP,
 };
 
+typedef std::list<std::pair<wxString, wxString>> ScriptReplacementsList;
+
 void SetWorkingDir();
 int ShowGenericMessageBox(const wxString& message, const wxString& caption, int style, wxWindow* parent);
 bool RemoveDirectoryContents(const wxString& path);

@@ -3,6 +3,7 @@
 //
 
 #include "prc.hxx"
+#include "ScriptHandler.hxx"
 #include "DialogRunGcc.hxx"
 
 DialogRunGcc::DialogRunGcc(wxWindow* parent, const wxString& llamaSorceDir, bool isCudaEnabled)
@@ -11,12 +12,11 @@ DialogRunGcc::DialogRunGcc(wxWindow* parent, const wxString& llamaSorceDir, bool
     , m_isCudaEnabled(isCudaEnabled)
 {
     TrFu;
-    SetupReplacements();
     SetupHighlighting();
     LoadScript();
 }
 
-void DialogRunGcc::SetupReplacements()
+void DialogRunGcc::SetupReplacements(ScriptReplacementsList &replacements)
 {
     TrFu;
     TrStr(m_llamaSourceDir);
@@ -28,7 +28,7 @@ void DialogRunGcc::SetupReplacements()
     wxString llamaSrcDir = llamaBuildFn.GetPathWithSep();
     wxString llamaCudaFlag = m_isCudaEnabled ? "ON" : "OFF";
 
-    m_scriptReplacements = {
+    replacements = {
         { "<!-- llama_src_dir -->", llamaSrcDir },
         { "<!-- llama_cuda_flag -->", llamaCudaFlag }
     };
@@ -36,7 +36,9 @@ void DialogRunGcc::SetupReplacements()
 
 void DialogRunGcc::LoadScript()
 {
-    wxString content = GetScriptContentWithReplacements(g_ScriptBuildCmakePath);
+    ScriptReplacementsList replacements;
+    SetupReplacements(replacements);
+    wxString content = ScriptHandler::GetScriptContentWithReplacements(g_ScriptBuildCmakePath, replacements);
     m_textCtrl->SetText(content);
     m_textCtrl->SetReadOnly(false);
     m_textCtrl->SetSavePoint();
