@@ -25,16 +25,12 @@ CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFil
     wxBoxSizer* fileRowSizer = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* labelFilePath = new wxStaticText(runGroupBox, wxID_ANY, "File path:");
 
-    // Construct the default binary path plattform-independently
-    wxFileName targetFn(confFile.GetLLamaBinPath());
-    targetFn.AppendDir("bin");
-    targetFn.SetFullName(s_ChatFileName);
 
-    m_textFilePath = new wxTextCtrl(runGroupBox, wxID_ANY, targetFn.GetFullPath(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_textChatFilePath = new wxTextCtrl(runGroupBox, wxID_ANY, confFile.GetChatDefPath(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
     wxButton* btnSelectFile = new wxButton(runGroupBox, ID_SELECT_CHAT_FILE, "Select file");
 
     fileRowSizer->Add(labelFilePath, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
-    fileRowSizer->Add(m_textFilePath, 1, wxEXPAND | wxRIGHT, 5); 
+    fileRowSizer->Add(m_textChatFilePath, 1, wxEXPAND | wxRIGHT, 5); 
     fileRowSizer->Add(btnSelectFile, 0, wxALIGN_CENTER_VERTICAL);
 
     // 4. Parameters label row
@@ -45,7 +41,7 @@ CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFil
     m_textChatParams = new wxTextCtrl(runGroupBox, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, 0);
     paramRowSizer->Add(m_textChatParams, 1, wxEXPAND | wxRIGHT, 5);
 
-    for (const auto& param : confFile.GetChatParameters(confFile.GetCurrentSysName())) {
+    for (const auto& param : confFile.GetChatParameters()) {
         wxString paramText = param.Name + " " + param.Value;
         m_textChatParams->AppendText(paramText + " ");
     }
@@ -73,8 +69,8 @@ void CMainRunChatPanel::OnRunSample(wxCommandEvent& WXUNUSED(event))
 
 void CMainRunChatPanel::OnSelectFile(wxCommandEvent& event)
 {
-    // TrFu;
-    wxString currentPath = m_textFilePath->GetValue();
+    TrFu;
+    wxString currentPath = m_textChatFilePath->GetValue();
     wxString defaultDir = "";
     wxString defaultFile = "";
 
@@ -87,8 +83,8 @@ void CMainRunChatPanel::OnSelectFile(wxCommandEvent& event)
         defaultFile = fn.GetFullName(); 
     }
 
-    // TrStr(defaultDir);
-    // TrStr(defaultFile);
+    TrStr(defaultDir);
+    TrStr(defaultFile);
 
     // 2. Create the file dialog
     wxFileDialog openFileDialog(
@@ -116,9 +112,9 @@ void CMainRunChatPanel::OnSelectFile(wxCommandEvent& event)
         return; 
     }
 
-    if (m_textFilePath) 
+    if (m_textChatFilePath) 
     {
         // Displays the full absolute path as text in your text control
-        m_textFilePath->SetValue(openFileDialog.GetPath());
+        m_textChatFilePath->SetValue(openFileDialog.GetPath());
     }
 }

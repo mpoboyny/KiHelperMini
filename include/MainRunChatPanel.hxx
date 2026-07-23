@@ -10,7 +10,7 @@ class ConfigFile;
 class CMainRunChatPanel : public wxPanel
 {
     static const wxString s_ChatFileName;
-    wxTextCtrl *m_textFilePath;
+    wxTextCtrl *m_textChatFilePath;
     wxTextCtrl *m_textChatParams;
     void OnRunSample(wxCommandEvent& event);
     void OnSelectFile(wxCommandEvent& event);

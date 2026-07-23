@@ -16,7 +16,7 @@ wxEND_EVENT_TABLE()
 
 ConfigDlg::ConfigDlg(wxWindow* parent) 
     : wxDialog(parent, wxID_ANY, "Configuration Viewer", 
-               wxDefaultPosition, wxSize(700, 500), 
+               wxDefaultPosition, wxSize(900, 700), 
                wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
     SetIcon(wxIcon(edit_xpm));

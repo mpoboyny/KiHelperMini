@@ -48,7 +48,8 @@ public:
     wxString GetLLamaBinPath() const;
     ModelList GetModels() const;
     wxString GetCurrentSysName() const;
-    ChatParameterList GetChatParameters(wxString sysName) const;
+    ChatParameterList GetChatParameters() const;
+    wxString GetChatDefPath() const;
 };
 
 #endif //CONFIG_FILE_HXX
