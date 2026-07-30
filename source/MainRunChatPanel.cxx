@@ -6,12 +6,14 @@
 #include "ConfigFile.hxx"
 #include "MainRunChatPanel.hxx"
 #include "ProcessRunner.hxx"
+#include "ScriptHandler.hxx"
 
 /*static*/
 const wxString CMainRunChatPanel::s_ChatFileName = "llama-cli";
 
 CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFile)
     : wxPanel(parent, wxID_ANY)
+    , m_parentWindow(parent)
 {
     TrFu;
 
@@ -47,6 +49,17 @@ CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFil
         m_textChatParams->AppendText(paramText + " ");
     }
 
+    auto models = confFile.GetModels();
+    if (models.empty()) {
+        m_Modell = "No models configured";
+    }
+    for (const auto& model : models) {
+        if (model.Current) {
+            m_Modell = model.Path;
+            break;
+        }
+    }
+
     wxBoxSizer* doSizer = new wxBoxSizer(wxHORIZONTAL);
     m_buttChatDoIt = new wxButton(runGroupBox, ID_RUN_CHAT, "Do it", wxDefaultPosition, wxSize(-1, FromDIP(28)));
     m_buttChatShowHelp = new wxButton(runGroupBox, ID_RUN_CHAT_HELP, "Help", wxDefaultPosition, wxSize(-1, FromDIP(28)));
@@ -71,7 +84,6 @@ CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFil
 
     Layout();
 }
-
 
 void CMainRunChatPanel::OnSelectFile(wxCommandEvent& event)
 {
@@ -128,9 +140,31 @@ void CMainRunChatPanel::OnSelectFile(wxCommandEvent& event)
 void CMainRunChatPanel::OnRunChat(wxCommandEvent &event)
 {
     TrFu;
+    TrStr(m_Modell)
+    wxString chatParams = wxString::Format("-m %s %s", m_Modell, m_textChatParams->GetValue());
+    ScriptReplacementsList replacements = {
+        { "<!-- llama_bin -->", m_textChatFilePath->GetValue() },
+        { "<!-- llama_param -->", chatParams },
+        { "<!-- llama_pipe -->", "''" }
+    };
+    TrStr(g_ScriptRunLlamaPath);
+    ProcessRunner runner;
+    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);
+    TrStr(scriptContent);
+    runner.RunAsyncInNewWindow(scriptContent, 0);
 }
 
 void CMainRunChatPanel::OnRunChatHelp(wxCommandEvent &event)
 {
     TrFu;
+     ScriptReplacementsList replacements = {
+        { "<!-- llama_bin -->", m_textChatFilePath->GetValue() },
+        { "<!-- llama_param -->", "--help" },
+        { "<!-- llama_pipe -->", "true" }
+    };
+    // TrStr(g_ScriptRunLlamaPath);
+    ProcessRunner runner;
+    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);
+    TrStr(scriptContent);
+    runner.RunAsyncInNewWindow(scriptContent, 0);
 }

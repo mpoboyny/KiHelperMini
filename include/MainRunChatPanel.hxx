@@ -14,6 +14,8 @@ class CMainRunChatPanel : public wxPanel
     wxTextCtrl *m_textChatParams;
     wxButton *m_buttChatDoIt;
     wxButton *m_buttChatShowHelp;
+    wxWindow *m_parentWindow;
+    wxString m_Modell;
 
     void OnSelectFile(wxCommandEvent& event);
     void OnRunChat(wxCommandEvent& event);

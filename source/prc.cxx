@@ -110,6 +110,26 @@ const wxString g_ScriptRunCmakePath = []() -> wxString {
     return scriptPath;
 }();
 
+const wxString g_ScriptRunLlamaPath = []() -> wxString {
+#if defined(__gnu_linux__)
+    const wxString scriptFileName = "run_llama.sh";
+#elif defined(_WIN32)
+    const wxString scriptFileName = "run_llama.bat";
+#endif
+
+    if (g_ScriptDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+
+    wxString scriptPath = g_ScriptDir + scriptFileName;
+    wxFileName scriptFn(scriptPath);
+    if (!scriptFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return scriptPath;
+}();
+
 void SetWorkingDir()
 {
     TrFu;
