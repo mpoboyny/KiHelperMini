@@ -2,7 +2,7 @@
 setlocal
 
 rem --- Setup Visual Studio Environment for x64 ---
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\Tools\VsDevCmd.bat" -arch=x64
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
 if %ERRORLEVEL% neq 0 (
     echo Error: Failed to initialize Visual Studio command prompt.
     echo Please check the path to VsDevCmd.bat.
@@ -55,9 +55,9 @@ if defined BUILD_DIR (
 )
 
 if /i "%MODE%"=="debug" (
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="/DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS" -DwxUSE_UNICODE=OFF -DwxBUILD_SHARED=ON -DwxUSE_STC=ON -DwxUSE_SYS_LIBS=OFF -DwxBUILD_MONOLITHIC=OFF -DwxBUILD_VENDOR=custom ..
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="/DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS" -DwxUSE_UNICODE=OFF -DwxBUILD_SHARED=ON -DwxUSE_STC=ON -DwxUSE_SYS_LIBS=OFF -DwxBUILD_MONOLITHIC=OFF -DwxBUILD_VENDOR=custom -DwxUSE_WEBVIEW=OFF ..
 ) else (
-    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="/DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS" -DwxUSE_UNICODE=OFF -DwxBUILD_SHARED=ON -DwxUSE_STC=ON -DwxUSE_SYS_LIBS=OFF -DwxBUILD_MONOLITHIC=OFF -DwxBUILD_VENDOR=custom ..
+    cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD=17 -DCMAKE_CXX_FLAGS="/DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS" -DwxUSE_UNICODE=OFF -DwxBUILD_SHARED=ON -DwxUSE_STC=ON -DwxUSE_SYS_LIBS=OFF -DwxBUILD_MONOLITHIC=OFF -DwxBUILD_VENDOR=custom -DwxUSE_WEBVIEW=OFF ..
 )
 
 if %ERRORLEVEL% neq 0 (
