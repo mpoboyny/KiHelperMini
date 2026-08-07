@@ -7,6 +7,8 @@
 
 class DialogCmdRunner : public wxDialog
 {
+    wxString m_Header;
+
 protected:
 
     wxStyledTextCtrl* m_textCtrl;

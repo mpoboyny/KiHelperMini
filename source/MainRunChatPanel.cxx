@@ -140,7 +140,8 @@ void CMainRunChatPanel::OnSelectFile(wxCommandEvent& event)
 void CMainRunChatPanel::OnRunChat(wxCommandEvent &event)
 {
     TrFu;
-    TrStr(m_Modell)
+    TrStr(m_Modell);
+    
     wxString chatParams = wxString::Format("-m %s %s", m_Modell, m_textChatParams->GetValue());
     ScriptReplacementsList replacements = {
         { "<!-- llama_bin -->", m_textChatFilePath->GetValue() },
@@ -150,8 +151,10 @@ void CMainRunChatPanel::OnRunChat(wxCommandEvent &event)
     TrStr(g_ScriptRunLlamaPath);
     ProcessRunner runner;
     wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);
-    TrStr(scriptContent);
-    runner.RunAsyncInNewWindow(scriptContent, 0);
+    // TrStr(scriptContent);
+    // wxString scriptContent = "#!/bin/bash\n/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli -m /home/tato/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf --temp 0.7 --top-k 40 --top-p 0.9 --repeat-penalty 1.1 -t 4 -ngl 24 --jinja  -cnv";
+    // TrStr(scriptContent);
+    runner.RunAsyncInNewWindow(scriptContent, wxDisplay::GetFromWindow(this), "Llama chat");
 }
 
 void CMainRunChatPanel::OnRunChatHelp(wxCommandEvent &event)
@@ -162,9 +165,8 @@ void CMainRunChatPanel::OnRunChatHelp(wxCommandEvent &event)
         { "<!-- llama_param -->", "--help" },
         { "<!-- llama_pipe -->", "true" }
     };
-    // TrStr(g_ScriptRunLlamaPath);
     ProcessRunner runner;
     wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);
-    TrStr(scriptContent);
-    runner.RunAsyncInNewWindow(scriptContent, 0);
+    // TrStr(scriptContent);
+    runner.RunAsyncInNewWindow(scriptContent, wxDisplay::GetFromWindow(this), "Llama help");
 }

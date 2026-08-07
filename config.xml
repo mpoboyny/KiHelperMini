@@ -14,32 +14,39 @@
         </System>
         <System Name="Linux">
             <Models>
-                <Model File="/home/LocalKiModels/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" />
-                <Model File="/home/LocalKiModels/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" Current="true" />
-                <Model File="/home/LocalKiModels/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
+                <Model File="/home/tato/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" />
+                <Model File="/home/tato/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" Current="true" />
+                <Model File="/home/tato/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
             </Models>
             <LLamaCpp>
-                <Bin Path="/home/tato/Dokumente/.KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
+                <Bin Path="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
             </LLamaCpp>
             <LlamaChatParameters>
-                <DefBin Path="/home/tato/Dokumente/.KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
+                <DefBin Path="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
+                
                 <!-- Temperature: Controls randomness. Higher values (e.g., 1.0) make output more creative, lower values (e.g., 0.2) make it more deterministic. -->
                 <Parameter Name="--temp" Value="0.7" />
                 
-                <!-- Top-K Sampling: Limits the next-token pool to the K most likely tokens. Reduces the chance of generating nonsense. -->
-                <Parameter Name="--top_k" Value="40" />
+                <!-- Top-K Sampling: Limits the next-token pool to the K most likely tokens. Modern llama.cpp uses a hyphen instead of an underscore. -->
+                <Parameter Name="--top-k" Value="40" />
                 
-                <!-- Top-P Sampling (Nucleus): Limits token pool to a cumulative probability threshold. Works dynamically compared to Top-K. -->
-                <Parameter Name="--top_p" Value="0.9" />
+                <!-- Top-P Sampling (Nucleus): Limits token pool to a cumulative probability threshold. Modern llama.cpp uses a hyphen instead of an underscore. -->
+                <Parameter Name="--top-p" Value="0.9" />
                 
-                <!-- Repeat Penalty: Discourages the model from repeating the same phrases or looping text. Higher values enforce variation. -->
-                <Parameter Name="--repeat_penalty" Value="1.1" />
+                <!-- Repeat Penalty: Discourages the model from repeating phrases. Modern llama.cpp uses a hyphen instead of an underscore. -->
+                <Parameter Name="--repeat-penalty" Value="1.1" />
                 
                 <!-- CPU Threads: Number of physical CPU cores allocated for computing parts of the model not offloaded to the GPU. -->
-                <Parameter Name="--n_threads" Value="4" />
+                <Parameter Name="-t" Value="4" />
                 
                 <!-- GPU Layers: Number of neural network layers offloaded to the VRAM of your graphics card for faster hardware acceleration. -->
                 <Parameter Name="-ngl" Value="24" /> 
+
+                <!-- Chat Engine Template: Forces llama-cli to parse and apply the native Jinja template embedded inside Mistral GGUF metadata. -->
+                <Parameter Name="--jinja" Value="" />
+
+                <!-- Conversation Mode: Converts the text generator into a persistent, interactive chat session with memory. -->
+                <Parameter Name="-cnv" Value="" />
             </LlamaChatParameters>
         </System>
     </Systems>

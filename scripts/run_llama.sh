@@ -1,11 +1,15 @@
 #!/bin/bash
 
-LLAMA_BIN=<!-- llama_bin -->
-LLAMA_PARAM=<!-- llama_param -->
-LLAMA_PIPE=<!-- llama_pipe -->
+# Safeguard the binary path in quotes
+LLAMA_BIN="<!-- llama_bin -->"
+LLAMA_PIPE="<!-- llama_pipe -->"
 
-if [ -z "$LLAMA_PIPE" ]; then
-    ${LLAMA_BIN} ${LLAMA_PARAM}
+# FIX: Parse the parameters directly into a Bash array to handle spaces and flags without eval
+LLAMA_ARGS=( <!-- llama_param --> )
+
+# Execute using the array expansion syntax which perfectly preserves argument boundaries
+if [ -z "$LLAMA_PIPE" ] || [ "$LLAMA_PIPE" = "''" ]; then
+    "${LLAMA_BIN}" "${LLAMA_ARGS[@]}"
 else
-    ${LLAMA_BIN} ${LLAMA_PARAM} | less
+    "${LLAMA_BIN}" "${LLAMA_ARGS[@]}" | less
 fi

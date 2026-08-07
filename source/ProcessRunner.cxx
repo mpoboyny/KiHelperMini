@@ -55,26 +55,29 @@ bool ProcessRunner::RunSyncInNewWindow(const wxString& scriptPath, int WXUNUSED(
 
 #elif defined(__gnu_linux__)
 
-bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath, int displayIndex)
+bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath, int displayIndex, const wxString title)
 {
     TrFu;
-    /*
-        Bei -fs 12 (Fontgröße 12) ist ein Zeichen grob 8 Pixel breit und 18 Pixel hoch.
-            1000 Pixel / 8  etwa 125 Spalten
-            700 Pixel / 18 etwa 40 Zeilen
-        Jetzt in Zeichen (Columns) und Zeilen (Rows) statt Pixeln!
-    */
+    
+    // Define initial grid boundaries in columns and rows
     int targetCols = 125; 
     int targetRows = 40;  
-    int posX = 500; // Position bleibt in Pixeln
-    int posY = 300;
+    
+    // Request screen geometries safely from wxWidgets without using hardcoded pixel offsets
+    wxRect screenRect = wxDisplay(displayIndex).GetClientArea();
+    int posX = screenRect.x + 50; // Dynamic window manager safe padding fallback
+    int posY = screenRect.y + 50;
 
     auto buildCommand = [&](bool holdWindow) {
         return wxString::Format(
-            "xterm -geometry %dx%d+%d+%d " // Geometrie kompakt zusammengefasst
-            "-xrm \"XTerm*selectToClipboard: true\" "
+            "xterm -bg black -fg white -geometry %dx%d+%d+%d "
+            "-T \"%s\" " 
+            // Enable dynamicLayout to automatically recalculate and reflow lines when resized
+            "-xrm \"XTerm*selectToClipboard: true\\nXTerm*vt100*dynamicLayout: true\" " 
             "-fa Monospace -fs 12 %s-e \"%s\"",
-            targetCols, targetRows, posX, posY,
+            targetCols, targetRows, 
+            posX, posY,
+            title,       
             holdWindow ? "-hold " : "",
             scriptPath
         );
@@ -84,23 +87,24 @@ bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath, int displayI
     return pid > 0;
 }
 
-bool ProcessRunner::RunSyncInNewWindow(const wxString& scriptPath, int displayIndex)
+bool ProcessRunner::RunSyncInNewWindow(const wxString& scriptPath, int displayIndex, const wxString title)
 {
     TrFu;
     wxRect screenRect = wxDisplay(displayIndex).GetClientArea();
+    
+    int posX = screenRect.x + (screenRect.width - s_DefaultWidth) / 2;
+    int posY = screenRect.y + (screenRect.height - s_DefaultHeight) / 2;
 
-    int targetWidth = 500;
-    int targetHeight = 300;
-
-    int posX = screenRect.x + (screenRect.width - targetWidth) / 2;
-    int posY = screenRect.y + (screenRect.height - targetHeight) / 2;
+    wxString xtermTitle = wxString::Format("%s (Close this window after script is done and back to %s)", title, g_APP_NAME);
 
     wxString command = wxString::Format(
-        "xterm -geometry +%d+%d "
+        "xterm -bg black -fg white -geometry +%d+%d " // <- -bg und -fg too
+        "-T \"%s\" "
         "-xrm \"XTerm*vt100.geometry: %dx%d\\nXTerm*selectToClipboard: true\" "
         "-fa Monospace -fs 12 -hold -e \"%s\"",
         posX, posY,
-        targetWidth, targetHeight,
+        xtermTitle,
+        s_DefaultWidth, s_DefaultHeight,
         scriptPath
     );
 

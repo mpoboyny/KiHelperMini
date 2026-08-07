@@ -10,7 +10,9 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
                                  const wxString &dialogTitle,
                                  const wxString &headerText,
                                  const wxSize &dialogSize)
-    : wxDialog(parent, wxID_ANY, dialogTitle, wxDefaultPosition, dialogSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_textCtrl(nullptr)
+    : wxDialog(parent, wxID_ANY, dialogTitle, wxDefaultPosition, dialogSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+    , m_Header(headerText)
+    , m_textCtrl(nullptr)
 {
     SetClientSize(dialogSize);
 
@@ -18,7 +20,7 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
 
     wxBoxSizer* headerRow = new wxBoxSizer(wxHORIZONTAL);
 
-    wxStaticText* title = new wxStaticText(this, wxID_ANY, headerText);
+    wxStaticText* title = new wxStaticText(this, wxID_ANY, m_Header);
     wxFont titleFont = title->GetFont();
     titleFont.SetWeight(wxFONTWEIGHT_BOLD);
     title->SetFont(titleFont);
@@ -126,7 +128,7 @@ void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
     }
 
     ProcessRunner runner;
-    if (!runner.RunSyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this))) {
+    if (!runner.RunSyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this), m_Header)) {
         wxRemoveFile(scriptPath);
         ShowGenericMessageBox("Failed to launch the script in a new window.", "Run script", wxOK | wxICON_ERROR, this);
         return;

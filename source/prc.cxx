@@ -14,7 +14,7 @@ wxString g_WorkDir;
 const wxString g_ConfDir = []() {
     wxFileName fn;
     fn.AssignDir(wxStandardPaths::Get().GetDocumentsDir());
-    fn.AppendDir(wxString(L".") + g_APP_NAME);
+    fn.AppendDir(g_APP_NAME);
     if (!fn.DirExists()) {
         fn.Mkdir(wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
     }
