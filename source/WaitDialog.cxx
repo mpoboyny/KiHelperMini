@@ -6,6 +6,17 @@
 #include "WaitDialog.hxx"
 #include "../resources/app.xpm" // Provides static const char * const app_xpm[]
 #include <X11/extensions/Xrandr.h> 
+#include <map>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <regex>
+#include <array>
+#include <cstring>
+#include <chrono>
+
+// External definition check (Assuming g_APP_NAME_A is declared as extern const char* or similar in prc.hxx)
+extern const char* g_APP_NAME_A;
 
 // Initialize static runtime control states
 std::thread       WaitDialog::m_thread;
@@ -111,8 +122,6 @@ void WaitDialog::ThreadLoop(const char* txt)
 
     // Execute xrandr system pipe utility asynchronously to fetch hardware topology log lines
     std::array<char, 256> buffer;
-    std::string xrandr_output;
-        // FIXED: Use a clean lambda expression to eliminate the GCC template attribute warning
     std::unique_ptr<FILE, void(*)(FILE*)> pipe(
         popen("xrandr --current 2>/dev/null", "r"), 
         [](FILE* f) { if (f) pclose(f); }
@@ -121,9 +130,7 @@ void WaitDialog::ThreadLoop(const char* txt)
     if (pipe) {
         while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
             std::string line(buffer.data());
-            // Scan for active connected screen lines (e.g., "HDMI-1 connected primary 1920x1080+0+0 ...")
             if (line.find(" connected ") != std::string::npos) {
-                // Parse standard resolution metrics template regex: WIDTHxHEIGHT+OFFSETX+OFFSETY
                 std::regex geometry_regex(R"((\d+)x(\d+)\+(\d+)\+(\d+))");
                 std::smatch match;
                 if (std::regex_search(line, match, geometry_regex)) {
@@ -132,7 +139,6 @@ void WaitDialog::ThreadLoop(const char* txt)
                     int x = std::stoi(match[3].str());
                     int y = std::stoi(match[4].str());
 
-                    // Check if mouse pointer coordinates fall directly inside this specific hardware monitor block
                     if (mouse_x >= x && mouse_x < (x + w) && mouse_y >= y && mouse_y < (y + h)) {
                         active_monitor_x = x;
                         active_monitor_y = y;
@@ -213,43 +219,58 @@ void WaitDialog::PumpEvents(int frameCounter, const char* baseText)
         XNextEvent(m_display, &event);
     }
 
-    // Clear whole container canvas before drawing frame layouts
+    // Clear window before drawing to avoid text and pixel leftovers overlapping
     XClearWindow(m_display, m_window);
 
-    // FIXED: Calculate centering coordinates to place the small icon at the top center
+    // 1. Draw the application icon centered horizontally near the top edge
     int icon_x = (m_width - icon_width) / 2;
-    int icon_y = 25; // Padding from top edge
+    int icon_y = 15; 
     XCopyArea(m_display, m_pixmap, m_window, m_gc, 0, 0, icon_width, icon_height, icon_x, icon_y);
 
-    // String formatting sequence
-    char animatedText[256];
-    std::memset(animatedText, 0, sizeof(animatedText));
-    std::strncpy(animatedText, baseText, sizeof(animatedText) - 5);
-    animatedText[sizeof(animatedText) - 5] = '\0';
-    
-    int dots = (frameCounter % 4);
-    for (int i = 0; i < dots; ++i) {
-        std::strcat(animatedText, ".");
+    // 2. Render the stable Application Name string (g_APP_NAME_A) right below the icon
+    int app_name_y = icon_y + icon_height + 20; 
+    if (g_APP_NAME_A && std::strlen(g_APP_NAME_A) > 0) {
+        int app_name_w = std::strlen(g_APP_NAME_A) * 6; // Rough character spacing estimation
+        int app_name_x = (m_width - app_name_w) / 2;
+        if (app_name_x < 10) app_name_x = 10;
+        XDrawString(m_display, m_window, m_gc, app_name_x, app_name_y, g_APP_NAME_A, std::strlen(g_APP_NAME_A));
     }
 
-    // FIXED: Position text lower, at the bottom section of the scaled window shell
-    int text_y = m_height - 30;
-    
-    // Estimate text width roughly to center it inside the 400px container width
-    int approximate_text_width = std::strlen(animatedText) * 6; 
-    int text_x = (m_width - approximate_text_width) / 2;
-    if (text_x < 10) text_x = 10; // Left-edge bound safety guard
+    // 3. Render the unmodified baseText combined with a separate dot-animation sequence right below the app name
+    int status_text_y = app_name_y + 25;
+        if (baseText && std::strlen(baseText) > 0) {
+            // Build dots string sequence rolling continuously from 0 up to 5 dots
+            char dotsStr[8];
+            std::memset(dotsStr, 0, sizeof(dotsStr));
+            int dotsCount = frameCounter % 6; // Cycles through 0, 1, 2, 3, 4, 5 dots
+            for (int i = 0; i < dotsCount; ++i) {
+                dotsStr[i] = '.';
+            }
 
-    XDrawString(m_display, m_window, m_gc, text_x, text_y, animatedText, std::strlen(animatedText));
-    
-    XFlush(m_display);
-}
+            // Combine base text and progressive dots string safely into a temporary buffer
+            char completeStatusLine[256];
+            std::memset(completeStatusLine, 0, sizeof(completeStatusLine));
+            std::strncpy(completeStatusLine, baseText, sizeof(completeStatusLine) - 10);
+            std::strcat(completeStatusLine, " ");
+            std::strcat(completeStatusLine, dotsStr);
 
-void WaitDialog::Hide() 
+            // Center the entire dynamic status line inside the container viewport width bounds
+            int status_w = std::strlen(completeStatusLine) * 6;
+            int status_x = (m_width - status_w) / 2;
+            if (status_x < 10) status_x = 10;
+            XDrawString(m_display, m_window, m_gc, status_x, status_text_y, completeStatusLine, std::strlen(completeStatusLine));
+        }
+        XFlush(m_display);
+    }
+    
+void WaitDialog::Hide()
 {
-    if (!m_running) return;
+    if (!m_running)
+        return;
+
     m_running = false;
-    if (m_thread.joinable()) {
+    if (m_thread.joinable())
+    {
         m_thread.join();
     }
 }

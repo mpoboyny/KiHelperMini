@@ -97,6 +97,7 @@ extern const int               g_DefaultTxtSize;
 extern const wchar_t           *g_DefaultTxtFontName;
 
 extern const wchar_t           *g_APP_NAME;
+extern const char              *g_APP_NAME_A;
 extern wxString                g_WorkDir;
 extern const wxString          g_ConfDir;
 extern const wxString          g_ConfFileName;

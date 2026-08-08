@@ -8,6 +8,10 @@ const int g_DefaultTxtSize = 10;
 const wchar_t *g_DefaultTxtFontName = L"Sans";
 
 const wchar_t *g_APP_NAME = L"KiHelper-Mini";
+const char *g_APP_NAME_A = "KiHelper-Mini";
+
+extern const wchar_t           *g_APP_NAME;
+extern const char              *g_APP_NAME_A;
 
 wxString g_WorkDir;
 
