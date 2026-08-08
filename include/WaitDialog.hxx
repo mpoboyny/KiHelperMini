@@ -15,19 +15,26 @@ public:
     // Starts the internal background thread and displays the window immediately
     static void Show(const char* txt);
     
+    // Dynamically updates the current status text from the main thread
+    static void SetText(const char* txt);
+    
     // Signals the thread to stop, closes the window, and joins the thread cleanly
     static void Hide();
 
 private:
     // Internal loop function running inside the background thread
-    static void ThreadLoop(const char* txt);
+    static void ThreadLoop();
     
     // Kept private since it's only called internally by the thread
-    static void PumpEvents(int frameCounter, const char* baseText); 
+    static void PumpEvents(int frameCounter); 
 
     // Static runtime control states
     static std::thread        m_thread;
     static std::atomic<bool>  m_running;
+    
+    // Thread-safe storage for the dynamic status text
+    static std::string        m_current_text;
+    static std::mutex         m_text_mutex;
 
     // Static X11 layout descriptors
     static Display*           m_display;

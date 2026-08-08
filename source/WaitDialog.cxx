@@ -6,35 +6,27 @@
 #include "WaitDialog.hxx"
 #include "../resources/app.xpm" // Provides static const char * const app_xpm[]
 #include <X11/extensions/Xrandr.h> 
-#include <map>
-#include <string>
-#include <sstream>
-#include <vector>
-#include <regex>
-#include <array>
-#include <cstring>
-#include <chrono>
 
-// External definition check (Assuming g_APP_NAME_A is declared as extern const char* or similar in prc.hxx)
+// External application name token defined in prc.hxx
 extern const char* g_APP_NAME_A;
 
-// Initialize static runtime control states
+// FIXED: All static allocations and definitions defined purely here without inline headers
 std::thread       WaitDialog::m_thread;
-std::atomic<bool> WaitDialog::m_running{false};
+std::atomic<bool> WaitDialog::m_running{false}; // Initialized out-of-line safely
+std::string       WaitDialog::m_current_text;
+std::mutex        WaitDialog::m_text_mutex;
 
-// Initialize static X11 layout descriptors
 Display*          WaitDialog::m_display = nullptr;
 Window            WaitDialog::m_window  = 0;
 Pixmap            WaitDialog::m_pixmap  = 0;
 GC                WaitDialog::m_gc      = nullptr;
-int               WaitDialog::m_width   = 400; // FIXED: Fixed reasonable splash width container
-int               WaitDialog::m_height  = 150; // FIXED: Fixed reasonable splash height container
+int               WaitDialog::m_width   = 400; 
+int               WaitDialog::m_height  = 150; 
 
-// Keep track of the original embedded icon size
 static int icon_width = 0;
 static int icon_height = 0;
 
-// Helper function to parse hex colors manually from XPM strings (e.g., "#FF0000")
+// Helper function to parse hex colors manually from XPM strings
 static unsigned long ParseHexColor(const std::string& colorStr) 
 {
     if (colorStr.empty()) return 0;
@@ -44,17 +36,30 @@ static unsigned long ParseHexColor(const std::string& colorStr)
         ss >> std::hex >> hexVal;
         return hexVal;
     }
-    return 0; // Black fallback for transparent ("None") or unknown values
+    return 0; 
 }
 
 void WaitDialog::Show(const char* txt) 
 {
     if (m_running) return;
+    
+    {
+        std::lock_guard<std::mutex> lock(m_text_mutex);
+        m_current_text = txt ? txt : "";
+    }
+
     m_running = true;
-    m_thread = std::thread(&WaitDialog::ThreadLoop, txt);
+    m_thread = std::thread(&WaitDialog::ThreadLoop);
 }
 
-void WaitDialog::ThreadLoop(const char* txt) 
+void WaitDialog::SetText(const char* txt)
+{
+    if (!m_running) return;
+    std::lock_guard<std::mutex> lock(m_text_mutex);
+    m_current_text = txt ? txt : "";
+}
+
+void WaitDialog::ThreadLoop() 
 {
     m_display = XOpenDisplay(nullptr);
     if (!m_display) {
@@ -103,24 +108,21 @@ void WaitDialog::ThreadLoop(const char* txt)
         }
     }
 
-    // --- DYNAMIC GEOMETRY PARSING VIA XRANDR COMMAND OUTPUT (NO EXTRA LIBS) ---
+    // --- DYNAMIC GEOMETRY PARSING VIA XRANDR COMMAND OUTPUT ---
     m_width = 400;  
     m_height = 150; 
 
-    // Fetch mouse cursor location coordinates to identify the active screen viewport
     Window root_return, child_return;
     int mouse_x = 0, mouse_y = 0;
     int win_x_ret = 0, win_y_ret = 0;
     unsigned int mask_return = 0;
     XQueryPointer(m_display, root, &root_return, &child_return, &mouse_x, &mouse_y, &win_x_ret, &win_y_ret, &mask_return);
 
-    // Initial fallbacks using full virtual root bounding layout bounds
     int active_monitor_x = 0;
     int active_monitor_y = 0;
     int active_monitor_w = DisplayWidth(m_display, screen);
     int active_monitor_h = DisplayHeight(m_display, screen);
 
-    // Execute xrandr system pipe utility asynchronously to fetch hardware topology log lines
     std::array<char, 256> buffer;
     std::unique_ptr<FILE, void(*)(FILE*)> pipe(
         popen("xrandr --current 2>/dev/null", "r"), 
@@ -151,11 +153,9 @@ void WaitDialog::ThreadLoop(const char* txt)
         }
     }
 
-    // Calculate exact mathematical center positioning inside the discovered screen boundaries
     int win_x = active_monitor_x + ((active_monitor_w - m_width) / 2);
     int win_y = active_monitor_y + ((active_monitor_h - m_height) / 2);
 
-    // Block window allocation interference using redirect attributes
     XSetWindowAttributes window_attributes;
     window_attributes.override_redirect = True; 
     window_attributes.background_pixel = BlackPixel(m_display, screen);
@@ -166,7 +166,6 @@ void WaitDialog::ThreadLoop(const char* txt)
         CWOverrideRedirect | CWBackPixel, &window_attributes
     );
 
-    // Apply native splash settings properties onto the window instance
     Atom window_type = XInternAtom(m_display, "_NET_WM_WINDOW_TYPE", False);
     Atom type_splash = XInternAtom(m_display, "_NET_WM_WINDOW_TYPE_SPLASH", False);
     XChangeProperty(m_display, m_window, window_type, XA_ATOM, 32, PropModeReplace, reinterpret_cast<unsigned char*>(&type_splash), 1);
@@ -177,7 +176,6 @@ void WaitDialog::ThreadLoop(const char* txt)
     m_gc = XCreateGC(m_display, m_window, 0, nullptr);
     XSetForeground(m_display, m_gc, WhitePixel(m_display, screen));
 
-    // Convert raw unpacked icon bits into GPU server memory container
     m_pixmap = XCreatePixmap(m_display, m_window, icon_width, icon_height, depth);
     XImage* xImage = XCreateImage(
         m_display, visual, depth, ZPixmap, 0,
@@ -191,14 +189,12 @@ void WaitDialog::ThreadLoop(const char* txt)
     XFlush(m_display);
     int frameCounter = 0;
 
-    // Continuous autonomous window rendering dispatch loop context
     while (m_running) {
-        PumpEvents(frameCounter, txt);
+        PumpEvents(frameCounter);
         frameCounter++;
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
-    // Resource deallocation teardown
     if (m_gc) XFreeGC(m_display, m_gc);
     if (m_pixmap) XFreePixmap(m_display, m_pixmap);
     if (m_window) XDestroyWindow(m_display, m_window);
@@ -210,7 +206,7 @@ void WaitDialog::ThreadLoop(const char* txt)
     m_gc = nullptr;
 }
 
-void WaitDialog::PumpEvents(int frameCounter, const char* baseText) 
+void WaitDialog::PumpEvents(int frameCounter) 
 {
     if (!m_display || !m_window || !m_pixmap) return;
 
@@ -219,59 +215,58 @@ void WaitDialog::PumpEvents(int frameCounter, const char* baseText)
         XNextEvent(m_display, &event);
     }
 
-    // Clear window before drawing to avoid text overlapping
     XClearWindow(m_display, m_window);
 
-    // 1. Draw the application icon centered horizontally near the top edge
+    // 1. Draw Application Icon
     int icon_x = (m_width - icon_width) / 2;
     int icon_y = 15; 
     XCopyArea(m_display, m_pixmap, m_window, m_gc, 0, 0, icon_width, icon_height, icon_x, icon_y);
 
-    // 2. Render the stable Application Name string (g_APP_NAME_A) right below the icon
+    // 2. Render Application Name (g_APP_NAME_A)
     int app_name_y = icon_y + icon_height + 20; 
     if (g_APP_NAME_A && std::strlen(g_APP_NAME_A) > 0) {
-        int app_name_w = std::strlen(g_APP_NAME_A) * 6; // Rough character spacing estimation
+        int app_name_w = std::strlen(g_APP_NAME_A) * 6; 
         int app_name_x = (m_width - app_name_w) / 2;
         if (app_name_x < 10) app_name_x = 10;
         XDrawString(m_display, m_window, m_gc, app_name_x, app_name_y, g_APP_NAME_A, std::strlen(g_APP_NAME_A));
     }
 
-    // 3. Render the baseText and the separate progressive dots right below the app name
+    // 3. Fetch current status text thread-safely and render it
     int status_text_y = app_name_y + 25;
-    if (baseText && std::strlen(baseText) > 0) {
-        // Build dots string sequence rolling continuously from 0 up to 5 dots
+    
+    std::string local_text;
+    {
+        std::lock_guard<std::mutex> lock(m_text_mutex);
+        local_text = m_current_text;
+    }
+
+    if (!local_text.empty()) {
         char dotsStr[10];
         std::memset(dotsStr, 0, sizeof(dotsStr));
-        int dotsCount = frameCounter % 6; // Cycles through 0, 1, 2, 3, 4, 5 dots
+        int dotsCount = frameCounter % 6; 
         for (int i = 0; i < dotsCount; ++i) {
             dotsStr[i] = '.';
         }
 
-        // Fetch the active font structure from GC to calculate precise text width in pixels
         XFontStruct* font_info = XQueryFont(m_display, XGContextFromGC(m_gc));
         int text_width_pixels = 0;
-        int space_width_pixels = 6; // Fallback width for a single space character
+        int space_width_pixels = 6; 
 
         if (font_info) {
-            text_width_pixels = XTextWidth(font_info, baseText, std::strlen(baseText));
+            text_width_pixels = XTextWidth(font_info, local_text.c_str(), local_text.length());
             space_width_pixels = XTextWidth(font_info, " ", 1);
         } else {
-            // Hard fallback if font info query fails
-            text_width_pixels = std::strlen(baseText) * 6;
+            text_width_pixels = local_text.length() * 6;
         }
 
-        // Calculate the total block width (base text + 1 space spacing + maximum 5 dots padding width)
         int max_dots_width = space_width_pixels + (5 * space_width_pixels);
         int total_combined_block_width = text_width_pixels + max_dots_width;
 
-        // Find the shared starting X coordinate to center the entire block inside the dialog
         int start_x = (m_width - total_combined_block_width) / 2;
         if (start_x < 10) start_x = 10;
 
-        // Draw the UNCHANGED baseText at its fixed, solid position
-        XDrawString(m_display, m_window, m_gc, start_x, status_text_y, baseText, std::strlen(baseText));
+        XDrawString(m_display, m_window, m_gc, start_x, status_text_y, local_text.c_str(), local_text.length());
 
-        // Draw the progressive dots at a fixed X coordinate right behind the text
         int dots_x = start_x + text_width_pixels + space_width_pixels;
         if (dotsCount > 0) {
             XDrawString(m_display, m_window, m_gc, dots_x, status_text_y, dotsStr, std::strlen(dotsStr));
@@ -285,14 +280,11 @@ void WaitDialog::PumpEvents(int frameCounter, const char* baseText)
     XFlush(m_display);
 }
 
-void WaitDialog::Hide()
+void WaitDialog::Hide() 
 {
-    if (!m_running)
-        return;
-
+    if (!m_running) return;
     m_running = false;
-    if (m_thread.joinable())
-    {
+    if (m_thread.joinable()) {
         m_thread.join();
     }
 }

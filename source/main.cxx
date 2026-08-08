@@ -19,6 +19,8 @@ int main(int argc, char* argv[])
     SetWorkingDir();
     wxApp::SetInstance(new wxApp());
 
+    WaitDialog::SetText("Call wxEntryStart");
+
 #ifdef __WXMSW__
     if (!wxEntryStart(hInstance, hPrevInstance, lpCmdLine, nCmdShow)) {
 #else
@@ -26,7 +28,7 @@ int main(int argc, char* argv[])
 #endif
         return -1;
     }
-    TrP;
+    WaitDialog::SetText("Initializing WxLogToTrace");
     // Disable wxWidgets GUI error dialogs and default handlers so errors
     // are reported via our tracing system (Tr/TrStr) instead of stderr
     // or modal message boxes.
@@ -39,7 +41,7 @@ int main(int argc, char* argv[])
             TrStr(msg);
         }
     };
-    TrP;
+    WaitDialog::SetText("Initializing WxMessageOutputToTrace");
     // Message output that forwards to TrStr
     class WxMessageOutputToTrace : public wxMessageOutput {
     public:
@@ -57,9 +59,12 @@ int main(int argc, char* argv[])
     // Disable assert dialogs and fatal-exception dialogs
     wxDisableAsserts();
     wxHandleFatalExceptions(false);
+    WaitDialog::SetText("Initializing wxTheApp");
 
     wxTheApp->CallOnInit();
-    TrP;
+
+    WaitDialog::SetText("Create main dialog window");
+
     CMainDialog* dialog = new CMainDialog();
     wxTheApp->SetTopWindow(dialog);
     dialog->Show(true);
