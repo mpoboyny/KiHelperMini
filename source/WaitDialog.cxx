@@ -24,7 +24,8 @@ static int icon_width = 0;
 static int icon_height = 0;
 
 // Helper function to parse hex colors manually from XPM strings (e.g., "#FF0000")
-static unsigned long ParseHexColor(const std::string& colorStr) {
+static unsigned long ParseHexColor(const std::string& colorStr) 
+{
     if (colorStr.empty()) return 0;
     if (colorStr[0] == '#') {
         unsigned long hexVal = 0;
@@ -35,13 +36,15 @@ static unsigned long ParseHexColor(const std::string& colorStr) {
     return 0; // Black fallback for transparent ("None") or unknown values
 }
 
-void WaitDialog::Show(const char* txt) {
+void WaitDialog::Show(const char* txt) 
+{
     if (m_running) return;
     m_running = true;
     m_thread = std::thread(&WaitDialog::ThreadLoop, txt);
 }
 
-void WaitDialog::ThreadLoop(const char* txt) {
+void WaitDialog::ThreadLoop(const char* txt) 
+{
     m_display = XOpenDisplay(nullptr);
     if (!m_display) {
         m_running = false;
@@ -57,7 +60,6 @@ void WaitDialog::ThreadLoop(const char* txt) {
     int numColors = 0;
     int charsPerPixel = 0;
     
-    // FIXED: Correct array indexing for C++17 stringstream
     std::stringstream headerStream(app_xpm[0]);
     headerStream >> icon_width >> icon_height >> numColors >> charsPerPixel;
 
@@ -90,60 +92,64 @@ void WaitDialog::ThreadLoop(const char* txt) {
         }
     }
 
-    // --- AUTOMATIC ACTIVE MONITOR DETECTION VIA FOCUS WINDOW (PURE X11) ---
+    // --- DYNAMIC GEOMETRY PARSING VIA XRANDR COMMAND OUTPUT (NO EXTRA LIBS) ---
     m_width = 400;  
     m_height = 150; 
 
-    // Default fallbacks: entire virtual desktop area
-    XWindowAttributes root_attrs;
-    XGetWindowAttributes(m_display, root, &root_attrs);
-    
-    int monitor_x = 0;
-    int monitor_y = 0;
-    int monitor_w = root_attrs.width;
-    int monitor_h = root_attrs.height;
-
-    // Get current mouse cursor position as an auxiliary metric
+    // Fetch mouse cursor location coordinates to identify the active screen viewport
     Window root_return, child_return;
     int mouse_x = 0, mouse_y = 0;
     int win_x_ret = 0, win_y_ret = 0;
     unsigned int mask_return = 0;
     XQueryPointer(m_display, root, &root_return, &child_return, &mouse_x, &mouse_y, &win_x_ret, &win_y_ret, &mask_return);
 
-    // Dynamic split fallback for side-by-side dual monitors of identical resolution
-    if (root_attrs.width == 3840 && root_attrs.height <= 1200) {
-        monitor_w = 1920;
-        monitor_x = (mouse_x >= 1920) ? 1920 : 0;
-    } else if (root_attrs.width == 5120 && root_attrs.height <= 1600) {
-        monitor_w = 2560;
-        monitor_x = (mouse_x >= 2560) ? 2560 : 0;
-    } else {
-        // Advanced heuristic: inspect the window that currently has the focus (e.g., your IDE or terminal)
-        Window focused_window = 0;
-        int revert_to_return = 0;
-        XGetInputFocus(m_display, &focused_window, &revert_to_return);
+    // Initial fallbacks using full virtual root bounding layout bounds
+    int active_monitor_x = 0;
+    int active_monitor_y = 0;
+    int active_monitor_w = DisplayWidth(m_display, screen);
+    int active_monitor_h = DisplayHeight(m_display, screen);
 
-        if (focused_window != 0 && focused_window != PointerRoot && focused_window != None) {
-            XWindowAttributes focused_attrs;
-            if (XGetWindowAttributes(m_display, focused_window, &focused_attrs) != 0) {
-                int absolute_root_x = 0, absolute_root_y = 0;
-                Window child_translated = 0;
-                XTranslateCoordinates(m_display, focused_window, root, 0, 0, &absolute_root_x, &absolute_root_y, &child_translated);
+    // Execute xrandr system pipe utility asynchronously to fetch hardware topology log lines
+    std::array<char, 256> buffer;
+    std::string xrandr_output;
+        // FIXED: Use a clean lambda expression to eliminate the GCC template attribute warning
+    std::unique_ptr<FILE, void(*)(FILE*)> pipe(
+        popen("xrandr --current 2>/dev/null", "r"), 
+        [](FILE* f) { if (f) pclose(f); }
+    );
+    
+    if (pipe) {
+        while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+            std::string line(buffer.data());
+            // Scan for active connected screen lines (e.g., "HDMI-1 connected primary 1920x1080+0+0 ...")
+            if (line.find(" connected ") != std::string::npos) {
+                // Parse standard resolution metrics template regex: WIDTHxHEIGHT+OFFSETX+OFFSETY
+                std::regex geometry_regex(R"((\d+)x(\d+)\+(\d+)\+(\d+))");
+                std::smatch match;
+                if (std::regex_search(line, match, geometry_regex)) {
+                    int w = std::stoi(match[1].str());
+                    int h = std::stoi(match[2].str());
+                    int x = std::stoi(match[3].str());
+                    int y = std::stoi(match[4].str());
 
-                // If the terminal/IDE is contained on a sub-screen, extract boundaries dynamically
-                if (focused_attrs.width >= 640 && focused_attrs.width < root_attrs.width) {
-                    monitor_w = (absolute_root_x >= root_attrs.width / 2 || focused_attrs.width > 1920) ? (root_attrs.width - (root_attrs.width / 2)) : (root_attrs.width / 2);
-                    monitor_x = (absolute_root_x >= root_attrs.width / 2) ? (root_attrs.width / 2) : 0;
+                    // Check if mouse pointer coordinates fall directly inside this specific hardware monitor block
+                    if (mouse_x >= x && mouse_x < (x + w) && mouse_y >= y && mouse_y < (y + h)) {
+                        active_monitor_x = x;
+                        active_monitor_y = y;
+                        active_monitor_w = w;
+                        active_monitor_h = h;
+                        break;
+                    }
                 }
             }
         }
     }
 
-    // Precise mathematical centering calculation based on the dynamic monitor profile
-    int win_x = monitor_x + ((monitor_w - m_width) / 2);
-    int win_y = monitor_y + ((monitor_h - m_height) / 2);
+    // Calculate exact mathematical center positioning inside the discovered screen boundaries
+    int win_x = active_monitor_x + ((active_monitor_w - m_width) / 2);
+    int win_y = active_monitor_y + ((active_monitor_h - m_height) / 2);
 
-    // Enforce window constraints using absolute redirect to bypass window manager panels
+    // Block window allocation interference using redirect attributes
     XSetWindowAttributes window_attributes;
     window_attributes.override_redirect = True; 
     window_attributes.background_pixel = BlackPixel(m_display, screen);
@@ -198,7 +204,8 @@ void WaitDialog::ThreadLoop(const char* txt) {
     m_gc = nullptr;
 }
 
-void WaitDialog::PumpEvents(int frameCounter, const char* baseText) {
+void WaitDialog::PumpEvents(int frameCounter, const char* baseText) 
+{
     if (!m_display || !m_window || !m_pixmap) return;
 
     XEvent event;
@@ -238,7 +245,8 @@ void WaitDialog::PumpEvents(int frameCounter, const char* baseText) {
     XFlush(m_display);
 }
 
-void WaitDialog::Hide() {
+void WaitDialog::Hide() 
+{
     if (!m_running) return;
     m_running = false;
     if (m_thread.joinable()) {

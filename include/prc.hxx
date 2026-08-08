@@ -70,6 +70,8 @@
 #include <limits.h>
 #include <chrono>
 #include <regex>
+#include <cstdio>
+#include <array>
 
 #if defined(__gnu_linux__)
 #include <unistd.h>
