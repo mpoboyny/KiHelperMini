@@ -219,7 +219,7 @@ void WaitDialog::PumpEvents(int frameCounter, const char* baseText)
         XNextEvent(m_display, &event);
     }
 
-    // Clear window before drawing to avoid text and pixel leftovers overlapping
+    // Clear window before drawing to avoid text overlapping
     XClearWindow(m_display, m_window);
 
     // 1. Draw the application icon centered horizontally near the top edge
@@ -236,33 +236,55 @@ void WaitDialog::PumpEvents(int frameCounter, const char* baseText)
         XDrawString(m_display, m_window, m_gc, app_name_x, app_name_y, g_APP_NAME_A, std::strlen(g_APP_NAME_A));
     }
 
-    // 3. Render the unmodified baseText combined with a separate dot-animation sequence right below the app name
+    // 3. Render the baseText and the separate progressive dots right below the app name
     int status_text_y = app_name_y + 25;
-        if (baseText && std::strlen(baseText) > 0) {
-            // Build dots string sequence rolling continuously from 0 up to 5 dots
-            char dotsStr[8];
-            std::memset(dotsStr, 0, sizeof(dotsStr));
-            int dotsCount = frameCounter % 6; // Cycles through 0, 1, 2, 3, 4, 5 dots
-            for (int i = 0; i < dotsCount; ++i) {
-                dotsStr[i] = '.';
-            }
-
-            // Combine base text and progressive dots string safely into a temporary buffer
-            char completeStatusLine[256];
-            std::memset(completeStatusLine, 0, sizeof(completeStatusLine));
-            std::strncpy(completeStatusLine, baseText, sizeof(completeStatusLine) - 10);
-            std::strcat(completeStatusLine, " ");
-            std::strcat(completeStatusLine, dotsStr);
-
-            // Center the entire dynamic status line inside the container viewport width bounds
-            int status_w = std::strlen(completeStatusLine) * 6;
-            int status_x = (m_width - status_w) / 2;
-            if (status_x < 10) status_x = 10;
-            XDrawString(m_display, m_window, m_gc, status_x, status_text_y, completeStatusLine, std::strlen(completeStatusLine));
+    if (baseText && std::strlen(baseText) > 0) {
+        // Build dots string sequence rolling continuously from 0 up to 5 dots
+        char dotsStr[10];
+        std::memset(dotsStr, 0, sizeof(dotsStr));
+        int dotsCount = frameCounter % 6; // Cycles through 0, 1, 2, 3, 4, 5 dots
+        for (int i = 0; i < dotsCount; ++i) {
+            dotsStr[i] = '.';
         }
-        XFlush(m_display);
+
+        // Fetch the active font structure from GC to calculate precise text width in pixels
+        XFontStruct* font_info = XQueryFont(m_display, XGContextFromGC(m_gc));
+        int text_width_pixels = 0;
+        int space_width_pixels = 6; // Fallback width for a single space character
+
+        if (font_info) {
+            text_width_pixels = XTextWidth(font_info, baseText, std::strlen(baseText));
+            space_width_pixels = XTextWidth(font_info, " ", 1);
+        } else {
+            // Hard fallback if font info query fails
+            text_width_pixels = std::strlen(baseText) * 6;
+        }
+
+        // Calculate the total block width (base text + 1 space spacing + maximum 5 dots padding width)
+        int max_dots_width = space_width_pixels + (5 * space_width_pixels);
+        int total_combined_block_width = text_width_pixels + max_dots_width;
+
+        // Find the shared starting X coordinate to center the entire block inside the dialog
+        int start_x = (m_width - total_combined_block_width) / 2;
+        if (start_x < 10) start_x = 10;
+
+        // Draw the UNCHANGED baseText at its fixed, solid position
+        XDrawString(m_display, m_window, m_gc, start_x, status_text_y, baseText, std::strlen(baseText));
+
+        // Draw the progressive dots at a fixed X coordinate right behind the text
+        int dots_x = start_x + text_width_pixels + space_width_pixels;
+        if (dotsCount > 0) {
+            XDrawString(m_display, m_window, m_gc, dots_x, status_text_y, dotsStr, std::strlen(dotsStr));
+        }
+
+        if (font_info) {
+            XFreeFontInfo(nullptr, font_info, 1);
+        }
     }
-    
+
+    XFlush(m_display);
+}
+
 void WaitDialog::Hide()
 {
     if (!m_running)

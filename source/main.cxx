@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 #endif
 {
     TrFu
-    WaitDialog::Show("Initializing application...");
+    WaitDialog::Show("Initializing application");
 
     wxDISABLE_DEBUG_SUPPORT();
     SetWorkingDir();
