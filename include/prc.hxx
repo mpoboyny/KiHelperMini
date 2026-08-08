@@ -29,6 +29,7 @@
 #include <wx/grid.h>
 #include <wx/richtooltip.h>
 #include <wx/filedlg.h>
+#include <wx/generic/filedlgg.h> 
 #include <wx/file.h>
 #include <wx/accel.h>
 #include <wx/datetime.h>
@@ -58,15 +59,17 @@
 #include <algorithm>
 #include <fstream>
 #include <map>
+#include <cstring>
 #include <string>
+#include <sstream>
 #include <list>
 #include <vector>
 #include <thread>
 #include <atomic>
 #include <filesystem>
 #include <limits.h>
-#include <wx/filedlg.h>
-#include <wx/generic/filedlgg.h> 
+#include <chrono>
+#include <regex>
 
 #if defined(__gnu_linux__)
 #include <unistd.h>

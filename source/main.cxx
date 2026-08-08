@@ -4,6 +4,7 @@
 
 #include "prc.hxx"
 #include "MainDialog.hxx"
+#include "WaitDialog.hxx"
 
 #ifdef __WXMSW__
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wxCmdLineArgType lpCmdLine, int nCmdShow)
@@ -11,6 +12,9 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, wxCmdLineArgT
 int main(int argc, char* argv[])
 #endif
 {
+    TrFu
+    WaitDialog::Show("Initializing application...");
+
     wxDISABLE_DEBUG_SUPPORT();
     SetWorkingDir();
     wxApp::SetInstance(new wxApp());
@@ -22,7 +26,7 @@ int main(int argc, char* argv[])
 #endif
         return -1;
     }
-    
+    TrP;
     // Disable wxWidgets GUI error dialogs and default handlers so errors
     // are reported via our tracing system (Tr/TrStr) instead of stderr
     // or modal message boxes.
@@ -35,7 +39,7 @@ int main(int argc, char* argv[])
             TrStr(msg);
         }
     };
-
+    TrP;
     // Message output that forwards to TrStr
     class WxMessageOutputToTrace : public wxMessageOutput {
     public:
@@ -55,10 +59,13 @@ int main(int argc, char* argv[])
     wxHandleFatalExceptions(false);
 
     wxTheApp->CallOnInit();
-    
+    TrP;
     CMainDialog* dialog = new CMainDialog();
     wxTheApp->SetTopWindow(dialog);
     dialog->Show(true);
+
+    WaitDialog::Hide();
+
     wxTheApp->MainLoop();
     
     wxTheApp->OnExit();

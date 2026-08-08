@@ -126,6 +126,19 @@
 #	define TrErr(val)  	{ErrorCode errCode=(val); if (errCode){\
 						Tr(#val<<": "<<CError::Inst().LookUp(errCode));} \
 						else { Tr(#val<<": MP_OK");}}
-#	define TrP       	Tr("Trace point");
+
+#	if defined(_MPTRACE_) || defined(_DEBUG) || defined(DEBUG)
+#		ifdef _WIN32
+#			ifdef _MSC_VER
+#				define TrP        {OutStr log; SYSTEMTIME trpLocTime; LARGE_INTEGER trpTick, trpFreq; GetLocalTime(&trpLocTime); QueryPerformanceFrequency(&trpFreq); QueryPerformanceCounter(&trpTick); log<<"["<<__TRFILE__<<":"<<__LINE__<<"] "<<" "<<trpLocTime.wHour<<":"<<trpLocTime.wMinute<<":"<<trpLocTime.wSecond+(trpTick.QuadPart%trpFreq.QuadPart)/double(trpFreq.QuadPart)<<" "<<"Trace point\n"; OutputDebugString(log.str().c_str());}
+#			else
+#				define TrP        {OutStr log; SYSTEMTIME trpLocTime; LARGE_INTEGER trpTick, trpFreq; GetLocalTime(&trpLocTime); QueryPerformanceFrequency(&trpFreq); QueryPerformanceCounter(&trpTick); log<<"["<<__TRFILE__<<":"<<__LINE__<<"] "<<" "<<trpLocTime.wHour<<":"<<trpLocTime.wMinute<<":"<<trpLocTime.wSecond+(trpTick.QuadPart%trpFreq.QuadPart)/double(trpFreq.QuadPart)<<" "<<"Trace point"; OutputDebugString(log.str().c_str());}
+#			endif
+#		else
+#			define TrP        {OutStr log; struct timespec trpTimeReq; struct tm *trpTmInfo; clock_gettime(CLOCK_REALTIME, &trpTimeReq); trpTmInfo = localtime((const time_t*)&trpTimeReq.tv_sec); log<<"["<<__TRFILE__<<":"<<__LINE__<<"] "<<" "<<trpTmInfo->tm_hour<<":"<<trpTmInfo->tm_min<<":"<<trpTmInfo->tm_sec+trpTimeReq.tv_nsec/1e9<<" "<<"Trace point\n"; tcout<<log.str().c_str();}
+#		endif
+#	else
+#		define TrP
+#	endif
 
 #endif // _MPTRACE_HXX_

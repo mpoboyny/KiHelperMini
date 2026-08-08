@@ -11,7 +11,7 @@ TARGET_NAME := KiHelperMini
 OS_DEF      := LINUX_OS
 
 # System Libs (Reihenfolge: CUDA vor System/Math/GOMP)
-SYS_LIBS   := -lpthread -lm -ldl -lrt -lcublas -lcurand -lcudart -lcuda -lgomp
+SYS_LIBS   := -lpthread -lm -ldl -lrt -lX11 -lcublas -lcurand -lcudart -lcuda -lgomp
 
 # --- Compiler Settings ---
 CXX         := g++
