@@ -14,12 +14,14 @@ class CMainRunServerPanel : public wxPanel
     wxTextCtrl *m_textServerParams;
     wxButton *m_buttServerDoIt;
     wxButton *m_buttServerShowHelp;
+    wxButton *m_buttServerCopyScript;
     wxWindow *m_parentWindow;
     wxString m_Modell;
 
     void OnSelectFile(wxCommandEvent& event);
     void OnRunServer(wxCommandEvent& event);
     void OnRunServerHelp(wxCommandEvent& event);
+    void OnCopyServerScript(wxCommandEvent& event);
 
 public:
     CMainRunServerPanel(wxWindow* parent, const ConfigFile &confFile);

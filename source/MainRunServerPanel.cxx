@@ -126,9 +126,11 @@ CMainRunServerPanel::CMainRunServerPanel(wxWindow* parent, const ConfigFile &con
     wxBoxSizer* doSizer = new wxBoxSizer(wxHORIZONTAL);
     m_buttServerDoIt = new wxButton(runGroupBox, ID_RUN_SERVER, "Do it", wxDefaultPosition, wxSize(-1, FromDIP(28)));
     m_buttServerShowHelp = new wxButton(runGroupBox, ID_RUN_SERVER_HELP, "Help", wxDefaultPosition, wxSize(-1, FromDIP(28)));
+    m_buttServerCopyScript = new wxButton(runGroupBox, ID_COPY_SERVER_SCRIPT, "Copy script to clipboard", wxDefaultPosition, wxSize(-1, FromDIP(28)));
 
     doSizer->Add(m_buttServerDoIt, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
-    doSizer->Add(m_buttServerShowHelp, 0, wxALIGN_CENTER_VERTICAL);
+    doSizer->Add(m_buttServerShowHelp, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    doSizer->Add(m_buttServerCopyScript, 0, wxALIGN_CENTER_VERTICAL);
 
     runSizer->Add(fileRowSizer, 0, wxEXPAND | wxALL, 10);
     runSizer->Add(paramRowSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
@@ -140,6 +142,7 @@ CMainRunServerPanel::CMainRunServerPanel(wxWindow* parent, const ConfigFile &con
     Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnSelectFile, this, ID_SELECT_SERVER_FILE);
     Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnRunServer, this, ID_RUN_SERVER);
     Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnRunServerHelp, this, ID_RUN_SERVER_HELP);
+    Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnCopyServerScript, this, ID_COPY_SERVER_SCRIPT);
 
     Layout();
 }
@@ -205,6 +208,23 @@ void CMainRunServerPanel::OnRunServer(wxCommandEvent &event)
     TrStr(scriptContent);
     ProcessRunner runner;
     runner.RunAsyncInNewWindow(scriptContent, wxDisplay::GetFromWindow(this), "Llama server");
+}
+
+void CMainRunServerPanel::OnCopyServerScript(wxCommandEvent &event)
+{
+    TrFu;
+    wxString serverParams = wxString::Format("-m %s %s", m_Modell, m_textServerParams->GetValue());
+    ScriptReplacementsList replacements = {
+        { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+        { "<!-- llama_param -->", serverParams },
+        { "<!-- llama_pipe -->", "''" }
+    };
+    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);
+    if (wxTheClipboard->Open())
+    {
+        wxTheClipboard->SetData(new wxTextDataObject(scriptContent));
+        wxTheClipboard->Close();
+    }
 }
 
 void CMainRunServerPanel::OnRunServerHelp(wxCommandEvent &event)

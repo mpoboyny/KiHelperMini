@@ -63,9 +63,11 @@ CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFil
     wxBoxSizer* doSizer = new wxBoxSizer(wxHORIZONTAL);
     m_buttChatDoIt = new wxButton(runGroupBox, ID_RUN_CHAT, "Do it", wxDefaultPosition, wxSize(-1, FromDIP(28)));
     m_buttChatShowHelp = new wxButton(runGroupBox, ID_RUN_CHAT_HELP, "Help", wxDefaultPosition, wxSize(-1, FromDIP(28)));
+    m_buttChatCopyScript = new wxButton(runGroupBox, ID_COPY_CHAT_SCRIPT, "Copy script to clipboard", wxDefaultPosition, wxSize(-1, FromDIP(28)));
 
     doSizer->Add(m_buttChatDoIt, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);    
-    doSizer->Add(m_buttChatShowHelp, 0, wxALIGN_CENTER_VERTICAL);
+    doSizer->Add(m_buttChatShowHelp, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    doSizer->Add(m_buttChatCopyScript, 0, wxALIGN_CENTER_VERTICAL);
 
     // 5. Add inner row sizers to the runSizer FIRST
     runSizer->Add(fileRowSizer, 0, wxEXPAND | wxALL, 10);
@@ -81,6 +83,7 @@ CMainRunChatPanel::CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFil
     Bind(wxEVT_BUTTON, &CMainRunChatPanel::OnSelectFile, this, ID_SELECT_CHAT_FILE);
     Bind(wxEVT_BUTTON, &CMainRunChatPanel::OnRunChat, this, ID_RUN_CHAT);
     Bind(wxEVT_BUTTON, &CMainRunChatPanel::OnRunChatHelp, this, ID_RUN_CHAT_HELP);
+    Bind(wxEVT_BUTTON, &CMainRunChatPanel::OnCopyChatScript, this, ID_COPY_CHAT_SCRIPT);
 
     Layout();
 }
@@ -155,6 +158,23 @@ void CMainRunChatPanel::OnRunChat(wxCommandEvent &event)
     // wxString scriptContent = "#!/bin/bash\n/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli -m /home/tato/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf --temp 0.7 --top-k 40 --top-p 0.9 --repeat-penalty 1.1 -t 4 -ngl 24 --jinja  -cnv";
     // TrStr(scriptContent);
     runner.RunAsyncInNewWindow(scriptContent, wxDisplay::GetFromWindow(this), "Llama chat");
+}
+
+void CMainRunChatPanel::OnCopyChatScript(wxCommandEvent &event)
+{
+    TrFu;
+    wxString chatParams = wxString::Format("-m %s %s", m_Modell, m_textChatParams->GetValue());
+    ScriptReplacementsList replacements = {
+        { "<!-- llama_bin -->", m_textChatFilePath->GetValue() },
+        { "<!-- llama_param -->", chatParams },
+        { "<!-- llama_pipe -->", "''" }
+    };
+    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);
+    if (wxTheClipboard->Open())
+    {
+        wxTheClipboard->SetData(new wxTextDataObject(scriptContent));
+        wxTheClipboard->Close();
+    }
 }
 
 void CMainRunChatPanel::OnRunChatHelp(wxCommandEvent &event)

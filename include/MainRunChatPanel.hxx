@@ -14,12 +14,14 @@ class CMainRunChatPanel : public wxPanel
     wxTextCtrl *m_textChatParams;
     wxButton *m_buttChatDoIt;
     wxButton *m_buttChatShowHelp;
+    wxButton *m_buttChatCopyScript;
     wxWindow *m_parentWindow;
     wxString m_Modell;
 
     void OnSelectFile(wxCommandEvent& event);
     void OnRunChat(wxCommandEvent& event);
     void OnRunChatHelp(wxCommandEvent& event);
+    void OnCopyChatScript(wxCommandEvent& event);
 
 public:
     CMainRunChatPanel(wxWindow* parent, const ConfigFile &confFile);
