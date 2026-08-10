@@ -8,6 +8,7 @@
 #include "ConfigDlg.hxx"
 #include "MainDialogPanel.hxx"
 #include "MainRunChatPanel.hxx"
+#include "MainRunServerPanel.hxx"
 
 #include "MainDialog.hxx"
 #include "MainDialogStatusBar.hxx"
@@ -48,6 +49,9 @@ CMainDialog::CMainDialog()
 
     m_runPanel = new CMainRunChatPanel(this, *m_ConfFile);
     mainSizer->Add(m_runPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+
+    m_runServerPanel = new CMainRunServerPanel(this, *m_ConfFile);
+    mainSizer->Add(m_runServerPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     SetSizer(mainSizer);
 

@@ -143,6 +143,9 @@ enum ButtIDs
     ID_SELECT_CHAT_FILE,
     ID_RUN_CHAT,
     ID_RUN_CHAT_HELP,
+    ID_SELECT_SERVER_FILE,
+    ID_RUN_SERVER,
+    ID_RUN_SERVER_HELP,
 };
 
 typedef std::list<std::pair<wxString, wxString>> ScriptReplacementsList;

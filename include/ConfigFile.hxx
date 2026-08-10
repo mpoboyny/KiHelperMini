@@ -50,6 +50,8 @@ public:
     wxString GetCurrentSysName() const;
     ChatParameterList GetChatParameters() const;
     wxString GetChatDefPath() const;
+    ChatParameterList GetServerParameters() const;
+    wxString GetServerDefPath() const;
 };
 
 #endif //CONFIG_FILE_HXX

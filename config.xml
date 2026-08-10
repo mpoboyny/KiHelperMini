@@ -48,6 +48,29 @@
                 <!-- Conversation Mode: Converts the text generator into a persistent, interactive chat session with memory. -->
                 <Parameter Name="-cnv" Value="" />
             </LlamaChatParameters>
-        </System>
+            <LlamaServerParameters>
+                <!-- Path to your CUDA-compiled llama-server binary -->
+                <DefBin Path="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server" />
+                
+                <!-- CPU Threads: Match your physical core allocation from the CLI (4 cores) -->
+                <Parameter Name="-t" Value="4" />
+                
+                <!-- GPU Layers: Keep your exact VRAM offloading layout (24 layers) for acceleration -->
+                <Parameter Name="-ngl" Value="24" /> 
+
+                <!-- Context Size: Set to 8192 for an extended local memory window without heavy performance drops -->
+                <Parameter Name="-c" Value="8192" />
+
+                <!-- Host Binding: Enforces IPv4 loopback bypasses slow local DNS resolution issues -->
+                <Parameter Name="--host" Value="127.0.0.1" />
+
+                <!-- Port Allocation: Standard port for llama.cpp API communication -->
+                <Parameter Name="--port" Value="8080" />
+                
+                <!-- Flash Attention: Highly recommended for local models with large context windows. -->
+                <!-- It drastically reduces VRAM requirements for the context cache and speeds up generation. -->
+                <Parameter Name="--flash-attn" Value="" />
+            </LlamaServerParameters>
+       </System>
     </Systems>
 </Settings>

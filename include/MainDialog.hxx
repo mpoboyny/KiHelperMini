@@ -10,6 +10,7 @@ class ConfigFile;
 class CMainDialogStatusBar;
 class CMainDialogPanel;
 class CMainRunChatPanel;
+class CMainRunServerPanel;
 
 class CMainDialog : public wxFrame 
 {
@@ -17,6 +18,7 @@ class CMainDialog : public wxFrame
     CMainDialogStatusBar* m_statusBar;
     CMainDialogPanel* m_mainPanel;
     CMainRunChatPanel* m_runPanel;
+    CMainRunServerPanel* m_runServerPanel;
     
     static const wxSize s_defMinSize;
 
