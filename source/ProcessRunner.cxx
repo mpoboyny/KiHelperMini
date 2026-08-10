@@ -67,7 +67,7 @@ bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath, int displayI
     wxRect screenRect = wxDisplay(displayIndex).GetClientArea();
     int posX = screenRect.x + 50; // Dynamic window manager safe padding fallback
     int posY = screenRect.y + 50;
-
+    wxString  XtermTitle= wxString::Format("%s (Try to use Ctrl+Middle Mouse click to Select text to clipboard)", title);
     auto buildCommand = [&](bool holdWindow) {
         return wxString::Format(
             "xterm -bg black -fg white -geometry %dx%d+%d+%d "
@@ -77,7 +77,7 @@ bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath, int displayI
             "-fa Monospace -fs 12 %s-e \"%s\"",
             targetCols, targetRows, 
             posX, posY,
-            title,       
+            XtermTitle,       
             holdWindow ? "-hold " : "",
             scriptPath
         );
