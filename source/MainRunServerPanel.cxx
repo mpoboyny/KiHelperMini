@@ -196,7 +196,7 @@ void CMainRunServerPanel::OnSelectFile(wxCommandEvent& event)
 void CMainRunServerPanel::OnRunServer(wxCommandEvent &event)
 {
     TrFu;
-    TrStr(m_Modell);
+    // TrStr(m_Modell);
 
     wxString serverParams = wxString::Format("-m %s %s", m_Modell, m_textServerParams->GetValue());
     ScriptReplacementsList replacements = {
@@ -204,8 +204,8 @@ void CMainRunServerPanel::OnRunServer(wxCommandEvent &event)
         { "<!-- llama_param -->", serverParams },
         { "<!-- llama_pipe -->", "''" }
     };
-    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);
-    TrStr(scriptContent);
+    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPathServ, replacements);
+    // TrStr(scriptContent);
     ProcessRunner runner;
     runner.RunAsyncInNewWindow(scriptContent, wxDisplay::GetFromWindow(this), "Llama server");
 }
@@ -219,7 +219,7 @@ void CMainRunServerPanel::OnCopyServerScript(wxCommandEvent &event)
         { "<!-- llama_param -->", serverParams },
         { "<!-- llama_pipe -->", "''" }
     };
-    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);
+    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPathServ, replacements);
     if (wxTheClipboard->Open())
     {
         wxTheClipboard->SetData(new wxTextDataObject(scriptContent));
@@ -233,7 +233,7 @@ void CMainRunServerPanel::OnRunServerHelp(wxCommandEvent &event)
     ScriptReplacementsList replacements = {
         { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
         { "<!-- llama_param -->", "--help" },
-        { "<!-- llama_pipe -->", "true" }
+        { "<!-- llama_pipe -->", "''" }
     };
     // TrStr(g_ScriptRunLlamaPath);
     wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);

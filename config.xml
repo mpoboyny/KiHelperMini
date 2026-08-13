@@ -69,7 +69,7 @@
                 
                 <!-- Flash Attention: Highly recommended for local models with large context windows. -->
                 <!-- It drastically reduces VRAM requirements for the context cache and speeds up generation. -->
-                <Parameter Name="--flash-attn" Value="" />
+                <Parameter Name="--flash-attn" Value="on" />
             </LlamaServerParameters>
        </System>
     </Systems>

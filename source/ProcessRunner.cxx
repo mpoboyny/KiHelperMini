@@ -67,13 +67,14 @@ bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath, int displayI
     wxRect screenRect = wxDisplay(displayIndex).GetClientArea();
     int posX = screenRect.x + 50; // Dynamic window manager safe padding fallback
     int posY = screenRect.y + 50;
-    wxString  XtermTitle= wxString::Format("%s (Try to use Ctrl+Middle Mouse click to Select text to clipboard)", title);
+    wxString  XtermTitle= wxString::Format("%s (Use default xterm behavior or close this window manually)", title);
     auto buildCommand = [&](bool holdWindow) {
         return wxString::Format(
             "xterm -bg black -fg white -geometry %dx%d+%d+%d "
             "-T \"%s\" " 
             // Enable dynamicLayout to automatically recalculate and reflow lines when resized
-            "-xrm \"XTerm*selectToClipboard: true\\nXTerm*vt100*dynamicLayout: true\" " 
+            "-xrm \"XTerm*selectToClipboard: true\" " 
+            "-xrm \"XTerm*vt100.dynamicLayout: true\" " 
             "-fa Monospace -fs 12 %s-e \"%s\"",
             targetCols, targetRows, 
             posX, posY,

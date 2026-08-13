@@ -108,6 +108,7 @@ extern const wxString          g_ScriptExtraLlamaPath;
 extern const wxString          g_ScriptBuildCmakePath;
 extern const wxString          g_ScriptRunCmakePath;
 extern const wxString          g_ScriptRunLlamaPath;
+extern const wxString          g_ScriptRunLlamaPathServ;
 
 extern wxColour g_ColorLightGreen;
 
