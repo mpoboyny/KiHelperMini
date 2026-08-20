@@ -125,10 +125,15 @@ CMainRunServerPanel::CMainRunServerPanel(wxWindow* parent, const ConfigFile &con
 
     wxBoxSizer* doSizer = new wxBoxSizer(wxHORIZONTAL);
     m_buttServerDoIt = new wxButton(runGroupBox, ID_RUN_SERVER, "Do it", wxDefaultPosition, wxSize(-1, FromDIP(28)));
+    
+    m_checkBox = new wxCheckBox(runGroupBox, ID_RUN_SERVER_DEAMON, "Run in background", wxDefaultPosition);
+    m_checkBox->SetValue(false);
+    
     m_buttServerShowHelp = new wxButton(runGroupBox, ID_RUN_SERVER_HELP, "Help", wxDefaultPosition, wxSize(-1, FromDIP(28)));
     m_buttServerCopyScript = new wxButton(runGroupBox, ID_COPY_SERVER_SCRIPT, "Copy script to clipboard", wxDefaultPosition, wxSize(-1, FromDIP(28)));
 
     doSizer->Add(m_buttServerDoIt, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    doSizer->Add(m_checkBox, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     doSizer->Add(m_buttServerShowHelp, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     doSizer->Add(m_buttServerCopyScript, 0, wxALIGN_CENTER_VERTICAL);
 
@@ -197,29 +202,57 @@ void CMainRunServerPanel::OnRunServer(wxCommandEvent &event)
 {
     TrFu;
     // TrStr(m_Modell);
-
     wxString serverParams = wxString::Format("-m %s %s", m_Modell, m_textServerParams->GetValue());
-    ScriptReplacementsList replacements = {
-        { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
-        { "<!-- llama_param -->", serverParams },
-        { "<!-- llama_pipe -->", "''" }
-    };
-    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPathServ, replacements);
+    wxString scriptContent;
+    if (m_checkBox->GetValue()) {
+        TrStr(g_SrvLogFile);
+        ScriptReplacementsList replacements = {
+            { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+            { "<!-- llama_param -->", serverParams },
+            { "<!-- llama_pipe -->", "" },
+            { "<!-- llama_srv_log -->", g_SrvLogFile }
+        };
+        scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPathServ, replacements);
+    }
+    else {
+        ScriptReplacementsList replacements = {
+            { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+            { "<!-- llama_param -->", serverParams },
+            { "<!-- llama_pipe -->", "" },
+            { "<!-- llama_srv_log -->", "" }
+        };
+        scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPathServ, replacements);
+    }
     // TrStr(scriptContent);
     ProcessRunner runner;
-    runner.RunAsyncInNewWindow(scriptContent, wxDisplay::GetFromWindow(this), "Llama server");
+    runner.RunServerAsyncInNewWindow(scriptContent, wxDisplay::GetFromWindow(this), "Llama server", m_checkBox->GetValue());
 }
 
 void CMainRunServerPanel::OnCopyServerScript(wxCommandEvent &event)
 {
     TrFu;
     wxString serverParams = wxString::Format("-m %s %s", m_Modell, m_textServerParams->GetValue());
-    ScriptReplacementsList replacements = {
-        { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
-        { "<!-- llama_param -->", serverParams },
-        { "<!-- llama_pipe -->", "''" }
-    };
-    wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPathServ, replacements);
+    wxString scriptContent;
+    if (m_checkBox->GetValue()) {
+        TrStr(g_SrvLogFile);
+        ScriptReplacementsList replacements = {
+            { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+            { "<!-- llama_param -->", serverParams },
+            { "<!-- llama_pipe -->", "" },
+            { "<!-- llama_srv_log -->", g_SrvLogFile }
+        };
+        scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPathServ, replacements);
+    }
+    else {
+        ScriptReplacementsList replacements = {
+            { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+            { "<!-- llama_param -->", serverParams },
+            { "<!-- llama_pipe -->", "" },
+            { "<!-- llama_srv_log -->", "" }
+        };
+        scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPathServ, replacements);
+    }
+
     if (wxTheClipboard->Open())
     {
         wxTheClipboard->SetData(new wxTextDataObject(scriptContent));
@@ -233,7 +266,8 @@ void CMainRunServerPanel::OnRunServerHelp(wxCommandEvent &event)
     ScriptReplacementsList replacements = {
         { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
         { "<!-- llama_param -->", "--help" },
-        { "<!-- llama_pipe -->", "''" }
+        { "<!-- llama_pipe -->", "xxx" },
+        { "<!-- llama_srv_log -->", "" }
     };
     // TrStr(g_ScriptRunLlamaPath);
     wxString scriptContent = ScriptHandler::GetScriptContentWithReplacements(g_ScriptRunLlamaPath, replacements);

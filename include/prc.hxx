@@ -103,6 +103,8 @@ extern wxString                g_WorkDir;
 extern const wxString          g_ConfDir;
 extern const wxString          g_ConfFileName;
 extern const wxString          g_ConfFile;
+extern const wxString          g_SrvLogFileName;
+extern const wxString          g_SrvLogFile;
 extern const wxString          g_ScriptDir;
 extern const wxString          g_ScriptExtraLlamaPath;
 extern const wxString          g_ScriptBuildCmakePath;

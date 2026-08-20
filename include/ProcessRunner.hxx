@@ -18,6 +18,7 @@ public:
 
     wxString Run(const wxString& exePath, const wxString& args);
     bool RunAsyncInNewWindow(const wxString& scriptPath, int displayIndex, const wxString title);
+    bool RunServerAsyncInNewWindow(const wxString& scriptContent, int displayIndex, const wxString title, bool hidden = false);
     bool RunSyncInNewWindow(const wxString& scriptPath, int displayIndex, const wxString title);
 };
 

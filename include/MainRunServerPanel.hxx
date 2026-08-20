@@ -13,6 +13,7 @@ class CMainRunServerPanel : public wxPanel
     wxTextCtrl *m_textServerFilePath;
     wxTextCtrl *m_textServerParams;
     wxButton *m_buttServerDoIt;
+    wxCheckBox *m_checkBox;
     wxButton *m_buttServerShowHelp;
     wxButton *m_buttServerCopyScript;
     wxWindow *m_parentWindow;
