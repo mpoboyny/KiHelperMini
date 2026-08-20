@@ -4,6 +4,7 @@
 
 #include "prc.hxx"
 #include "ConfigFile.hxx"
+#include "DialogServerStatus.hxx"
 #include "MainRunServerPanel.hxx"
 #include "ProcessRunner.hxx"
 #include "ScriptHandler.hxx"
@@ -130,11 +131,13 @@ CMainRunServerPanel::CMainRunServerPanel(wxWindow* parent, const ConfigFile &con
     m_checkBox->SetValue(false);
     
     m_buttServerShowHelp = new wxButton(runGroupBox, ID_RUN_SERVER_HELP, "Help", wxDefaultPosition, wxSize(-1, FromDIP(28)));
+    m_buttServerStatus = new wxButton(runGroupBox, ID_SHOW_SERVER_STATUS, "Show server status", wxDefaultPosition, wxSize(-1, FromDIP(28)));
     m_buttServerCopyScript = new wxButton(runGroupBox, ID_COPY_SERVER_SCRIPT, "Copy script to clipboard", wxDefaultPosition, wxSize(-1, FromDIP(28)));
 
     doSizer->Add(m_buttServerDoIt, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     doSizer->Add(m_checkBox, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     doSizer->Add(m_buttServerShowHelp, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    doSizer->Add(m_buttServerStatus, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
     doSizer->Add(m_buttServerCopyScript, 0, wxALIGN_CENTER_VERTICAL);
 
     runSizer->Add(fileRowSizer, 0, wxEXPAND | wxALL, 10);
@@ -147,6 +150,7 @@ CMainRunServerPanel::CMainRunServerPanel(wxWindow* parent, const ConfigFile &con
     Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnSelectFile, this, ID_SELECT_SERVER_FILE);
     Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnRunServer, this, ID_RUN_SERVER);
     Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnRunServerHelp, this, ID_RUN_SERVER_HELP);
+    Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnShowServerStatus, this, ID_SHOW_SERVER_STATUS);
     Bind(wxEVT_BUTTON, &CMainRunServerPanel::OnCopyServerScript, this, ID_COPY_SERVER_SCRIPT);
 
     Layout();
@@ -258,6 +262,13 @@ void CMainRunServerPanel::OnCopyServerScript(wxCommandEvent &event)
         wxTheClipboard->SetData(new wxTextDataObject(scriptContent));
         wxTheClipboard->Close();
     }
+}
+
+void CMainRunServerPanel::OnShowServerStatus(wxCommandEvent &event)
+{
+    TrFu;
+    DialogServerStatus dlg(this);
+    dlg.ShowModal();
 }
 
 void CMainRunServerPanel::OnRunServerHelp(wxCommandEvent &event)

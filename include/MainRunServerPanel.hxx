@@ -15,6 +15,7 @@ class CMainRunServerPanel : public wxPanel
     wxButton *m_buttServerDoIt;
     wxCheckBox *m_checkBox;
     wxButton *m_buttServerShowHelp;
+    wxButton *m_buttServerStatus;
     wxButton *m_buttServerCopyScript;
     wxWindow *m_parentWindow;
     wxString m_Modell;
@@ -22,6 +23,7 @@ class CMainRunServerPanel : public wxPanel
     void OnSelectFile(wxCommandEvent& event);
     void OnRunServer(wxCommandEvent& event);
     void OnRunServerHelp(wxCommandEvent& event);
+    void OnShowServerStatus(wxCommandEvent& event);
     void OnCopyServerScript(wxCommandEvent& event);
 
 public:
