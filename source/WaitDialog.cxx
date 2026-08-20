@@ -27,16 +27,16 @@ static int icon_width = 0;
 static int icon_height = 0;
 
 // Helper function to parse hex colors manually from XPM strings
-static unsigned long ParseHexColor(const std::string& colorStr) 
+static unsigned long ParseHexColor(const std::string& colorStr, unsigned long defaultColor = 0) 
 {
-    if (colorStr.empty()) return 0;
+    if (colorStr.empty() || colorStr == "None") return defaultColor;
     if (colorStr[0] == '#') {
         unsigned long hexVal = 0;
         std::stringstream ss(colorStr.substr(1));
         ss >> std::hex >> hexVal;
         return hexVal;
     }
-    return 0; 
+    return defaultColor; 
 }
 
 void WaitDialog::Show(const char* txt) 
@@ -72,6 +72,13 @@ void WaitDialog::ThreadLoop()
     Visual* visual = DefaultVisual(m_display, screen);
     int depth = DefaultDepth(m_display, screen);
 
+    Colormap colormap = DefaultColormap(m_display, screen);
+    XColor bgColor;
+    unsigned long bgPixel = 0x6f6f6f;
+    if (XParseColor(m_display, colormap, "#6f6f6f", &bgColor) && XAllocColor(m_display, colormap, &bgColor)) {
+        bgPixel = bgColor.pixel;
+    }
+
     // --- MANUAL XPM PARSING ENGINE ---
     int numColors = 0;
     int charsPerPixel = 0;
@@ -86,7 +93,7 @@ void WaitDialog::ThreadLoop()
         size_t cPos = line.find(" c ");
         if (cPos != std::string::npos) {
             std::string colorVal = line.substr(cPos + 3);
-            colorMap[key] = ParseHexColor(colorVal);
+            colorMap[key] = ParseHexColor(colorVal, bgPixel);
         }
     }
 
@@ -158,7 +165,7 @@ void WaitDialog::ThreadLoop()
 
     XSetWindowAttributes window_attributes;
     window_attributes.override_redirect = True; 
-    window_attributes.background_pixel = BlackPixel(m_display, screen);
+    window_attributes.background_pixel = bgPixel;
 
     m_window = XCreateWindow(
         m_display, root, win_x, win_y, m_width, m_height, 0,
@@ -229,6 +236,7 @@ void WaitDialog::PumpEvents(int frameCounter)
         int app_name_x = (m_width - app_name_w) / 2;
         if (app_name_x < 10) app_name_x = 10;
         XDrawString(m_display, m_window, m_gc, app_name_x, app_name_y, g_APP_NAME_A, std::strlen(g_APP_NAME_A));
+        XDrawString(m_display, m_window, m_gc, app_name_x + 1, app_name_y, g_APP_NAME_A, std::strlen(g_APP_NAME_A));
     }
 
     // 3. Fetch current status text thread-safely and render it
@@ -266,10 +274,12 @@ void WaitDialog::PumpEvents(int frameCounter)
         if (start_x < 10) start_x = 10;
 
         XDrawString(m_display, m_window, m_gc, start_x, status_text_y, local_text.c_str(), local_text.length());
+        XDrawString(m_display, m_window, m_gc, start_x + 1, status_text_y, local_text.c_str(), local_text.length());
 
         int dots_x = start_x + text_width_pixels + space_width_pixels;
         if (dotsCount > 0) {
             XDrawString(m_display, m_window, m_gc, dots_x, status_text_y, dotsStr, std::strlen(dotsStr));
+            XDrawString(m_display, m_window, m_gc, dots_x + 1, status_text_y, dotsStr, std::strlen(dotsStr));
         }
 
         if (font_info) {
