@@ -6,7 +6,7 @@
 #include "DialogSuggestion.hxx"
 #include "ConfigFile.hxx"
 #include "../resources/app.xpm"
-#include <fstream>
+#include "../resources/conf_model.xpm"
 
 namespace
 {
@@ -202,7 +202,7 @@ namespace
 }
 
 /*static*/
-const wxSize DialogSuggestion::s_defSize = wxSize(700, 560);
+const wxSize DialogSuggestion::s_defSize = wxSize(860, 980);
 
 DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
@@ -213,19 +213,29 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
 
     wxStaticBoxSizer* modelBox = new wxStaticBoxSizer(wxVERTICAL, this, "Model");
-    m_modelText = new wxTextCtrl(this, wxID_ANY, wxEmptyString);
-
     auto models = confFile.GetModels();
-    wxString currentModel = "Current";
+    wxArrayString modelChoices;
+    int currentModelIndex = wxNOT_FOUND;
+    int index = 0;
     for (const auto& model : models) {
+        modelChoices.Add(model.Path);
         if (model.Current) {
-            currentModel = model.Path;
-            break;
+            currentModelIndex = index;
         }
+        ++index;
     }
 
-    m_modelText->SetValue(currentModel);
-    modelBox->Add(m_modelText, 0, wxALL | wxEXPAND, 10);
+    if (modelChoices.IsEmpty()) {
+        modelChoices.Add("Current");
+        currentModelIndex = 0;
+    } else if (currentModelIndex == wxNOT_FOUND) {
+        currentModelIndex = 0;
+    }
+
+    m_modelCmb = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, modelChoices, wxCB_READONLY);
+    m_modelCmb->SetSelection(currentModelIndex);
+
+    modelBox->Add(m_modelCmb, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(modelBox, 0, wxALL | wxEXPAND, 12);
 
     wxStaticBoxSizer* llamaBox = new wxStaticBoxSizer(wxVERTICAL, this, "llama.cpp");
@@ -303,10 +313,47 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     usageBox->Add(usageRow, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(usageBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
-    wxStdDialogButtonSizer* btnSizer = new wxStdDialogButtonSizer();
-    btnSizer->AddButton(new wxButton(this, wxID_OK));
-    btnSizer->Realize();
-    mainSizer->Add(btnSizer, 0, wxALL | wxALIGN_RIGHT, 10);
+    wxStaticBoxSizer* outputFormatBox = new wxStaticBoxSizer(wxVERTICAL, this, "Output format");
+
+    wxCheckBox* cliRunParamsCheck = new wxCheckBox(this, wxID_ANY, "cli run parameters");
+    wxCheckBox* serverRunParamsCheck = new wxCheckBox(this, wxID_ANY, "server run parameters");
+    wxCheckBox* presetServerIniCheck = new wxCheckBox(this, wxID_ANY, "preset server INI file");
+
+    cliRunParamsCheck->SetValue(true);
+
+    wxBoxSizer* outputFormatRow = new wxBoxSizer(wxHORIZONTAL);
+    outputFormatRow->Add(cliRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    outputFormatRow->Add(serverRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    outputFormatRow->Add(presetServerIniCheck, 0, wxALIGN_CENTER_VERTICAL);
+
+    outputFormatBox->Add(outputFormatRow, 0, wxALL | wxEXPAND, 10);
+    mainSizer->Add(outputFormatBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
+
+    wxStaticBoxSizer* resultBox = new wxStaticBoxSizer(wxVERTICAL, this, "Result");
+    const int resultHeight = GetCharHeight() * 10;
+    m_resultText = new wxRichTextCtrl(
+        this,
+        wxID_ANY,
+        wxEmptyString,
+        wxDefaultPosition,
+        wxSize(-1, resultHeight),
+        wxVSCROLL | wxHSCROLL | wxRE_READONLY
+    );
+    m_resultText->SetMinSize(wxSize(-1, resultHeight));
+    resultBox->Add(m_resultText, 1, wxALL | wxEXPAND, 10);
+    mainSizer->Add(resultBox, 1, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
+
+    wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
+    btnSizer->AddStretchSpacer(1);
+    wxButton* doItBtn = new wxButton(this, wxID_ANY, "Do it!");
+    doItBtn->SetBitmap(wxBitmap(conf_model));
+    btnSizer->Add(doItBtn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 8);
+    wxButton* closeBtn = new wxButton(this, wxID_CLOSE, "Close");
+    btnSizer->Add(closeBtn, 0, wxALIGN_CENTER_VERTICAL);
+    mainSizer->Add(btnSizer, 0, wxALL | wxEXPAND, 10);
+
+    Bind(wxEVT_BUTTON, &DialogSuggestion::OnDoItBtn, this, doItBtn->GetId());
+    Bind(wxEVT_BUTTON, &DialogSuggestion::OnCloseBtn, this, wxID_CLOSE);
 
     SetSizer(mainSizer);
     mainSizer->SetSizeHints(this);
@@ -314,4 +361,17 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     SetSize(s_defSize);
     Layout();
     CentreOnParent();
+}
+
+void DialogSuggestion::OnDoItBtn(wxCommandEvent& event)
+{
+    if (m_resultText) {
+        m_resultText->Clear();
+        m_resultText->WriteText("Not implemented yet.");
+    }
+}
+
+void DialogSuggestion::OnCloseBtn(wxCommandEvent& event)
+{
+    EndModal(wxID_CLOSE);
 }

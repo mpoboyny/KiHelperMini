@@ -11,7 +11,11 @@ class DialogSuggestion : public wxDialog
 {
     static const wxSize s_defSize;
 
-    wxTextCtrl* m_modelText;
+    wxComboBox* m_modelCmb;
+    wxRichTextCtrl* m_resultText;
+
+    void OnDoItBtn(wxCommandEvent& event);
+    void OnCloseBtn(wxCommandEvent& event);
 
 public:
     DialogSuggestion(wxWindow* parent, const ConfigFile& confFile);
