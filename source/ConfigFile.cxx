@@ -4,6 +4,31 @@
 
 namespace
 {
+    wxString ExpandHomePath(const wxString& path)
+    {
+        if (path == "~")
+            return wxGetHomeDir();
+
+        if (path.StartsWith("~/") || path.StartsWith("~\\")) {
+            wxString suffix = path.Mid(2);
+            while (!suffix.IsEmpty() && (suffix[0] == '/' || suffix[0] == '\\')) {
+                suffix.Remove(0, 1);
+            }
+
+            wxString sep = wxString::Format("%c", wxFILE_SEP_PATH);
+            suffix.Replace("\\", sep);
+            suffix.Replace("/", sep);
+
+            wxString home = wxGetHomeDir();
+            if (home.EndsWith("/") || home.EndsWith("\\")) {
+                return home + suffix;
+            }
+            return home + sep + suffix;
+        }
+
+        return path;
+    }
+
     wxXmlNode* GetSystemsNode(wxXmlNode* root)
     {
         if (!root)
@@ -227,10 +252,11 @@ ConfigFile::ModelList ConfigFile::GetModels() const
                 if (fileAttr.IsEmpty())
                     continue;
 
-                wxFileName fn(fileAttr);
+                wxString resolvedPath = ExpandHomePath(fileAttr);
+                wxFileName fn(resolvedPath);
                 if (!fn.IsAbsolute()) {
                     wxFileName cfg(g_ConfFile);
-                    wxFileName full(cfg.GetPath(), fileAttr);
+                    wxFileName full(cfg.GetPath(), resolvedPath);
                     fn = full;
                 }
 
