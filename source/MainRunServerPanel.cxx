@@ -14,6 +14,32 @@ const wxString CMainRunServerPanel::s_ServerFileName = "llama-server";
 
 namespace
 {
+    wxString ExpandUserHomePath(const wxString& path)
+    {
+        if (path == "~") {
+            return wxGetHomeDir();
+        }
+
+        if (path.StartsWith("~/") || path.StartsWith("~\\")) {
+            wxString suffix = path.Mid(2);
+            while (!suffix.IsEmpty() && (suffix[0] == '/' || suffix[0] == '\\')) {
+                suffix.Remove(0, 1);
+            }
+
+            wxString sep = wxString::Format("%c", wxFILE_SEP_PATH);
+            suffix.Replace("\\", sep);
+            suffix.Replace("/", sep);
+
+            wxString home = wxGetHomeDir();
+            if (home.EndsWith("/") || home.EndsWith("\\")) {
+                return home + suffix;
+            }
+            return home + sep + suffix;
+        }
+
+        return path;
+    }
+
     bool IsDirectoryPath(const wxString& path)
     {
         if (path.IsEmpty()) {
@@ -206,12 +232,13 @@ void CMainRunServerPanel::OnRunServer(wxCommandEvent &event)
 {
     TrFu;
     // TrStr(m_Modell);
+    wxString llamaBinPath = ExpandUserHomePath(m_textServerFilePath->GetValue());
     wxString serverParams = wxString::Format("-m %s %s", m_Modell, m_textServerParams->GetValue());
     wxString scriptContent;
     if (m_checkBox->GetValue()) {
         TrStr(g_SrvLogFile);
         ScriptReplacementsList replacements = {
-            { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+            { "<!-- llama_bin -->", llamaBinPath },
             { "<!-- llama_param -->", serverParams },
             { "<!-- llama_pipe -->", "" },
             { "<!-- llama_srv_log -->", g_SrvLogFile }
@@ -220,7 +247,7 @@ void CMainRunServerPanel::OnRunServer(wxCommandEvent &event)
     }
     else {
         ScriptReplacementsList replacements = {
-            { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+            { "<!-- llama_bin -->", llamaBinPath },
             { "<!-- llama_param -->", serverParams },
             { "<!-- llama_pipe -->", "" },
             { "<!-- llama_srv_log -->", "" }
@@ -235,12 +262,13 @@ void CMainRunServerPanel::OnRunServer(wxCommandEvent &event)
 void CMainRunServerPanel::OnCopyServerScript(wxCommandEvent &event)
 {
     TrFu;
+    wxString llamaBinPath = ExpandUserHomePath(m_textServerFilePath->GetValue());
     wxString serverParams = wxString::Format("-m %s %s", m_Modell, m_textServerParams->GetValue());
     wxString scriptContent;
     if (m_checkBox->GetValue()) {
         TrStr(g_SrvLogFile);
         ScriptReplacementsList replacements = {
-            { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+            { "<!-- llama_bin -->", llamaBinPath },
             { "<!-- llama_param -->", serverParams },
             { "<!-- llama_pipe -->", "" },
             { "<!-- llama_srv_log -->", g_SrvLogFile }
@@ -249,7 +277,7 @@ void CMainRunServerPanel::OnCopyServerScript(wxCommandEvent &event)
     }
     else {
         ScriptReplacementsList replacements = {
-            { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+            { "<!-- llama_bin -->", llamaBinPath },
             { "<!-- llama_param -->", serverParams },
             { "<!-- llama_pipe -->", "" },
             { "<!-- llama_srv_log -->", "" }
@@ -274,8 +302,9 @@ void CMainRunServerPanel::OnShowServerStatus(wxCommandEvent &event)
 void CMainRunServerPanel::OnRunServerHelp(wxCommandEvent &event)
 {
     TrFu;
+    wxString llamaBinPath = ExpandUserHomePath(m_textServerFilePath->GetValue());
     ScriptReplacementsList replacements = {
-        { "<!-- llama_bin -->", m_textServerFilePath->GetValue() },
+        { "<!-- llama_bin -->", llamaBinPath },
         { "<!-- llama_param -->", "--help" },
         { "<!-- llama_pipe -->", "xxx" },
         { "<!-- llama_srv_log -->", "" }

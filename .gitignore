@@ -6,3 +6,4 @@ obj/
 include/prc.hxx.gch
 llama.cpp-master.zip
 temp_src/
+run.log
