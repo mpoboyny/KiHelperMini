@@ -202,7 +202,7 @@ namespace
 }
 
 /*static*/
-const wxSize DialogSuggestion::s_defSize = wxSize(700, 360);
+const wxSize DialogSuggestion::s_defSize = wxSize(700, 560);
 
 DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
@@ -228,6 +228,40 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     modelBox->Add(m_modelText, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(modelBox, 0, wxALL | wxEXPAND, 12);
 
+    wxStaticBoxSizer* llamaBox = new wxStaticBoxSizer(wxVERTICAL, this, "llama.cpp");
+
+    wxFlexGridSizer* llamaGrid = new wxFlexGridSizer(2, 2, 8, 8);
+    llamaGrid->AddGrowableCol(1, 1);
+
+#ifdef _WIN32
+    const wxString cliExeName = "llama-cli.exe";
+    const wxString serverExeName = "llama-server.exe";
+#else
+    const wxString cliExeName = "llama-cli";
+    const wxString serverExeName = "llama-server";
+#endif
+
+    wxString llamaBinPath = confFile.GetLLamaBinPath();
+    wxString llamaCliPath;
+    wxString llamaServerPath;
+    if (!llamaBinPath.IsEmpty()) {
+        llamaCliPath = wxFileName(llamaBinPath, cliExeName).GetFullPath();
+        llamaServerPath = wxFileName(llamaBinPath, serverExeName).GetFullPath();
+    }
+
+    wxStaticText* llamaCliLabel = new wxStaticText(this, wxID_ANY, "llama-cli:");
+    wxTextCtrl* llamaCliText = new wxTextCtrl(this, wxID_ANY, llamaCliPath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    llamaGrid->Add(llamaCliLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
+    llamaGrid->Add(llamaCliText, 1, wxEXPAND);
+
+    wxStaticText* llamaServerLabel = new wxStaticText(this, wxID_ANY, "llama-server:");
+    wxTextCtrl* llamaServerText = new wxTextCtrl(this, wxID_ANY, llamaServerPath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    llamaGrid->Add(llamaServerLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
+    llamaGrid->Add(llamaServerText, 1, wxEXPAND);
+
+    llamaBox->Add(llamaGrid, 1, wxALL | wxEXPAND, 10);
+    mainSizer->Add(llamaBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
+
     wxStaticBoxSizer* systemBox = new wxStaticBoxSizer(wxVERTICAL, this, "System");
 
     wxFlexGridSizer* systemGrid = new wxFlexGridSizer(3, 2, 8, 8);
@@ -250,6 +284,24 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
 
     systemBox->Add(systemGrid, 1, wxALL | wxEXPAND, 10);
     mainSizer->Add(systemBox, 1, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
+
+    wxStaticBoxSizer* usageBox = new wxStaticBoxSizer(wxVERTICAL, this, "Usage");
+
+    wxCheckBox* chatCheck = new wxCheckBox(this, wxID_ANY, "Chat");
+    wxCheckBox* agentCheck = new wxCheckBox(this, wxID_ANY, "Agent");
+    wxCheckBox* embeddingCheck = new wxCheckBox(this, wxID_ANY, "Embedding");
+    wxCheckBox* autocompleteCheck = new wxCheckBox(this, wxID_ANY, "Autocomplete");
+
+    agentCheck->SetValue(true);
+
+    wxBoxSizer* usageRow = new wxBoxSizer(wxHORIZONTAL);
+    usageRow->Add(chatCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    usageRow->Add(agentCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    usageRow->Add(embeddingCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    usageRow->Add(autocompleteCheck, 0, wxALIGN_CENTER_VERTICAL);
+
+    usageBox->Add(usageRow, 0, wxALL | wxEXPAND, 10);
+    mainSizer->Add(usageBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
     wxStdDialogButtonSizer* btnSizer = new wxStdDialogButtonSizer();
     btnSizer->AddButton(new wxButton(this, wxID_OK));
