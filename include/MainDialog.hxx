@@ -34,6 +34,7 @@ class CMainDialog : public wxFrame
         void OnSettings(wxCommandEvent& event);
         void OnBuild(wxCommandEvent& event);
         void OnBuildLlama(wxCommandEvent& event);
+        void OnParameterSuggestion(wxCommandEvent& event);
         void OnClose(wxCloseEvent& event);
 };
 

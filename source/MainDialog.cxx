@@ -14,6 +14,7 @@
 #include "MainDialogStatusBar.hxx"
 #include "BuildLlama.hxx"
 #include "BuildDialog.hxx"
+#include "DialogSuggestion.hxx"
 
 #include "../resources/app.xpm"
 
@@ -65,6 +66,7 @@ CMainDialog::CMainDialog()
     Bind(wxEVT_MENU, &CMainDialog::OnSettings, this, ID_SETTINGS);
     Bind(wxEVT_MENU, &CMainDialog::OnBuild, this, ID_BUILD);
     Bind(wxEVT_MENU, &CMainDialog::OnBuildLlama, this, ID_BUILD_LLAMA);
+    Bind(wxEVT_MENU, &CMainDialog::OnParameterSuggestion, this, ID_PARAMETER_SUGGESTION);
     Bind(wxEVT_CLOSE_WINDOW, &CMainDialog::OnClose, this);
 
     wxString msg;
@@ -141,6 +143,12 @@ void CMainDialog::OnBuildLlama(wxCommandEvent& event)
     dlg.ShowModal();
     dlg.Destroy();
 #endif
+}
+
+void CMainDialog::OnParameterSuggestion(wxCommandEvent& event)
+{
+    DialogSuggestion dlg(this, *m_ConfFile);
+    dlg.ShowModal();
 }
 
 void CMainDialog::OnClose(wxCloseEvent& event) 

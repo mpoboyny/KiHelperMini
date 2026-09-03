@@ -42,6 +42,11 @@ CMainDialogMenu::CMainDialogMenu()
     buildMenu->Append(llamaItem);
     Append(buildMenu, "&Build");
 
+    wxMenu* toolsMenu = new wxMenu();
+    wxMenuItem* parameterSuggestionItem = new wxMenuItem(toolsMenu, ID_PARAMETER_SUGGESTION, "Parameter suggestion...", "Open parameter suggestion");
+    toolsMenu->Append(parameterSuggestionItem);
+    Append(toolsMenu, "&Tools");
+
     wxMenu* helpMenu = new wxMenu();
     wxMenuItem* aboutItem = new wxMenuItem(helpMenu, wxID_ABOUT, "&About...\tF1", "Show about dialog");
     aboutItem->SetBitmap(wxArtProvider::GetBitmap(wxART_INFORMATION, wxART_MENU));

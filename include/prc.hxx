@@ -135,7 +135,8 @@ enum MenusIDs
     ID_MODEL_INFO = wxID_HIGHEST + 51,
     ID_RESET      = wxID_HIGHEST + 52,
     ID_BUILD      = wxID_HIGHEST + 53,
-    ID_BUILD_LLAMA = wxID_HIGHEST + 54
+    ID_BUILD_LLAMA = wxID_HIGHEST + 54,
+    ID_PARAMETER_SUGGESTION = wxID_HIGHEST + 55
 };
 
 enum ButtIDs
