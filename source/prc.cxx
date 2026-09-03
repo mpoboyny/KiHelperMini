@@ -10,6 +10,14 @@ const wchar_t *g_DefaultTxtFontName = L"Sans";
 const wchar_t *g_APP_NAME = L"KiHelper-Mini";
 const char *g_APP_NAME_A = "KiHelper-Mini";
 
+const wchar_t *g_APP_VERSION = L"0.0.1 Alpha";
+const wchar_t *g_APP_DESCRIPTION = L"It is an Utility, that help you work with local AI models\n"
+                                   L"This program use llama.cpp.\nBuilt with wxWidgets.\n"
+                                   L"It is a free software, no license, no warranty.\n"
+                                   L"You use it on own risk ;)\n";
+const wchar_t *g_APP_COPYRIGHT = L"© 2026 KiHelper-Mini";
+const wchar_t *g_APP_WEB = L"https://github.com/mpoboyny/KiHelperMini";
+
 wxString g_WorkDir;
 
 const wxString g_ConfDir = []() {

@@ -102,10 +102,10 @@ void CMainDialog::OnAbout(wxCommandEvent& event)
      wxAboutDialogInfo aboutInfo;
     
     aboutInfo.SetName(g_APP_NAME);
-    aboutInfo.SetVersion("1.0.0");
-    aboutInfo.SetDescription("Light AI Assistant Utility.\nThis program use llama.cpp.\nBuilt with wxWidgets.\nIt is a free software, no license, no warranty.\nYou use it on own risk ;)\n");
-    aboutInfo.SetCopyright("(C) 2026 Mykhaylo Poboynyy");
-    // aboutInfo.SetWebSite("https://your-website.com");
+    aboutInfo.SetVersion(g_APP_VERSION);
+    aboutInfo.SetDescription(g_APP_DESCRIPTION);
+    aboutInfo.SetCopyright(g_APP_COPYRIGHT);
+    aboutInfo.SetWebSite(g_APP_WEB);
     aboutInfo.SetIcon(wxIcon(app_xpm));
     wxAboutBox(aboutInfo, this);
 }

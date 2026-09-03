@@ -24,9 +24,28 @@ PCH_GCH      := $(PCH_HEADER).gch
 
 SOURCES := $(wildcard $(SRC_DIR)/*.cxx)
 
-.PHONY: all debug release clean rund runr runddd _build .inner_link
+.PHONY: all debug release clean rund runr runddd echo _build .inner_link
 
 all: release
+
+echo:
+	@echo "Available phonies:"
+	@echo "  all debug release clean rund runr runddd echo"
+	@echo
+	@echo "Variables:"
+	@echo "  BASE_DIR=$(BASE_DIR)"
+	@echo "  WX_BASE_DIR=$(WX_BASE_DIR)"
+	@echo "  SRC_DIR=$(SRC_DIR)"
+	@echo "  INC_DIR=$(INC_DIR)"
+	@echo "  OBJ_DIR_ROOT=$(OBJ_DIR_ROOT)"
+	@echo "  BIN_DIR_ROOT=$(BIN_DIR_ROOT)"
+	@echo "  TARGET_NAME=$(TARGET_NAME)"
+	@echo "  OS_DEF=$(OS_DEF)"
+	@echo "  CXX=$(CXX)"
+	@echo "  COMMON_CXXFLAGS=$(COMMON_CXXFLAGS)"
+	@echo "  SYS_LIBS=$(SYS_LIBS)"
+	@echo "  PCH_HEADER=$(PCH_HEADER)"
+	@echo "  PCH_GCH=$(PCH_GCH)"
 
 $(PCH_GCH): $(PCH_HEADER)
 	@echo "Precompiling header..."

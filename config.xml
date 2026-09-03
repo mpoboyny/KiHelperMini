@@ -14,15 +14,16 @@
         </System>
         <System Name="Linux">
             <Models>
-                <Model File="/home/tato/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" />
-                <Model File="/home/tato/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" Current="true" />
-                <Model File="/home/tato/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
+                <Model File="~/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" />
+                <Model File="~/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
+                <Model File="~/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" />
+                <Model File="~/LocalKiModels/Qwen3.8-27B-UD-Q4_K_M.gguf" Current="true" />
             </Models>
             <LLamaCpp>
-                <Bin Path="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
+                <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
             </LLamaCpp>
             <LlamaChatParameters>
-                <DefBin Path="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
+                <DefBin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
                 
                 <!-- Temperature: Controls randomness. Higher values (e.g., 1.0) make output more creative, lower values (e.g., 0.2) make it more deterministic. -->
                 <Parameter Name="--temp" Value="0.7" />
@@ -50,10 +51,10 @@
             </LlamaChatParameters>
             <LlamaServerParameters>
                 <!-- Path to your CUDA-compiled llama-server binary -->
-                <DefBin Path="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server" />
+                <DefBin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server" />
                 
-                <!-- CPU Threads: Match your physical core allocation from the CLI (4 cores) -->
-                <Parameter Name="-t" Value="4" />
+                <!-- CPU Threads: Match your physical core allocation from the CLI (8 cores) -->
+                <Parameter Name="-t" Value="8" />
                 
                 <!-- GPU Layers: Keep your exact VRAM offloading layout (24 layers) for acceleration -->
                 <Parameter Name="-ngl" Value="24" /> 
@@ -62,7 +63,7 @@
                 <Parameter Name="-c" Value="8192" />
 
                 <!-- Host Binding: Enforces IPv4 loopback bypasses slow local DNS resolution issues -->
-                <Parameter Name="--host" Value="127.0.0.1" />
+                <Parameter Name="--host" Value="msi" />
 
                 <!-- Port Allocation: Standard port for llama.cpp API communication -->
                 <Parameter Name="--port" Value="8080" />

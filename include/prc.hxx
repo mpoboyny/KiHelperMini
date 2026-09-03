@@ -99,6 +99,12 @@ extern const wchar_t           *g_DefaultTxtFontName;
 
 extern const wchar_t           *g_APP_NAME;
 extern const char              *g_APP_NAME_A;
+
+extern const wchar_t           *g_APP_VERSION;
+extern const wchar_t           *g_APP_DESCRIPTION;
+extern const wchar_t           *g_APP_COPYRIGHT;
+extern const wchar_t           *g_APP_WEB;
+
 extern wxString                g_WorkDir;
 extern const wxString          g_ConfDir;
 extern const wxString          g_ConfFileName;
