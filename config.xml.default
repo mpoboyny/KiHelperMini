@@ -4,8 +4,8 @@
         <System Name="Windows">
             <Models>
                 <!-- Only / is to use as path separator --> 
-                <Model File="C:/MyTools/llama/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true"/>
-                <Model File="C:/MyTools/llama/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf"  />
+                <!--Model File="C:/MyTools/llama/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true"/>
+                <Model File="C:/MyTools/llama/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf"  / -->
             </Models>
             <LLamaCpp>
                 <Bin Path="C:/MyTools/llama-nocuda/" />
@@ -13,8 +13,9 @@
         </System>
         <System Name="Linux">
             <Models>
-                <Model File="~/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true" />
+                <!-- Model File="~/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true" />
                 <Model File="~/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
+                <Model File="~/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" / -->
             </Models>
             <LLamaCpp>
                 <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />

@@ -106,6 +106,8 @@ extern const wchar_t           *g_APP_COPYRIGHT;
 extern const wchar_t           *g_APP_WEB;
 
 extern wxString                g_WorkDir;
+extern const wxString          g_BinDir;
+extern const wxString          g_DefaultConfFileContent;
 extern const wxString          g_ConfDir;
 extern const wxString          g_ConfFileName;
 extern const wxString          g_ConfFile;
@@ -139,6 +141,7 @@ enum MenusIDs
 enum ButtIDs
 {
     ID_SHOW_CONF_FOLDER  = wxID_HIGHEST + 1000,
+    ID_SHOW_DEF_CONF_FOLDER,
     ID_DONLOAD,
     ID_CANCEL_DOWNLOAD,
     ID_UNZIP_LLAMA,

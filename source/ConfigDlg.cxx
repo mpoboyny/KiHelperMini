@@ -10,6 +10,7 @@
 
 wxBEGIN_EVENT_TABLE(ConfigDlg, wxDialog)
     EVT_BUTTON(ID_SHOW_CONF_FOLDER, ConfigDlg::OnShowConfFolder)
+    EVT_BUTTON(ID_SHOW_DEF_CONF_FOLDER, ConfigDlg::OnShowDefConfFolder)
     EVT_BUTTON(wxID_OK, ConfigDlg::OnOK)
 wxEND_EVENT_TABLE()
 
@@ -40,6 +41,11 @@ ConfigDlg::ConfigDlg(wxWindow* parent)
 
 
     buttonRowSizer->Add(showConfFolderBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT | wxBOTTOM, 10);
+
+    wxButton* showDefConfFolderBtn = new wxButton(this, ID_SHOW_DEF_CONF_FOLDER, "Open default config folder...");
+    showDefConfFolderBtn->SetBitmap(wxBitmap(open_folder));
+    showDefConfFolderBtn->SetBitmapPosition(wxLEFT);
+    buttonRowSizer->Add(showDefConfFolderBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT | wxBOTTOM, 5);
 
     // Der Spacer drückt alles nachfolgende nach rechts
     buttonRowSizer->AddStretchSpacer(1);
@@ -135,4 +141,9 @@ void ConfigDlg::OnOK(wxCommandEvent &event)
 void ConfigDlg::OnShowConfFolder(wxCommandEvent &event)
 {
     wxLaunchDefaultApplication(g_ConfDir);
+}
+
+void ConfigDlg::OnShowDefConfFolder(wxCommandEvent &event)
+{
+    wxLaunchDefaultApplication(g_BinDir);
 }

@@ -18,6 +18,7 @@ private:
     void SetupXmlHighlighting();
 
     void OnShowConfFolder(wxCommandEvent& event);
+    void OnShowDefConfFolder(wxCommandEvent& event);
     void OnOK(wxCommandEvent& event);
 
     wxDECLARE_EVENT_TABLE();
