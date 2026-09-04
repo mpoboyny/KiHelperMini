@@ -256,6 +256,65 @@ const wxString g_ScriptRunLlamaPathServ = []() -> wxString {
     return scriptPath;
 }();
 
+const wxString g_IniDir = []() -> wxString {
+    wxFileName iniFn;
+    iniFn.AssignDir(g_BinDir);
+    iniFn.AppendDir("ini");
+
+    if (!iniFn.DirExists()) {
+        return wxEmptyString;
+    }
+
+    return iniFn.GetPathWithSep();
+}();
+
+const wxString g_IniCpuFileName = L"cpu.ini";
+const wxString g_IniGpuFileName = L"gpu.ini";
+const wxString g_IniRamFileName = L"ram.ini";
+
+const wxString g_IniCpuFilePath = []() -> wxString {
+    if (g_IniDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+
+    wxString iniFilePath = g_IniDir + g_IniCpuFileName;
+    wxFileName iniFn(iniFilePath);
+    if (!iniFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return iniFilePath;
+}();
+
+const wxString g_IniGpuFilePath = []() -> wxString {
+    if (g_IniDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+
+    wxString iniFilePath = g_IniDir + g_IniGpuFileName;
+    wxFileName iniFn(iniFilePath);
+    if (!iniFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return iniFilePath;
+}();
+
+const wxString g_IniRamFilePath = []() -> wxString {
+    if (g_IniDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+
+    wxString iniFilePath = g_IniDir + g_IniRamFileName;
+    wxFileName iniFn(iniFilePath);
+    if (!iniFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return iniFilePath;
+}();
+
+
 void SetWorkingDir()
 {
     TrFu;

@@ -67,6 +67,9 @@ release: $(PCH_GCH)
 	@echo Copying scripts...
 	@mkdir -p "$(BIN_DIR)/scripts"
 	@cp -f "$(BASE_DIR)/scripts/"* "$(BIN_DIR)/scripts/"
+	@echo Copying ini...
+	@mkdir -p "$(BIN_DIR)/ini"
+	@cp -f "$(BASE_DIR)/ini/"* "$(BIN_DIR)/ini/"
 
 # --- Run Phonies ---
 rund:

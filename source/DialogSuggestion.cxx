@@ -5,11 +5,17 @@
 #include "prc.hxx"
 #include "DialogSuggestion.hxx"
 #include "ConfigFile.hxx"
+#include "IniFile.hxx"
 #include "../resources/app.xpm"
 #include "../resources/conf_model.xpm"
 
 namespace
 {
+    wxString FormatRamInfoText(const wxString& name, const wxString& type, int sizeGB, int speedMTs)
+    {
+        return wxString::Format("%s - %s - %d (%d)", name, type, sizeGB, speedMTs);
+    }
+
     wxString TrimValue(const wxString& value)
     {
         wxString res = value;
@@ -27,12 +33,6 @@ namespace
             out += arr[i];
         }
         return out;
-    }
-
-    wxString ToGiBString(unsigned long long bytes)
-    {
-        const double gib = static_cast<double>(bytes) / (1024.0 * 1024.0 * 1024.0);
-        return wxString::Format("%.1f GB", gib);
     }
 
 #ifdef _WIN32
@@ -57,7 +57,9 @@ namespace
         if (!GlobalMemoryStatusEx(&statex))
             return "Unknown RAM";
 
-        return ToGiBString(statex.ullTotalPhys);
+        const unsigned long long gib = 1024ULL * 1024ULL * 1024ULL;
+        int sizeGB = static_cast<int>((statex.ullTotalPhys + (gib / 2ULL)) / gib);
+        return FormatRamInfoText("Installed RAM", "Unknown", sizeGB, 0);
     }
 
     wxString GetGpuInfoText()
@@ -129,7 +131,9 @@ namespace
                 }
                 if (!num.empty()) {
                     unsigned long long kb = std::strtoull(num.c_str(), nullptr, 10);
-                    return ToGiBString(kb * 1024ULL);
+                    const unsigned long long mibPerGiB = 1024ULL * 1024ULL;
+                    int sizeGB = static_cast<int>((kb + (mibPerGiB / 2ULL)) / mibPerGiB);
+                    return FormatRamInfoText("Installed RAM", "Unknown", sizeGB, 0);
                 }
                 break;
             }
@@ -278,22 +282,72 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     systemGrid->AddGrowableCol(1, 1);
 
     wxStaticText* cpuLabel = new wxStaticText(this, wxID_ANY, "CPU:");
-    wxTextCtrl* cpuText = new wxTextCtrl(this, wxID_ANY, GetCpuInfoText(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    wxString currentCpuText = GetCpuInfoText();
+    wxArrayString cpuChoices;
+    int currentCpuIndex = wxNOT_FOUND;
+    auto cpus = INI::IniFile::Inst().GetCpus(INI::EiniTypeCpu);
+    for (size_t i = 0; i < cpus.size(); ++i) {
+        const auto& cpu = cpus[i];
+        wxString cpuText = wxString::Format("%s (%d cores)", cpu.Name, cpu.Cores);
+        cpuChoices.Add(cpuText);
+        if (cpuText == currentCpuText) {
+            currentCpuIndex = static_cast<int>(i);
+        }
+    }
+    if (currentCpuIndex == wxNOT_FOUND) {
+        cpuChoices.Insert(currentCpuText, 0);
+        currentCpuIndex = 0;
+    }
+    m_cpuCmb = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, cpuChoices, wxCB_READONLY);
+    m_cpuCmb->SetSelection(currentCpuIndex);
     systemGrid->Add(cpuLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
-    systemGrid->Add(cpuText, 1, wxEXPAND);
+    systemGrid->Add(m_cpuCmb, 1, wxEXPAND);
 
     wxStaticText* ramLabel = new wxStaticText(this, wxID_ANY, "RAM:");
-    wxTextCtrl* ramText = new wxTextCtrl(this, wxID_ANY, GetRamInfoText(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    wxString currentRamText = GetRamInfoText();
+    wxArrayString ramChoices;
+    int currentRamIndex = wxNOT_FOUND;
+    auto rams = INI::IniFile::Inst().GetRams(INI::EiniTypeRam);
+    for (size_t i = 0; i < rams.size(); ++i) {
+        const auto& ram = rams[i];
+        wxString ramText = FormatRamInfoText(ram.Name, ram.Type, ram.SizeGB, ram.SpeedMTs);
+        ramChoices.Add(ramText);
+        if (ramText == currentRamText) {
+            currentRamIndex = static_cast<int>(i);
+        }
+    }
+    if (currentRamIndex == wxNOT_FOUND) {
+        ramChoices.Insert(currentRamText, 0);
+        currentRamIndex = 0;
+    }
+    m_ramCmb = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, ramChoices, wxCB_READONLY);
+    m_ramCmb->SetSelection(currentRamIndex);
     systemGrid->Add(ramLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
-    systemGrid->Add(ramText, 1, wxEXPAND);
+    systemGrid->Add(m_ramCmb, 1, wxEXPAND);
 
     wxStaticText* gpuLabel = new wxStaticText(this, wxID_ANY, "GPU:");
-    wxTextCtrl* gpuText = new wxTextCtrl(this, wxID_ANY, GetGpuInfoText(), wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    wxString currentGpuText = GetGpuInfoText();
+    wxArrayString gpuChoices;
+    int currentGpuIndex = wxNOT_FOUND;
+    auto gpus = INI::IniFile::Inst().GetGpus(INI::EiniTypeGpu);
+    for (size_t i = 0; i < gpus.size(); ++i) {
+        const auto& gpu = gpus[i];
+        gpuChoices.Add(gpu.Name);
+        if (gpu.Name == currentGpuText) {
+            currentGpuIndex = static_cast<int>(i);
+        }
+    }
+    if (currentGpuIndex == wxNOT_FOUND) {
+        gpuChoices.Insert(currentGpuText, 0);
+        currentGpuIndex = 0;
+    }
+    m_gpuCmb = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, gpuChoices, wxCB_READONLY);
+    m_gpuCmb->SetSelection(currentGpuIndex);
     systemGrid->Add(gpuLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
-    systemGrid->Add(gpuText, 1, wxEXPAND);
+    systemGrid->Add(m_gpuCmb, 1, wxEXPAND);
 
-    systemBox->Add(systemGrid, 1, wxALL | wxEXPAND, 10);
-    mainSizer->Add(systemBox, 1, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
+    systemBox->Add(systemGrid, 0, wxALL | wxEXPAND, 10);
+    mainSizer->Add(systemBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
     wxStaticBoxSizer* usageBox = new wxStaticBoxSizer(wxVERTICAL, this, "Usage");
 

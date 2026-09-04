@@ -111,14 +111,24 @@ extern const wxString          g_DefaultConfFileContent;
 extern const wxString          g_ConfDir;
 extern const wxString          g_ConfFileName;
 extern const wxString          g_ConfFile;
+
 extern const wxString          g_SrvLogFileName;
 extern const wxString          g_SrvLogFile;
+
 extern const wxString          g_ScriptDir;
 extern const wxString          g_ScriptExtraLlamaPath;
 extern const wxString          g_ScriptBuildCmakePath;
 extern const wxString          g_ScriptRunCmakePath;
 extern const wxString          g_ScriptRunLlamaPath;
 extern const wxString          g_ScriptRunLlamaPathServ;
+
+extern const wxString          g_IniDir;
+extern const wxString          g_IniCpuFileName;
+extern const wxString          g_IniGpuFileName;
+extern const wxString          g_IniRamFileName;
+extern const wxString          g_IniCpuFilePath;
+extern const wxString          g_IniGpuFilePath;
+extern const wxString          g_IniRamFilePath;
 
 extern wxColour g_ColorLightGreen;
 
