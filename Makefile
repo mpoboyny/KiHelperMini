@@ -5,18 +5,25 @@ SRC_DIR      := $(BASE_DIR)/source
 INC_DIR      := $(BASE_DIR)/include
 OBJ_DIR_ROOT := $(BASE_DIR)/obj
 BIN_DIR_ROOT := $(BASE_DIR)/bin
+LLAMA_BASE   := $(BASE_DIR)/llama.cpp
+LLAMA_INC    := $(LLAMA_BASE)/llama.cpp-0.3.0/include
+GGML_INC     := $(LLAMA_BASE)/llama.cpp-0.3.0/ggml/include
 
 # --- Konfiguration ---
 TARGET_NAME := KiHelperMini
 OS_DEF      := LINUX_OS
 
-# System Libs (Reihenfolge: CUDA vor System/Math/GOMP)
-SYS_LIBS   := -lpthread -lm -ldl -lrt -lX11 -lcublas -lcurand -lcudart -lcuda -lgomp
+# Llama Shared Libs
+LLAMA_LIBS := -lllama -lggml -lggml-base -lggml-cpu
+
+# System Libs
+SYS_LIBS   := -lpthread -lm -ldl -lrt -lX11 -lgomp
 
 # --- Compiler Settings ---
 CXX         := g++
 # -fopenmp ist zwingend für die GOMP-Symbole
 COMMON_CXXFLAGS := -Wall -std=c++17 -fopenmp -I$(INC_DIR) -D$(OS_DEF)
+COMMON_CXXFLAGS += -I$(LLAMA_INC) -I$(GGML_INC)
 
 # --- PCH Settings ---
 PCH_HEADER   := $(INC_DIR)/prc.hxx
@@ -39,6 +46,10 @@ echo:
 	@echo "  INC_DIR=$(INC_DIR)"
 	@echo "  OBJ_DIR_ROOT=$(OBJ_DIR_ROOT)"
 	@echo "  BIN_DIR_ROOT=$(BIN_DIR_ROOT)"
+	@echo "  LLAMA_BASE=$(LLAMA_BASE)"
+	@echo "  LLAMA_INC=$(LLAMA_INC)"
+	@echo "  GGML_INC=$(GGML_INC)"
+	@echo "  LLAMA_LIBS=$(LLAMA_LIBS)"
 	@echo "  TARGET_NAME=$(TARGET_NAME)"
 	@echo "  OS_DEF=$(OS_DEF)"
 	@echo "  CXX=$(CXX)"
@@ -56,11 +67,12 @@ release: BIN_DIR  := $(BIN_DIR_ROOT)/release
 release: OBJ_DIR  := $(OBJ_DIR_ROOT)/release
 release: WX_CONF_PATH := $(WX_BASE_DIR)/build-gtk-release-shared_x64/wx-config
 release: CXXFLAGS := $(COMMON_CXXFLAGS) -O3 -D_MPTRACE_
-release: LDFLAGS  := -Wl,-rpath,'$$ORIGIN' $(SYS_LIBS)
+release: LLAMA_LIB_DIR := $(LLAMA_BASE)/release-shared_x64-ncuda/lib
+release: LDFLAGS  := -Wl,-rpath,'$$ORIGIN' -L$(LLAMA_LIB_DIR) $(LLAMA_LIBS) $(SYS_LIBS)
 release: $(PCH_GCH)
 	@$(MAKE) _build BIN_DIR="$(BIN_DIR)" OBJ_DIR="$(OBJ_DIR)" WX_CONF_PATH="$(WX_CONF_PATH)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)"
 	@echo "Copying required shared libraries..."
-	@LD_LIBRARY_PATH=$(WX_BASE_DIR)/build-gtk-release-shared_x64/lib ldd $(BIN_DIR)/$(TARGET_NAME) | awk '/=> \.\//{print $$3}' | xargs -I {} cp -L {} $(BIN_DIR)/
+	@LD_LIBRARY_PATH=$(LLAMA_LIB_DIR):$(WX_BASE_DIR)/build-gtk-release-shared_x64/lib ldd $(BIN_DIR)/$(TARGET_NAME) | awk '/=> \.\//{print $$3}' | xargs -I {} cp -L {} $(BIN_DIR)/
 	@strip --strip-unneeded $(BIN_DIR)/$(TARGET_NAME)
 	@echo Copying config.xml...
 	@cp -f "$(BASE_DIR)/config.xml" "$(BIN_DIR)/"
@@ -78,7 +90,7 @@ rund:
 
 runr:
 	@$(MAKE) release
-	@$(BIN_DIR_ROOT)/release/$(TARGET_NAME)
+	@LD_LIBRARY_PATH=$(BIN_DIR_ROOT)/release:$(WX_BASE_DIR)/build-gtk-release-shared_x64/lib $(BIN_DIR_ROOT)/release/$(TARGET_NAME)
 
 runddd:
 	@$(MAKE) debug

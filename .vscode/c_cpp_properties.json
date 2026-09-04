@@ -4,6 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/include",
+                "${workspaceFolder}/llama.cpp/llama.cpp-0.3.0/include",
+                "${workspaceFolder}/llama.cpp/llama.cpp-0.3.0/ggml/include",
                 "${workspaceFolder}/wxWidgets/3.3.1/include",
                 "${workspaceFolder}/wxWidgets/3.3.1/build-gtk-release-shared_x64/lib/wx/include/gtk3-unicode-3.3",
                 "/usr/include",
@@ -27,6 +29,8 @@
             "name": "Win32",
 			"includePath": [
                 "${workspaceFolder}/include",
+                "${workspaceFolder}/llama.cpp/llama.cpp-0.3.0/include",
+                "${workspaceFolder}/llama.cpp/llama.cpp-0.3.0/ggml/include",
 				"${workspaceFolder}/wxWidgets/3.3.1/include",
                 "${workspaceFolder}/wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll/mswu"
 			],

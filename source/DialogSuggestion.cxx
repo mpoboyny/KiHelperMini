@@ -6,6 +6,8 @@
 #include "DialogSuggestion.hxx"
 #include "ConfigFile.hxx"
 #include "IniFile.hxx"
+#include "ScopeGuard.hxx"
+#include "llama.h"
 #include "../resources/app.xpm"
 #include "../resources/conf_model.xpm"
 
@@ -209,12 +211,21 @@ namespace
 const wxSize DialogSuggestion::s_defSize = wxSize(860, 980);
 
 DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
-    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+: wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
+, m_CheckStep(0)
 {
     TrFu;
     SetIcon(wxIcon(app_xpm));
 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+
+    wxStaticText* topInfoText = new wxStaticText(
+        this,
+        wxID_ANY,
+        "Current hardware is selected automatically for CPU, RAM, and GPU. Adjust the selections below if needed."
+    );
+    topInfoText->Wrap(s_defSize.GetWidth() - 60);
+    mainSizer->Add(topInfoText, 0, wxLEFT | wxRIGHT | wxTOP | wxEXPAND, 12);
 
     wxStaticBoxSizer* modelBox = new wxStaticBoxSizer(wxVERTICAL, this, "Model");
     auto models = confFile.GetModels();
@@ -417,12 +428,125 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     CentreOnParent();
 }
 
+void DialogSuggestion::AddStep(const wxString& text)
+{
+    ++m_CheckStep;
+    if (!m_resultText)
+        return;
+
+    m_resultText->BeginBold();
+    m_resultText->WriteText(wxString::Format("%d. %s", m_CheckStep, text));
+    m_resultText->EndBold();
+    m_resultText->Newline();
+}
+
+void DialogSuggestion::AddInfo(const wxString& text)
+{
+    if (!m_resultText)
+        return;
+
+    m_resultText->WriteText(text);
+    m_resultText->Newline();
+}
+
+void DialogSuggestion::AddWarning(const wxString& text)
+{
+    if (!m_resultText)
+        return;
+
+    m_resultText->BeginBold();
+    m_resultText->BeginTextColour(wxColour("ORANGE"));
+    m_resultText->WriteText("Warning: " + text);
+    m_resultText->EndTextColour();
+    m_resultText->EndBold();
+    m_resultText->Newline();
+}
+
+void DialogSuggestion::AddError(const wxString& text)
+{
+    if (!m_resultText)
+        return;
+
+    m_resultText->BeginBold();
+    m_resultText->BeginTextColour(*wxRED);
+    m_resultText->WriteText("Error: " + text);
+    m_resultText->EndTextColour();
+    m_resultText->EndBold();
+    m_resultText->Newline();
+}
+
+bool DialogSuggestion::LoadModel(const wxString& modelPath, llama_model*& currentModel)
+{
+    if (currentModel) {
+        llama_model_free(currentModel);
+        currentModel = nullptr;
+    }
+
+    wxString trimmedModelPath = TrimValue(modelPath);
+    if (trimmedModelPath.IsEmpty()) {
+        AddError("No model selected.");
+        return false;
+    }
+
+    wxFileName modelFile(trimmedModelPath);
+    if (!modelFile.FileExists()) {
+        AddError("Model file does not exist: " + trimmedModelPath);
+        return false;
+    }
+
+    llama_backend_init();
+
+    llama_model_params params = llama_model_default_params();
+    currentModel = llama_model_load_from_file(trimmedModelPath.mb_str().data(), params);
+    if (!currentModel) {
+        AddError("Failed to load model: " + trimmedModelPath);
+        return false;
+    }
+
+    AddInfo("Model loaded: " + trimmedModelPath);
+    return true;
+}
+
+bool DialogSuggestion::LoadModelInfo(const ConfigFile &confFile)
+{
+    AddStep("Loading model information from configuration file");
+    auto models = confFile.GetModels();
+    return false;
+}
+
 void DialogSuggestion::OnDoItBtn(wxCommandEvent& event)
 {
+    m_CheckStep = 0;
+    llama_model* currentModel = nullptr;
+
+    auto cleanup = ScopeGuard {[&] { 
+        if (currentModel) llama_model_free(currentModel);
+        currentModel = nullptr;
+        llama_backend_free();
+    }};     
+
     if (m_resultText) {
         m_resultText->Clear();
-        m_resultText->WriteText("Not implemented yet.");
     }
+
+    wxString modelPath;
+    wxString loadStepText = "Loading model";
+    if (m_modelCmb) {
+        modelPath = TrimValue(m_modelCmb->GetValue());
+        wxFileName modelFile(modelPath);
+        if (modelFile.FileExists())
+            loadStepText += ": " + modelFile.GetFullName();
+    }
+
+    AddStep(loadStepText);
+
+    if (!m_modelCmb) {
+        AddError("Model selection is not available.");
+        return;
+    }
+
+    if (!LoadModel(modelPath, currentModel))
+        return;
 }
 
 void DialogSuggestion::OnCloseBtn(wxCommandEvent& event)
