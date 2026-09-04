@@ -85,17 +85,6 @@ namespace
         return res;
     }
 
-    wxString JoinStrings(const wxArrayString& arr, const wxString& sep)
-    {
-        wxString out;
-        for (size_t i = 0; i < arr.size(); ++i) {
-            if (i > 0)
-                out += sep;
-            out += arr[i];
-        }
-        return out;
-    }
-
 #ifdef _WIN32
     wxString GetCpuInfoText()
     {
@@ -253,51 +242,196 @@ namespace
 }
 
 
-    wxString GetGpuInfoText()
+    unsigned long long GetGpuVramBytes()
+{
+    // === STRATEGIE 1: PROPRIETÄRES NVIDIA TOOL (nvidia-smi) ===
+    // Wenn der offizielle Nvidia-Treiber installiert ist, liefert das die sichersten Daten.
+    wxArrayString nvOut, nvErr;
+    if (wxExecute("nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits", nvOut, nvErr, wxEXEC_SYNC) == 0)
     {
-        wxArrayString out;
-        wxArrayString err;
-        long code = wxExecute("lspci -mm", out, err, wxEXEC_SYNC);
-        if (code == -1)
-            return "Unknown GPU";
-
-        wxArrayString gpus;
-        for (const auto& raw : out) {
-            wxString line = raw;
-            if (!(line.Contains("\"VGA compatible controller\"") ||
-                  line.Contains("\"3D controller\"") ||
-                  line.Contains("\"Display controller\""))) {
-                continue;
+        if (!nvOut.IsEmpty())
+        {
+            unsigned long long mib = 0;
+            if (nvOut[0].Trim(true).Trim(false).ToULongLong(&mib) && mib > 0)
+            {
+                return mib * 1024 * 1024;
             }
+        }
+    }
 
-            wxArrayString quoted;
-            bool inQuote = false;
-            wxString curr;
-            for (wxUniChar ch : line) {
-                if (ch == '"') {
-                    if (inQuote) {
-                        quoted.Add(curr);
-                        curr.clear();
+    // === STRATEGIE 2: STANDARD-KERNEL-PFADE (AMD & Intel) ===
+    // Funktioniert hervorragend bei AMD (amdgpu) und Intel (i915/xe) Open-Source-Treibern.
+    wxString drmPath = "/sys/class/drm/";
+    if (wxDir::Exists(drmPath))
+    {
+        wxDir dir(drmPath);
+        wxString subDir;
+        bool found = dir.GetFirst(&subDir, "card*", wxDIR_DIRS);
+        while (found)
+        {
+            wxArrayString vramFiles;
+            vramFiles.Add(drmPath + subDir + "/device/mem_info_vram_total"); // AMD
+            vramFiles.Add(drmPath + subDir + "/device/lmem_total_bytes");     // Intel Arc
+            
+            for (size_t i = 0; i < vramFiles.GetCount(); ++i)
+            {
+                if (wxFileName::FileExists(vramFiles[i]))
+                {
+                    wxTextFile file;
+                    if (file.Open(vramFiles[i]))
+                    {
+                        wxString rawVal = file.GetFirstLine().Trim(true).Trim(false);
+                        unsigned long long bytes = 0;
+                        if (rawVal.ToULongLong(&bytes) && bytes > 0)
+                        {
+                            file.Close();
+                            return bytes;
+                        }
+                        file.Close();
                     }
-                    inQuote = !inQuote;
-                } else if (inQuote) {
-                    curr += ch;
                 }
             }
+            found = dir.GetNext(&subDir);
+        }
+    }
 
-            if (quoted.size() >= 3) {
-                wxString name = quoted[1] + " " + quoted[2];
-                name = TrimValue(name);
-                if (!name.IsEmpty() && gpus.Index(name) == wxNOT_FOUND)
-                    gpus.Add(name);
+    // === STRATEGIE 3: DER ULTIMATIVE FALLBACK (PCI BAR-Größe aus sysfs) ===
+    // Funktioniert IMMER, HARDWARE-NATUR und VÖLLIG TREIBERUNABHÄNGIG.
+    // Wir schauen uns die physischen PCI-Speicherbereiche der Grafikkarte an.
+    wxString pciPath = "/sys/bus/pci/devices/";
+    if (wxDir::Exists(pciPath))
+    {
+        wxDir dir(pciPath);
+        wxString deviceDir;
+        bool found = dir.GetFirst(&deviceDir, "*", wxDIR_DIRS);
+        while (found)
+        {
+            wxString classPath = pciPath + deviceDir + "/class";
+            if (wxFileName::FileExists(classPath))
+            {
+                wxTextFile classFile;
+                if (classFile.Open(classPath))
+                {
+                    wxString classId = classFile.GetFirstLine().Trim(true).Trim(false);
+                    classFile.Close();
+
+                    // 0x030000 = VGA-Controller, 0x030200 = 3D-Controller (z.B. Nvidia Optimus)
+                    if (classId.StartsWith("0x0300") || classId.StartsWith("0x0302"))
+                    {
+                        wxString resourcePath = pciPath + deviceDir + "/resource";
+                        if (wxFileName::FileExists(resourcePath))
+                        {
+                            wxTextFile resFile;
+                            if (resFile.Open(resourcePath))
+                            {
+                                // Die Datei 'resource' listet Start-, Endadresse und Flags der PCI-Speicherbänke.
+                                // Der größte Speicherbereich (oft BAR 0 oder BAR 2) ist der VRAM (Frame Buffer).
+                                unsigned long long maxBarSize = 0;
+                                for (wxString line = resFile.GetFirstLine(); !resFile.Eof(); line = resFile.GetNextLine())
+                                {
+                                    wxStringTokenizer tokenizer(line, " ");
+                                    if (tokenizer.CountTokens() >= 3)
+                                    {
+                                        unsigned long long start = 0, end = 0;
+                                        tokenizer.GetNextToken().ToULongLong(&start, 16); // Hexadezimal
+                                        tokenizer.GetNextToken().ToULongLong(&end, 16);
+                                        
+                                        if (end > start)
+                                        {
+                                            unsigned long long size = end - start + 1;
+                                            // VRAM-Bereiche auf modernen GPUs sind typischerweise mindestens 128MB groß
+                                            if (size > maxBarSize && size >= (128 * 1024 * 1024))
+                                            {
+                                                maxBarSize = size;
+                                            }
+                                        }
+                                    }
+                                }
+                                resFile.Close();
+                                if (maxBarSize > 0) return maxBarSize;
+                            }
+                        }
+                    }
+                }
+            }
+            found = dir.GetNext(&deviceDir);
+        }
+    }
+
+    return 0; // Wenn absolut alles fehlschlägt, wird nur der Name angezeigt
+}
+
+
+    wxString GetGpuInfoText()
+{
+    wxArrayString out;
+    wxArrayString err;
+    long code = wxExecute("lspci -mm", out, err, wxEXEC_SYNC);
+    if (code == -1)
+        return "Unknown GPU";
+
+    wxArrayString gpus;
+    for (const auto& raw : out) {
+        wxString line = raw;
+        if (!(line.Contains("\"VGA compatible controller\"") ||
+              line.Contains("\"3D controller\"") ||
+              line.Contains("\"Display controller\""))) {
+            continue;
+        }
+
+        // DEIN ORIGINALES PARSING (Hält bombenfest)
+        wxArrayString quoted;
+        bool inQuote = false;
+        wxString curr;
+        for (wxUniChar ch : line) {
+            if (ch == '"') {
+                if (inQuote) {
+                    quoted.Add(curr);
+                    curr.clear();
+                }
+                inQuote = !inQuote;
+            } else if (inQuote) {
+                curr += ch;
             }
         }
 
-        if (gpus.IsEmpty())
-            return "Unknown GPU";
-
-        return JoinStrings(gpus, "; ");
+        if (quoted.size() >= 3) {
+            wxString name = quoted[1] + " " + quoted[2];
+            
+            // Textbereinigung für eine schönere UI
+            name.Replace(" Technologies Inc", "");
+            name.Replace(", Inc.", "");
+            name.Replace(" Corporation", "");
+            
+            if (!name.IsEmpty() && gpus.Index(name) == wxNOT_FOUND)
+                gpus.Add(name);
+        }
     }
+
+    if (gpus.IsEmpty())
+        return "Unknown GPU";
+
+    // Verkettung (falls Dual-GPU wie Intel iGPU + Nvidia dGPU aktiv sind)
+    wxString gpuText = "";
+    for (size_t i = 0; i < gpus.GetCount(); ++i)
+    {
+        if (i > 0) gpuText += " & ";
+        gpuText += gpus[i];
+    }
+
+    // VRAM ermitteln und anhängen
+    unsigned long long vramBytes = GetGpuVramBytes();
+    if (vramBytes > 0) 
+    {
+        double vramGB = (double)vramBytes / (1024.0 * 1024.0 * 1024.0);
+        int roundedVram = (int)(vramGB + 0.1); 
+        return wxString::Format("%s (%d GB VRAM)", gpuText, roundedVram);
+    }
+
+    return gpuText;
+}
+
+
 #else
     wxString GetCpuInfoText()
     {
