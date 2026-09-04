@@ -13,9 +13,68 @@
 
 namespace
 {
+    int ParseLastInteger(const wxString& text)
+    {
+        int value = 0;
+        bool found = false;
+        wxString current;
+
+        for (wxUniChar ch : text) {
+            if (wxIsdigit(ch)) {
+                current += ch;
+            } else if (!current.IsEmpty()) {
+                long tmp = 0;
+                if (current.ToLong(&tmp)) {
+                    value = static_cast<int>(tmp);
+                    found = true;
+                }
+                current.clear();
+            }
+        }
+
+        if (!current.IsEmpty()) {
+            long tmp = 0;
+            if (current.ToLong(&tmp)) {
+                value = static_cast<int>(tmp);
+                found = true;
+            }
+        }
+
+        return found ? value : 0;
+    }
+
+    bool LooksUnknownValue(const wxString& text)
+    {
+        return text.Lower().Contains("unknown");
+    }
+
+    wxString FormatGiB(uint64_t bytes)
+    {
+        const double gib = 1024.0 * 1024.0 * 1024.0;
+        return wxString::Format("%.2f GiB", static_cast<double>(bytes) / gib);
+    }
+
+    wxString FormatBillions(uint64_t value)
+    {
+        return wxString::Format("%.2f B", static_cast<double>(value) / 1000000000.0);
+    }
+
+    wxString GetModelDescription(const llama_model* model)
+    {
+        char buf[256] = {0};
+        if (llama_model_desc(model, buf, sizeof(buf)) > 0)
+            return wxString::FromUTF8(buf);
+        return "Unknown model";
+    }
+
     wxString FormatRamInfoText(const wxString& name, const wxString& type, int sizeGB, int speedMTs)
     {
-        return wxString::Format("%s - %s - %d (%d)", name, type, sizeGB, speedMTs);
+        wxString result = wxString::Format("%s - %d GB", name, sizeGB);
+        if (type != "Unknown" && !type.IsEmpty())
+            result += " - " + type;
+        if (speedMTs > 0)
+            result += wxString::Format(" (%d MT/s)", speedMTs);
+        return result;
     }
 
     wxString TrimValue(const wxString& value)
@@ -117,32 +176,82 @@ namespace
     }
 
     wxString GetRamInfoText()
-    {
-        std::ifstream memFile("/proc/meminfo");
-        if (!memFile.is_open())
-            return "Unknown RAM";
+{
+    unsigned long long totalRamKB = 0;
+    wxString ramType = "";
 
-        std::string line;
-        while (std::getline(memFile, line)) {
-            const std::string key = "MemTotal:";
-            if (line.rfind(key, 0) == 0) {
-                std::string num;
-                for (char c : line) {
-                    if (c >= '0' && c <= '9')
-                        num.push_back(c);
-                }
-                if (!num.empty()) {
-                    unsigned long long kb = std::strtoull(num.c_str(), nullptr, 10);
-                    const unsigned long long mibPerGiB = 1024ULL * 1024ULL;
-                    int sizeGB = static_cast<int>((kb + (mibPerGiB / 2ULL)) / mibPerGiB);
-                    return FormatRamInfoText("Installed RAM", "Unknown", sizeGB, 0);
-                }
+    // 1. Nutzbaren RAM aus /proc/meminfo lesen
+    wxTextFile file;
+    if (file.Open("/proc/meminfo"))
+    {
+        for (wxString line = file.GetFirstLine(); !file.Eof(); line = file.GetNextLine())
+        {
+            if (line.StartsWith("MemTotal:"))
+            {
+                wxStringTokenizer tokenizer(line, " \t");
+                tokenizer.GetNextToken(); 
+                wxString valueStr = tokenizer.GetNextToken();
+                valueStr.ToULongLong(&totalRamKB);
                 break;
             }
         }
-
-        return "Unknown RAM";
+        file.Close();
     }
+
+    if (totalRamKB == 0) return "Unknown RAM";
+
+    // Umrechnung in echte GB
+    double reportedGB = (double)totalRamKB / (1024.0 * 1024.0);
+    
+    // HARDWARE-ANPASSUNG: Linux "unterschlägt" immer etwas RAM für den Kernel/BIOS.
+    // Wir runden mathematisch sinnvoll auf die nächste logische Hardware-Größe auf.
+    int hardwareGB = 0;
+    if (reportedGB > 48.0 && reportedGB <= 64.0)       hardwareGB = 64;
+    else if (reportedGB > 24.0 && reportedGB <= 32.0)  hardwareGB = 32;
+    else if (reportedGB > 12.0 && reportedGB <= 16.0)  hardwareGB = 16;
+    else if (reportedGB > 6.0 && reportedGB <= 8.0)    hardwareGB = 8;
+    else if (reportedGB > 96.0 && reportedGB <= 128.0) hardwareGB = 128;
+    else {
+        // Fallback für krumme Server-Setups oder sehr alte PCs
+        hardwareGB = (int)std::ceil(reportedGB);
+    }
+
+    // 2. Hardware-Typ aus EDAC sysfs lesen
+    wxString basisPfad = "/sys/devices/system/edac/mc/";
+    if (wxDir::Exists(basisPfad))
+    {
+        wxDir dir(basisPfad);
+        wxString unterOrdner;
+        bool gefunden = dir.GetFirst(&unterOrdner, "mc*", wxDIR_DIRS);
+        while (gefunden)
+        {
+            wxString zielPfad = basisPfad + unterOrdner + "/dimm0/dimm_mem_type";
+            if (!wxFileName::FileExists(zielPfad)) {
+                zielPfad = basisPfad + unterOrdner + "/rank0/dimm_mem_type";
+            }
+
+            if (wxFileName::FileExists(zielPfad)) {
+                wxTextFile typeFile;
+                if (typeFile.Open(zielPfad)) {
+                    ramType = typeFile.GetFirstLine().Trim(true).Trim(false);
+                    typeFile.Close();
+                    break; 
+                }
+            }
+            gefunden = dir.GetNext(&unterOrdner);
+        }
+    }
+
+    // 3. Ergebnis formatieren
+    // Wenn kein Typ im sysfs gefunden wurde (z.B. in VMs oder bei fehlenden Chipsatz-Treibern),
+    // blenden wir die Klammer einfach aus, statt "Unknown Type" anzuzeigen.
+    if (!ramType.IsEmpty()) {
+        return wxString::Format("Installed RAM - %d GB (%s)", hardwareGB, ramType);
+    } else {
+        return wxString::Format("Installed RAM - %d GB", hardwareGB);
+    }
+}
+
 
     wxString GetGpuInfoText()
     {
@@ -213,6 +322,18 @@ const wxSize DialogSuggestion::s_defSize = wxSize(860, 980);
 DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
 : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 , m_CheckStep(0)
+, m_modelCmb(nullptr)
+, m_cpuCmb(nullptr)
+, m_ramCmb(nullptr)
+, m_gpuCmb(nullptr)
+, m_chatCheck(nullptr)
+, m_agentCheck(nullptr)
+, m_embeddingCheck(nullptr)
+, m_autocompleteCheck(nullptr)
+, m_cliRunParamsCheck(nullptr)
+, m_serverRunParamsCheck(nullptr)
+, m_presetServerIniCheck(nullptr)
+, m_resultText(nullptr)
 {
     TrFu;
     SetIcon(wxIcon(app_xpm));
@@ -362,34 +483,34 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
 
     wxStaticBoxSizer* usageBox = new wxStaticBoxSizer(wxVERTICAL, this, "Usage");
 
-    wxCheckBox* chatCheck = new wxCheckBox(this, wxID_ANY, "Chat");
-    wxCheckBox* agentCheck = new wxCheckBox(this, wxID_ANY, "Agent");
-    wxCheckBox* embeddingCheck = new wxCheckBox(this, wxID_ANY, "Embedding");
-    wxCheckBox* autocompleteCheck = new wxCheckBox(this, wxID_ANY, "Autocomplete");
+    m_chatCheck = new wxCheckBox(this, wxID_ANY, "Chat");
+    m_agentCheck = new wxCheckBox(this, wxID_ANY, "Agent");
+    m_embeddingCheck = new wxCheckBox(this, wxID_ANY, "Embedding");
+    m_autocompleteCheck = new wxCheckBox(this, wxID_ANY, "Autocomplete");
 
-    agentCheck->SetValue(true);
+    m_agentCheck->SetValue(true);
 
     wxBoxSizer* usageRow = new wxBoxSizer(wxHORIZONTAL);
-    usageRow->Add(chatCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
-    usageRow->Add(agentCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
-    usageRow->Add(embeddingCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
-    usageRow->Add(autocompleteCheck, 0, wxALIGN_CENTER_VERTICAL);
+    usageRow->Add(m_chatCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    usageRow->Add(m_agentCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    usageRow->Add(m_embeddingCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    usageRow->Add(m_autocompleteCheck, 0, wxALIGN_CENTER_VERTICAL);
 
     usageBox->Add(usageRow, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(usageBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
     wxStaticBoxSizer* outputFormatBox = new wxStaticBoxSizer(wxVERTICAL, this, "Output format");
 
-    wxCheckBox* cliRunParamsCheck = new wxCheckBox(this, wxID_ANY, "cli run parameters");
-    wxCheckBox* serverRunParamsCheck = new wxCheckBox(this, wxID_ANY, "server run parameters");
-    wxCheckBox* presetServerIniCheck = new wxCheckBox(this, wxID_ANY, "preset server INI file");
+    m_cliRunParamsCheck = new wxCheckBox(this, wxID_ANY, "cli run parameters");
+    m_serverRunParamsCheck = new wxCheckBox(this, wxID_ANY, "server run parameters");
+    m_presetServerIniCheck = new wxCheckBox(this, wxID_ANY, "preset server INI file");
 
-    cliRunParamsCheck->SetValue(true);
+    m_cliRunParamsCheck->SetValue(true);
 
     wxBoxSizer* outputFormatRow = new wxBoxSizer(wxHORIZONTAL);
-    outputFormatRow->Add(cliRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
-    outputFormatRow->Add(serverRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
-    outputFormatRow->Add(presetServerIniCheck, 0, wxALIGN_CENTER_VERTICAL);
+    outputFormatRow->Add(m_cliRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    outputFormatRow->Add(m_serverRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
+    outputFormatRow->Add(m_presetServerIniCheck, 0, wxALIGN_CENTER_VERTICAL);
 
     outputFormatBox->Add(outputFormatRow, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(outputFormatBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
@@ -405,6 +526,7 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
         wxVSCROLL | wxHSCROLL | wxRE_READONLY
     );
     m_resultText->SetMinSize(wxSize(-1, resultHeight));
+    m_resultTextFont = m_resultText->GetFont();
     resultBox->Add(m_resultText, 1, wxALL | wxEXPAND, 10);
     mainSizer->Add(resultBox, 1, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
@@ -507,6 +629,140 @@ bool DialogSuggestion::LoadModel(const wxString& modelPath, llama_model*& curren
     return true;
 }
 
+bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
+{
+    if (!currentModel) {
+        AddError("No model loaded.");
+        return false;
+    }
+
+    const wxString modelPath = m_modelCmb ? TrimValue(m_modelCmb->GetValue()) : wxString();
+    const wxString cpuText = m_cpuCmb ? TrimValue(m_cpuCmb->GetValue()) : wxString();
+    const wxString ramText = m_ramCmb ? TrimValue(m_ramCmb->GetValue()) : wxString();
+    const wxString gpuText = m_gpuCmb ? TrimValue(m_gpuCmb->GetValue()) : wxString();
+
+    const int cpuCores = std::max(1, ParseLastInteger(cpuText));
+    const int ramGB = std::max(0, ParseLastInteger(ramText));
+    const bool hasGpu = !gpuText.IsEmpty() && !LooksUnknownValue(gpuText);
+
+    const bool useChat = m_chatCheck && m_chatCheck->GetValue();
+    const bool useAgent = m_agentCheck && m_agentCheck->GetValue();
+    const bool useEmbedding = m_embeddingCheck && m_embeddingCheck->GetValue();
+    const bool useAutocomplete = m_autocompleteCheck && m_autocompleteCheck->GetValue();
+
+    const int nCtxTrain = std::max(0, llama_model_n_ctx_train(currentModel));
+    const int nLayer = std::max(0, llama_model_n_layer(currentModel));
+    const int nEmbd = std::max(0, llama_model_n_embd(currentModel));
+    const uint64_t modelSize = llama_model_size(currentModel);
+    const uint64_t nParams = llama_model_n_params(currentModel);
+    const bool isRecurrent = llama_model_is_recurrent(currentModel);
+    const bool isDiffusion = llama_model_is_diffusion(currentModel);
+    const bool hasEncoder = llama_model_has_encoder(currentModel);
+    const bool hasDecoder = llama_model_has_decoder(currentModel);
+    const bool hasChatTemplate = llama_model_chat_template(currentModel, nullptr) != nullptr;
+
+    int threads = std::max(1, cpuCores - 1);
+    if (useAutocomplete)
+        threads = std::min(threads, 4);
+    else if (useEmbedding)
+        threads = std::min(threads, 8);
+
+    int ctxSize = 4096;
+    if (useAutocomplete)
+        ctxSize = 4096;
+    else if (useEmbedding)
+        ctxSize = 8192;
+    else if (useAgent)
+        ctxSize = 16384;
+    else if (useChat)
+        ctxSize = 8192;
+
+    if (nCtxTrain > 0)
+        ctxSize = std::min(ctxSize, nCtxTrain);
+    if (isRecurrent)
+        ctxSize = std::min(ctxSize, 4096);
+    ctxSize = std::max(ctxSize, 2048);
+
+    int batchSize = 256;
+    if (ramGB >= 64)
+        batchSize = 2048;
+    else if (ramGB >= 32)
+        batchSize = 1024;
+    else if (ramGB >= 16)
+        batchSize = 512;
+    if (useAutocomplete)
+        batchSize = std::min(batchSize, 256);
+
+    int ubatchSize = std::min(batchSize, ramGB >= 32 ? 512 : 256);
+    int parallel = useAgent ? 2 : 1;
+    int gpuLayers = 0;
+    if (hasGpu && nLayer > 0) {
+        gpuLayers = std::max(8, nLayer / 4);
+        if (ramGB >= 32)
+            gpuLayers = std::max(gpuLayers, nLayer / 2);
+        gpuLayers = std::min(gpuLayers, nLayer);
+    }
+
+    AddInfo("Model description: " + GetModelDescription(currentModel));
+    AddInfo("Model size: " + FormatGiB(modelSize));
+    AddInfo("Model parameters: " + FormatBillions(nParams));
+    AddInfo(wxString::Format("Model context size (train): %d", nCtxTrain));
+    AddInfo(wxString::Format("Model layers: %d", nLayer));
+    AddInfo(wxString::Format("Model embedding size: %d", nEmbd));
+
+    if (hasGpu)
+        AddWarning("GPU offload was estimated from the selected GPU name only. VRAM size is not available.");
+    if (isRecurrent)
+        AddWarning("Recurrent model detected. Context suggestion was kept conservative.");
+    if (isDiffusion)
+        AddWarning("Diffusion model detected. Generated suggestions may need manual adjustment.");
+    if (useChat && !hasChatTemplate)
+        AddWarning("No chat template was found in the model metadata.");
+    if (useEmbedding && !hasEncoder && !hasDecoder)
+        AddWarning("Embedding usage was selected, but model capabilities could not be inferred clearly.");
+
+    wxString commonParams;
+    if (!modelPath.IsEmpty())
+        commonParams << " --model \"" << modelPath << "\"";
+    commonParams << " --ctx-size " << ctxSize;
+    commonParams << " --threads " << threads;
+    commonParams << " --batch-size " << batchSize;
+    if (gpuLayers > 0)
+        commonParams << " --n-gpu-layers " << gpuLayers;
+    if (useEmbedding)
+        commonParams << " --embedding";
+
+    if (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue()) {
+        AddInfo("cli run parameters:");
+        AddInfo("llama-cli" + commonParams);
+    }
+
+    if (m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue()) {
+        wxString serverParams = commonParams;
+        serverParams << " --ubatch-size " << ubatchSize;
+        serverParams << " --parallel " << parallel;
+        if (useChat && hasChatTemplate)
+            serverParams << " --jinja";
+        AddInfo("server run parameters:");
+        AddInfo("llama-server" + serverParams);
+    }
+
+    if (m_presetServerIniCheck && m_presetServerIniCheck->GetValue()) {
+        AddInfo("preset server INI file:");
+        if (!modelPath.IsEmpty())
+            AddInfo("model=" + modelPath);
+        AddInfo(wxString::Format("ctx_size=%d", ctxSize));
+        AddInfo(wxString::Format("threads=%d", threads));
+        AddInfo(wxString::Format("batch_size=%d", batchSize));
+        AddInfo(wxString::Format("ubatch_size=%d", ubatchSize));
+        AddInfo(wxString::Format("parallel=%d", parallel));
+        AddInfo(wxString::Format("n_gpu_layers=%d", gpuLayers));
+        AddInfo(wxString::Format("embedding=%s", useEmbedding ? "true" : "false"));
+    }
+
+    return true;
+}
+
 bool DialogSuggestion::LoadModelInfo(const ConfigFile &confFile)
 {
     AddStep("Loading model information from configuration file");
@@ -526,6 +782,11 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent& event)
     }};     
 
     if (m_resultText) {
+        m_resultText->SetFont(m_resultTextFont);
+        wxRichTextAttr attr;
+        attr.SetFont(m_resultTextFont);
+        attr.SetTextColour(*wxBLACK);
+        m_resultText->SetDefaultStyle(attr);
         m_resultText->Clear();
     }
 
@@ -547,6 +808,9 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent& event)
 
     if (!LoadModel(modelPath, currentModel))
         return;
+
+    AddStep("Creating suggestion");
+    CreateSuggestion(currentModel);
 }
 
 void DialogSuggestion::OnCloseBtn(wxCommandEvent& event)

@@ -18,13 +18,22 @@ class DialogSuggestion : public wxDialog
     wxComboBox* m_cpuCmb;
     wxComboBox* m_ramCmb;
     wxComboBox* m_gpuCmb;
+    wxCheckBox* m_chatCheck;
+    wxCheckBox* m_agentCheck;
+    wxCheckBox* m_embeddingCheck;
+    wxCheckBox* m_autocompleteCheck;
+    wxCheckBox* m_cliRunParamsCheck;
+    wxCheckBox* m_serverRunParamsCheck;
+    wxCheckBox* m_presetServerIniCheck;
     wxRichTextCtrl* m_resultText;
+    wxFont m_resultTextFont;
 
     void AddStep(const wxString& text);
     void AddInfo(const wxString& text);
     void AddWarning(const wxString& text);
     void AddError(const wxString& text);
     bool LoadModel(const wxString& modelPath, llama_model*& currentModel);
+    bool CreateSuggestion(const llama_model* currentModel);
 
     bool LoadModelInfo(const ConfigFile& confFile);
     
