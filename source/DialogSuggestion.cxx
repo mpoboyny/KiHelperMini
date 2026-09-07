@@ -711,7 +711,7 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     outputFormatBox->Add(outputFormatRow, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(outputFormatBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
-    wxStaticBoxSizer *resultBox = new wxStaticBoxSizer(wxVERTICAL, this, "Result");
+    wxStaticBoxSizer *resultBox = new wxStaticBoxSizer(wxVERTICAL, this, "Result (it is possible suggestions, are not always 100% correct, no warranty is given)");
     const int resultHeight = GetCharHeight() * 10;
     m_resultText = new wxRichTextCtrl(
         this,
