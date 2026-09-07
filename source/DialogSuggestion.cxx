@@ -764,6 +764,35 @@ void DialogSuggestion::AddError(const wxString& text)
     m_resultText->Newline();
 }
 
+void DialogSuggestion::AddSettingsSummary()
+{
+    const wxString modelPath = m_modelCmb ? TrimValue(m_modelCmb->GetValue()) : "Unknown";
+    const wxString cpuText = m_cpuCmb ? TrimValue(m_cpuCmb->GetValue()) : "Unknown";
+    const wxString ramText = m_ramCmb ? TrimValue(m_ramCmb->GetValue()) : "Unknown";
+    const wxString gpuText = m_gpuCmb ? TrimValue(m_gpuCmb->GetValue()) : "Unknown";
+
+    const bool useChat = m_chatCheck && m_chatCheck->GetValue();
+    const bool useAgent = m_agentCheck && m_agentCheck->GetValue();
+    const bool useEmbedding = m_embeddingCheck && m_embeddingCheck->GetValue();
+    const bool useAutocomplete = m_autocompleteCheck && m_autocompleteCheck->GetValue();
+
+    const bool outCli = m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue();
+    const bool outServer = m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue();
+    const bool outPreset = m_presetServerIniCheck && m_presetServerIniCheck->GetValue();
+
+    auto boolText = [](bool value) -> const char* { return value ? "true" : "false"; };
+
+    AddStep("Summary of used settings");
+    AddInfo("Model: " + (modelPath.IsEmpty() ? wxString("Unknown") : modelPath));
+    AddInfo("CPU: " + (cpuText.IsEmpty() ? wxString("Unknown") : cpuText));
+    AddInfo("RAM: " + (ramText.IsEmpty() ? wxString("Unknown") : ramText));
+    AddInfo("GPU: " + (gpuText.IsEmpty() ? wxString("Unknown") : gpuText));
+    AddInfo(wxString::Format("Usage: chat=%s, agent=%s, embedding=%s, autocomplete=%s",
+                             boolText(useChat), boolText(useAgent), boolText(useEmbedding), boolText(useAutocomplete)));
+    AddInfo(wxString::Format("Output: cli=%s, server=%s, preset_ini=%s",
+                             boolText(outCli), boolText(outServer), boolText(outPreset)));
+}
+
 bool DialogSuggestion::LoadModel(const wxString& modelPath, llama_model*& currentModel)
 {
     if (currentModel) {
@@ -900,9 +929,50 @@ bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
     if (useEmbedding)
         commonParams << " --embedding";
 
+    auto addStyledOutputBlock = [&](const wxArrayString& lines) {
+        if (lines.IsEmpty())
+            return;
+
+        if (!m_resultText) {
+            for (size_t i = 0; i < lines.GetCount(); ++i)
+                AddInfo(lines[i]);
+            return;
+        }
+
+        wxFont outputFont = m_resultTextFont;
+        outputFont.SetPointSize(std::max(1, outputFont.GetPointSize() + 2));
+        outputFont.SetStyle(wxFONTSTYLE_ITALIC);
+
+        wxFont headingFont = outputFont;
+        headingFont.SetWeight(wxFONTWEIGHT_BOLD);
+
+        wxRichTextAttr outputAttr;
+        outputAttr.SetFont(outputFont);
+        outputAttr.SetTextColour(*wxBLACK);
+
+        wxRichTextAttr headingAttr;
+        headingAttr.SetFont(headingFont);
+        headingAttr.SetTextColour(*wxBLACK);
+
+        m_resultText->Newline();
+        m_resultText->BeginStyle(headingAttr);
+        m_resultText->WriteText(lines[0]);
+        m_resultText->Newline();
+        m_resultText->EndStyle();
+
+        m_resultText->BeginStyle(outputAttr);
+        for (size_t i = 1; i < lines.GetCount(); ++i) {
+            m_resultText->WriteText(lines[i]);
+            m_resultText->Newline();
+        }
+        m_resultText->EndStyle();
+    };
+
     if (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue()) {
-        AddInfo("cli run parameters:");
-        AddInfo("llama-cli" + commonParams);
+        wxArrayString lines;
+        lines.Add("cli run parameters:");
+        lines.Add("llama-cli" + commonParams);
+        addStyledOutputBlock(lines);
     }
 
     if (m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue()) {
@@ -911,21 +981,26 @@ bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
         serverParams << " --parallel " << parallel;
         if (useChat && hasChatTemplate)
             serverParams << " --jinja";
-        AddInfo("server run parameters:");
-        AddInfo("llama-server" + serverParams);
+
+        wxArrayString lines;
+        lines.Add("server run parameters:");
+        lines.Add("llama-server" + serverParams);
+        addStyledOutputBlock(lines);
     }
 
     if (m_presetServerIniCheck && m_presetServerIniCheck->GetValue()) {
-        AddInfo("preset server INI file:");
+        wxArrayString lines;
+        lines.Add("preset server INI file:");
         if (!modelPath.IsEmpty())
-            AddInfo("model=" + modelPath);
-        AddInfo(wxString::Format("ctx_size=%d", ctxSize));
-        AddInfo(wxString::Format("threads=%d", threads));
-        AddInfo(wxString::Format("batch_size=%d", batchSize));
-        AddInfo(wxString::Format("ubatch_size=%d", ubatchSize));
-        AddInfo(wxString::Format("parallel=%d", parallel));
-        AddInfo(wxString::Format("n_gpu_layers=%d", gpuLayers));
-        AddInfo(wxString::Format("embedding=%s", useEmbedding ? "true" : "false"));
+            lines.Add("model=" + modelPath);
+        lines.Add(wxString::Format("ctx_size=%d", ctxSize));
+        lines.Add(wxString::Format("threads=%d", threads));
+        lines.Add(wxString::Format("batch_size=%d", batchSize));
+        lines.Add(wxString::Format("ubatch_size=%d", ubatchSize));
+        lines.Add(wxString::Format("parallel=%d", parallel));
+        lines.Add(wxString::Format("n_gpu_layers=%d", gpuLayers));
+        lines.Add(wxString::Format("embedding=%s", useEmbedding ? "true" : "false"));
+        addStyledOutputBlock(lines);
     }
 
     return true;
@@ -957,6 +1032,8 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent& event)
         m_resultText->SetDefaultStyle(attr);
         m_resultText->Clear();
     }
+
+    AddSettingsSummary();
 
     wxString modelPath;
     wxString loadStepText = "Loading model";

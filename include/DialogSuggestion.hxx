@@ -46,6 +46,7 @@ class DialogSuggestion : public wxDialog
     void AddInfo(const wxString& text);
     void AddWarning(const wxString& text);
     void AddError(const wxString& text);
+    void AddSettingsSummary();
     bool LoadModel(const wxString& modelPath, llama_model*& currentModel);
     bool CreateSuggestion(const llama_model* currentModel);
 
