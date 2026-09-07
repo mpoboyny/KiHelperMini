@@ -19,6 +19,7 @@ class DialogSuggestion : public wxDialog
     wxComboBox* m_cpuCmb;
     wxComboBox* m_ramCmb;
     wxComboBox* m_gpuCmb;
+    wxCheckBox* m_nativeDriverCheck;
     wxCheckBox* m_chatCheck;
     wxCheckBox* m_agentCheck;
     wxCheckBox* m_embeddingCheck;
