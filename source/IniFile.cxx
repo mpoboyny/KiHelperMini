@@ -53,6 +53,9 @@ namespace INI
 				config.SetPath(wxString::Format("/GPU_%ld", i));
 				GpuInfo info;
 				config.Read("Name", &info.Name, wxEmptyString);
+				long vramGB = 0;
+				config.Read("VRAM", &vramGB, 0);
+				info.VramGB = static_cast<int>(vramGB);
 				s_Gpus.push_back(info);
 			}
 		}

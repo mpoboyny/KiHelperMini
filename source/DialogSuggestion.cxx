@@ -11,9 +11,7 @@
 #include "../resources/app.xpm"
 #include "../resources/conf_model.xpm"
 
-namespace
-{
-    int ParseLastInteger(const wxString& text)
+int DialogSuggestion::ParseLastInteger(const wxString& text)
     {
         int value = 0;
         bool found = false;
@@ -43,23 +41,23 @@ namespace
         return found ? value : 0;
     }
 
-    bool LooksUnknownValue(const wxString& text)
+bool DialogSuggestion::LooksUnknownValue(const wxString& text)
     {
         return text.Lower().Contains("unknown");
     }
 
-    wxString FormatGiB(uint64_t bytes)
+wxString DialogSuggestion::FormatGiB(uint64_t bytes)
     {
         const double gib = 1024.0 * 1024.0 * 1024.0;
         return wxString::Format("%.2f GiB", static_cast<double>(bytes) / gib);
     }
 
-    wxString FormatBillions(uint64_t value)
+wxString DialogSuggestion::FormatBillions(uint64_t value)
     {
         return wxString::Format("%.2f B", static_cast<double>(value) / 1000000000.0);
     }
 
-    wxString GetModelDescription(const llama_model* model)
+wxString DialogSuggestion::GetModelDescription(const llama_model* model)
     {
         char buf[256] = {0};
         if (llama_model_desc(model, buf, sizeof(buf)) > 0)
@@ -67,17 +65,32 @@ namespace
         return "Unknown model";
     }
 
-    wxString FormatRamInfoText(const wxString& name, const wxString& type, int sizeGB, int speedMTs)
+wxString DialogSuggestion::FormatRamInfoText(const wxString& name, const wxString& type, int sizeGB, int speedMTs)
     {
-        wxString result = wxString::Format("%s - %d GB", name, sizeGB);
-        if (type != "Unknown" && !type.IsEmpty())
-            result += " - " + type;
+        const wxString safeName = name.IsEmpty() ? "Unknown" : name;
+        const wxString safeType = type.IsEmpty() ? "Unknown" : type;
+
+        wxString result = safeName;
+        if (sizeGB > 0)
+            result += wxString::Format(" - %d GB", sizeGB);
+        else
+            result += " - Unknown";
+
+        if (safeType != "Unknown")
+            result += " - " + safeType;
         if (speedMTs > 0)
             result += wxString::Format(" (%d MT/s)", speedMTs);
         return result;
     }
 
-    wxString TrimValue(const wxString& value)
+wxString DialogSuggestion::FormatGpuInfoText(const wxString& name, int vramGB)
+    {
+        if (vramGB > 0)
+            return wxString::Format("%s (%d GB VRAM)", name, vramGB);
+        return name;
+    }
+
+wxString DialogSuggestion::TrimValue(const wxString& value)
     {
         wxString res = value;
         res.Trim(true);
@@ -86,8 +99,9 @@ namespace
     }
 
 #ifdef _WIN32
-    wxString GetCpuInfoText()
+INI::CpuInfo DialogSuggestion::GetCpuInfoText()
     {
+        INI::CpuInfo cpuInfo;
         wxString cpuName;
         wxGetEnv("PROCESSOR_IDENTIFIER", &cpuName);
         if (cpuName.IsEmpty())
@@ -97,28 +111,41 @@ namespace
         if (cores < 1)
             cores = 0;
 
-        return wxString::Format("%s (%d cores)", cpuName, cores);
+        cpuInfo.Name = cpuName;
+        cpuInfo.Cores = cores;
+        return cpuInfo;
     }
 
-    wxString GetRamInfoText()
+INI::RamInfo DialogSuggestion::GetRamInfoText()
     {
+        INI::RamInfo ramInfo;
+        ramInfo.Name = "Unknown";
+        ramInfo.Type = "Unknown";
+        ramInfo.SizeGB = 0;
+        ramInfo.SpeedMTs = 0;
+
         MEMORYSTATUSEX statex;
         statex.dwLength = sizeof(statex);
         if (!GlobalMemoryStatusEx(&statex))
-            return "Unknown RAM";
+            return ramInfo;
 
         const unsigned long long gib = 1024ULL * 1024ULL * 1024ULL;
-        int sizeGB = static_cast<int>((statex.ullTotalPhys + (gib / 2ULL)) / gib);
-        return FormatRamInfoText("Installed RAM", "Unknown", sizeGB, 0);
+        ramInfo.Name = "Installed RAM";
+        ramInfo.SizeGB = static_cast<int>((statex.ullTotalPhys + (gib / 2ULL)) / gib);
+        return ramInfo;
     }
 
-    wxString GetGpuInfoText()
+INI::GpuInfo DialogSuggestion::GetGpuInfoText()
     {
+        INI::GpuInfo gpuInfo;
+        gpuInfo.Name = "Unknown GPU";
+        gpuInfo.VramGB = 0;
+
         wxArrayString out;
         wxArrayString err;
         long code = wxExecute("wmic path win32_VideoController get Name /value", out, err, wxEXEC_SYNC);
         if (code == -1)
-            return "Unknown GPU";
+            return gpuInfo;
 
         wxArrayString gpus;
         for (const auto& lineRaw : out) {
@@ -132,14 +159,16 @@ namespace
         }
 
         if (gpus.IsEmpty())
-            return "Unknown GPU";
+            return gpuInfo;
 
-        return JoinStrings(gpus, "; ");
+        gpuInfo.Name = JoinStrings(gpus, "; ");
+        return gpuInfo;
     }
 
 #elif defined(__gnu_linux__)
-    wxString GetCpuInfoText()
+INI::CpuInfo DialogSuggestion::GetCpuInfoText()
     {
+        INI::CpuInfo cpuInfo;
         wxString cpuName = "Unknown CPU";
         std::ifstream cpuFile("/proc/cpuinfo");
         if (cpuFile.is_open()) {
@@ -161,11 +190,19 @@ namespace
         if (cores < 1)
             cores = 0;
 
-        return wxString::Format("%s (%d cores)", cpuName, cores);
+        cpuInfo.Name = cpuName;
+        cpuInfo.Cores = cores;
+        return cpuInfo;
     }
 
-    wxString GetRamInfoText()
+INI::RamInfo DialogSuggestion::GetRamInfoText()
 {
+    INI::RamInfo ramInfo;
+    ramInfo.Name = "Unknown";
+    ramInfo.Type = "Unknown";
+    ramInfo.SizeGB = 0;
+    ramInfo.SpeedMTs = 0;
+
     unsigned long long totalRamKB = 0;
     wxString ramType = "";
 
@@ -187,7 +224,7 @@ namespace
         file.Close();
     }
 
-    if (totalRamKB == 0) return "Unknown RAM";
+    if (totalRamKB == 0) return ramInfo;
 
     // Umrechnung in echte GB
     double reportedGB = (double)totalRamKB / (1024.0 * 1024.0);
@@ -234,15 +271,14 @@ namespace
     // 3. Ergebnis formatieren
     // Wenn kein Typ im sysfs gefunden wurde (z.B. in VMs oder bei fehlenden Chipsatz-Treibern),
     // blenden wir die Klammer einfach aus, statt "Unknown Type" anzuzeigen.
-    if (!ramType.IsEmpty()) {
-        return wxString::Format("Installed RAM - %d GB (%s)", hardwareGB, ramType);
-    } else {
-        return wxString::Format("Installed RAM - %d GB", hardwareGB);
-    }
+    ramInfo.Name = "Installed RAM";
+    ramInfo.Type = ramType.IsEmpty() ? "Unknown" : ramType;
+    ramInfo.SizeGB = hardwareGB;
+    return ramInfo;
 }
 
 
-    unsigned long long GetGpuVramBytes()
+unsigned long long DialogSuggestion::GetGpuVramBytes()
 {
     // === STRATEGIE 1: PROPRIETÄRES NVIDIA TOOL (nvidia-smi) ===
     // Wenn der offizielle Nvidia-Treiber installiert ist, liefert das die sichersten Daten.
@@ -362,13 +398,17 @@ namespace
 }
 
 
-    wxString GetGpuInfoText()
+INI::GpuInfo DialogSuggestion::GetGpuInfoText()
 {
+    INI::GpuInfo gpuInfo;
+    gpuInfo.Name = "Unknown GPU";
+    gpuInfo.VramGB = 0;
+
     wxArrayString out;
     wxArrayString err;
     long code = wxExecute("lspci -mm", out, err, wxEXEC_SYNC);
     if (code == -1)
-        return "Unknown GPU";
+        return gpuInfo;
 
     wxArrayString gpus;
     for (const auto& raw : out) {
@@ -409,7 +449,7 @@ namespace
     }
 
     if (gpus.IsEmpty())
-        return "Unknown GPU";
+        return gpuInfo;
 
     // Verkettung (falls Dual-GPU wie Intel iGPU + Nvidia dGPU aktiv sind)
     wxString gpuText = "";
@@ -419,36 +459,47 @@ namespace
         gpuText += gpus[i];
     }
 
-    // VRAM ermitteln und anhängen
+    gpuInfo.Name = gpuText;
+
+    // VRAM ermitteln
     unsigned long long vramBytes = GetGpuVramBytes();
     if (vramBytes > 0) 
     {
         double vramGB = (double)vramBytes / (1024.0 * 1024.0 * 1024.0);
-        int roundedVram = (int)(vramGB + 0.1); 
-        return wxString::Format("%s (%d GB VRAM)", gpuText, roundedVram);
+        gpuInfo.VramGB = (int)(vramGB + 0.1);
     }
 
-    return gpuText;
+    return gpuInfo;
 }
 
 
 #else
-    wxString GetCpuInfoText()
+INI::CpuInfo DialogSuggestion::GetCpuInfoText()
     {
-        return "Unknown CPU";
+        INI::CpuInfo cpuInfo;
+        cpuInfo.Name = "Unknown CPU";
+        cpuInfo.Cores = 0;
+        return cpuInfo;
     }
 
-    wxString GetRamInfoText()
+INI::RamInfo DialogSuggestion::GetRamInfoText()
     {
-        return "Unknown RAM";
+        INI::RamInfo ramInfo;
+        ramInfo.Name = "Unknown";
+        ramInfo.Type = "Unknown";
+        ramInfo.SizeGB = 0;
+        ramInfo.SpeedMTs = 0;
+        return ramInfo;
     }
 
-    wxString GetGpuInfoText()
+INI::GpuInfo DialogSuggestion::GetGpuInfoText()
     {
-        return "Unknown GPU";
+        INI::GpuInfo gpuInfo;
+        gpuInfo.Name = "Unknown GPU";
+        gpuInfo.VramGB = 0;
+        return gpuInfo;
     }
 #endif
-}
 
 /*static*/
 const wxSize DialogSuggestion::s_defSize = wxSize(860, 980);
@@ -548,67 +599,49 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     systemGrid->AddGrowableCol(1, 1);
 
     wxStaticText* cpuLabel = new wxStaticText(this, wxID_ANY, "CPU:");
-    wxString currentCpuText = GetCpuInfoText();
+    const INI::CpuInfo currentCpu = GetCpuInfoText();
     wxArrayString cpuChoices;
-    int currentCpuIndex = wxNOT_FOUND;
     auto cpus = INI::IniFile::Inst().GetCpus(INI::EiniTypeCpu);
+    cpus.insert(cpus.begin(), currentCpu);
     for (size_t i = 0; i < cpus.size(); ++i) {
         const auto& cpu = cpus[i];
         wxString cpuText = wxString::Format("%s (%d cores)", cpu.Name, cpu.Cores);
         cpuChoices.Add(cpuText);
-        if (cpuText == currentCpuText) {
-            currentCpuIndex = static_cast<int>(i);
-        }
-    }
-    if (currentCpuIndex == wxNOT_FOUND) {
-        cpuChoices.Insert(currentCpuText, 0);
-        currentCpuIndex = 0;
     }
     m_cpuCmb = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, cpuChoices, wxCB_READONLY);
-    m_cpuCmb->SetSelection(currentCpuIndex);
+    m_cpuCmb->SetSelection(0);
     systemGrid->Add(cpuLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
     systemGrid->Add(m_cpuCmb, 1, wxEXPAND);
 
     wxStaticText* ramLabel = new wxStaticText(this, wxID_ANY, "RAM:");
-    wxString currentRamText = GetRamInfoText();
+    const INI::RamInfo currentRam = GetRamInfoText();
     wxArrayString ramChoices;
-    int currentRamIndex = wxNOT_FOUND;
     auto rams = INI::IniFile::Inst().GetRams(INI::EiniTypeRam);
+    rams.insert(rams.begin(), currentRam);
     for (size_t i = 0; i < rams.size(); ++i) {
         const auto& ram = rams[i];
         wxString ramText = FormatRamInfoText(ram.Name, ram.Type, ram.SizeGB, ram.SpeedMTs);
-        ramChoices.Add(ramText);
-        if (ramText == currentRamText) {
-            currentRamIndex = static_cast<int>(i);
-        }
-    }
-    if (currentRamIndex == wxNOT_FOUND) {
-        ramChoices.Insert(currentRamText, 0);
-        currentRamIndex = 0;
+        if (ramChoices.Index(ramText) == wxNOT_FOUND)
+            ramChoices.Add(ramText);
     }
     m_ramCmb = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, ramChoices, wxCB_READONLY);
-    m_ramCmb->SetSelection(currentRamIndex);
+    m_ramCmb->SetSelection(0);
     systemGrid->Add(ramLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
     systemGrid->Add(m_ramCmb, 1, wxEXPAND);
 
     wxStaticText* gpuLabel = new wxStaticText(this, wxID_ANY, "GPU:");
-    wxString currentGpuText = GetGpuInfoText();
     wxArrayString gpuChoices;
-    int currentGpuIndex = wxNOT_FOUND;
+    const INI::GpuInfo currentGpu = GetGpuInfoText();
     auto gpus = INI::IniFile::Inst().GetGpus(INI::EiniTypeGpu);
+    gpus.insert(gpus.begin(), currentGpu);
     for (size_t i = 0; i < gpus.size(); ++i) {
         const auto& gpu = gpus[i];
-        gpuChoices.Add(gpu.Name);
-        if (gpu.Name == currentGpuText) {
-            currentGpuIndex = static_cast<int>(i);
-        }
-    }
-    if (currentGpuIndex == wxNOT_FOUND) {
-        gpuChoices.Insert(currentGpuText, 0);
-        currentGpuIndex = 0;
+        wxString gpuText = FormatGpuInfoText(gpu.Name, gpu.VramGB);
+        if (gpuChoices.Index(gpuText) == wxNOT_FOUND)
+            gpuChoices.Add(gpuText);
     }
     m_gpuCmb = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, gpuChoices, wxCB_READONLY);
-    m_gpuCmb->SetSelection(currentGpuIndex);
+    m_gpuCmb->SetSelection(0);
     systemGrid->Add(gpuLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
     systemGrid->Add(m_gpuCmb, 1, wxEXPAND);
 
@@ -778,6 +811,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
     const int cpuCores = std::max(1, ParseLastInteger(cpuText));
     const int ramGB = std::max(0, ParseLastInteger(ramText));
     const bool hasGpu = !gpuText.IsEmpty() && !LooksUnknownValue(gpuText);
+    const bool hasGpuVram = gpuText.Contains("GB VRAM");
 
     const bool useChat = m_chatCheck && m_chatCheck->GetValue();
     const bool useAgent = m_agentCheck && m_agentCheck->GetValue();
@@ -844,7 +878,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
     AddInfo(wxString::Format("Model layers: %d", nLayer));
     AddInfo(wxString::Format("Model embedding size: %d", nEmbd));
 
-    if (hasGpu)
+    if (hasGpu && !hasGpuVram)
         AddWarning("GPU offload was estimated from the selected GPU name only. VRAM size is not available.");
     if (isRecurrent)
         AddWarning("Recurrent model detected. Context suggestion was kept conservative.");

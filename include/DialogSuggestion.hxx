@@ -7,6 +7,7 @@
 
 class ConfigFile;
 struct llama_model;
+namespace INI { struct CpuInfo; struct GpuInfo; struct RamInfo; }
 
 class DialogSuggestion : public wxDialog
 {
@@ -27,6 +28,19 @@ class DialogSuggestion : public wxDialog
     wxCheckBox* m_presetServerIniCheck;
     wxRichTextCtrl* m_resultText;
     wxFont m_resultTextFont;
+
+    static int ParseLastInteger(const wxString& text);
+    static bool LooksUnknownValue(const wxString& text);
+    static wxString FormatGiB(uint64_t bytes);
+    static wxString FormatBillions(uint64_t value);
+    static wxString GetModelDescription(const llama_model* model);
+    static wxString FormatRamInfoText(const wxString& name, const wxString& type, int sizeGB, int speedMTs);
+    static wxString FormatGpuInfoText(const wxString& name, int vramGB);
+    static wxString TrimValue(const wxString& value);
+    static INI::CpuInfo GetCpuInfoText();
+    static INI::RamInfo GetRamInfoText();
+    static unsigned long long GetGpuVramBytes();
+    static INI::GpuInfo GetGpuInfoText();
 
     void AddStep(const wxString& text);
     void AddInfo(const wxString& text);

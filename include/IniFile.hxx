@@ -27,6 +27,7 @@ namespace INI
     struct GpuInfo
     {
         wxString Name;
+        int VramGB = 0;
     };
     typedef std::vector<GpuInfo> GpuInfoList;
 
