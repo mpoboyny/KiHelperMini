@@ -698,6 +698,10 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     mainSizer->Add(resultBox, 1, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
     wxBoxSizer* btnSizer = new wxBoxSizer(wxHORIZONTAL);
+    m_copyBtn = new wxButton(this, wxID_ANY, "Copy");
+    m_copyBtn->SetBitmap(wxArtProvider::GetBitmap(wxART_COPY, wxART_BUTTON));
+    m_copyBtn->Enable(false);
+    btnSizer->Add(m_copyBtn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 8);
     btnSizer->AddStretchSpacer(1);
     wxButton* doItBtn = new wxButton(this, wxID_ANY, "Do it!");
     doItBtn->SetBitmap(wxBitmap(conf_model));
@@ -706,6 +710,7 @@ DialogSuggestion::DialogSuggestion(wxWindow* parent, const ConfigFile& confFile)
     btnSizer->Add(closeBtn, 0, wxALIGN_CENTER_VERTICAL);
     mainSizer->Add(btnSizer, 0, wxALL | wxEXPAND, 10);
 
+    Bind(wxEVT_BUTTON, &DialogSuggestion::OnCopyToClipboard, this, m_copyBtn->GetId());
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnDoItBtn, this, doItBtn->GetId());
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnCloseBtn, this, wxID_CLOSE);
 
@@ -727,6 +732,9 @@ void DialogSuggestion::AddStep(const wxString& text)
     m_resultText->WriteText(wxString::Format("%d. %s", m_CheckStep, text));
     m_resultText->EndBold();
     m_resultText->Newline();
+    
+    if (m_copyBtn && !m_resultText->IsEmpty())
+        m_copyBtn->Enable(true);
 }
 
 void DialogSuggestion::AddInfo(const wxString& text)
@@ -736,6 +744,9 @@ void DialogSuggestion::AddInfo(const wxString& text)
 
     m_resultText->WriteText(text);
     m_resultText->Newline();
+    
+    if (m_copyBtn && !m_resultText->IsEmpty())
+        m_copyBtn->Enable(true);
 }
 
 void DialogSuggestion::AddWarning(const wxString& text)
@@ -746,6 +757,9 @@ void DialogSuggestion::AddWarning(const wxString& text)
     m_resultText->BeginBold();
     m_resultText->BeginTextColour(wxColour("ORANGE"));
     m_resultText->WriteText("Warning: " + text);
+    
+    if (m_copyBtn && !m_resultText->IsEmpty())
+        m_copyBtn->Enable(true);
     m_resultText->EndTextColour();
     m_resultText->EndBold();
     m_resultText->Newline();
@@ -759,6 +773,9 @@ void DialogSuggestion::AddError(const wxString& text)
     m_resultText->BeginBold();
     m_resultText->BeginTextColour(*wxRED);
     m_resultText->WriteText("Error: " + text);
+    
+    if (m_copyBtn && !m_resultText->IsEmpty())
+        m_copyBtn->Enable(true);
     m_resultText->EndTextColour();
     m_resultText->EndBold();
     m_resultText->Newline();
@@ -1031,6 +1048,8 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent& event)
         attr.SetTextColour(*wxBLACK);
         m_resultText->SetDefaultStyle(attr);
         m_resultText->Clear();
+        if (m_copyBtn)
+            m_copyBtn->Enable(false);
     }
 
     AddSettingsSummary();
@@ -1056,6 +1075,18 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent& event)
 
     AddStep("Creating suggestion");
     CreateSuggestion(currentModel);
+}
+
+void DialogSuggestion::OnCopyToClipboard(wxCommandEvent& event)
+{
+    if (!m_resultText || m_resultText->IsEmpty())
+        return;
+
+    if (wxTheClipboard->Open())
+    {
+        wxTheClipboard->SetData(new wxTextDataObject(m_resultText->GetValue()));
+        wxTheClipboard->Close();
+    }
 }
 
 void DialogSuggestion::OnCloseBtn(wxCommandEvent& event)

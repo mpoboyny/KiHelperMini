@@ -28,6 +28,7 @@ class DialogSuggestion : public wxDialog
     wxCheckBox* m_presetServerIniCheck;
     wxRichTextCtrl* m_resultText;
     wxFont m_resultTextFont;
+    wxButton* m_copyBtn;
 
     static int ParseLastInteger(const wxString& text);
     static bool LooksUnknownValue(const wxString& text);
@@ -49,6 +50,7 @@ class DialogSuggestion : public wxDialog
     void AddSettingsSummary();
     bool LoadModel(const wxString& modelPath, llama_model*& currentModel);
     bool CreateSuggestion(const llama_model* currentModel);
+    void OnCopyToClipboard(wxCommandEvent& event);
 
     bool LoadModelInfo(const ConfigFile& confFile);
     
