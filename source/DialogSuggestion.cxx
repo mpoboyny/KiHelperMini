@@ -848,34 +848,24 @@ bool DialogSuggestion::LoadModel(const wxString& modelPath, llama_model*& curren
     return true;
 }
 
-bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
-{
-    // Validate that a model is loaded before proceeding with suggestion generation
+bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel) {
     if (!currentModel) {
         AddError("No model loaded.");
         return false;
     }
-
-    // Extract user selections from UI controls
     const wxString modelPath = m_modelCmb ? TrimValue(m_modelCmb->GetValue()) : wxString();
     const wxString cpuText = m_cpuCmb ? TrimValue(m_cpuCmb->GetValue()) : wxString();
     const wxString ramText = m_ramCmb ? TrimValue(m_ramCmb->GetValue()) : wxString();
     const wxString gpuText = m_gpuCmb ? TrimValue(m_gpuCmb->GetValue()) : wxString();
-
-    // Parse hardware specifications from text representations
     const int cpuCores = std::max(1, ParseLastInteger(cpuText));
     const int ramGB = std::max(0, ParseLastInteger(ramText));
     const bool hasGpu = !gpuText.IsEmpty() && !LooksUnknownValue(gpuText);
     const bool hasGpuVram = gpuText.Contains("GB VRAM");
     const bool useNativeDriver = m_nativeDriverCheck && m_nativeDriverCheck->GetValue();
-
-    // Extract model usage requirements from usage checkboxes
     const bool useChat = m_chatCheck && m_chatCheck->GetValue();
     const bool useAgent = m_agentCheck && m_agentCheck->GetValue();
     const bool useEmbedding = m_embeddingCheck && m_embeddingCheck->GetValue();
     const bool useAutocomplete = m_autocompleteCheck && m_autocompleteCheck->GetValue();
-
-    // Query model capabilities and characteristics
     const int nCtxTrain = std::max(0, llama_model_n_ctx_train(currentModel));
     const int nLayer = std::max(0, llama_model_n_layer(currentModel));
     const int nEmbd = std::max(0, llama_model_n_embd(currentModel));
@@ -887,129 +877,100 @@ bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
     const bool hasDecoder = llama_model_has_decoder(currentModel);
     const bool hasChatTemplate = llama_model_chat_template(currentModel, nullptr) != nullptr;
 
-    // Calculate optimal thread count based on CPU cores and usage pattern
-    // Reserve one core for system, then adjust further for lightweight operations
-    int threads = std::max(1, cpuCores - 1);
-    if (useAutocomplete)
-        threads = std::min(threads, 4);
-    else if (useEmbedding)
-        threads = std::min(threads, 8);
-
-    // Determine context size based on usage requirements and model capabilities
-    // Larger context for agent/embedding, smaller for autocomplete
-    int ctxSize = 4096;
-    if (useAutocomplete)
-        ctxSize = 4096;
-    else if (useEmbedding)
-        ctxSize = 8192;
-    else if (useAgent)
-        ctxSize = 16384;
-    else if (useChat)
-        ctxSize = 8192;
-
-    // Cap context size to model's training context and apply minimum threshold
-    if (nCtxTrain > 0)
-        ctxSize = std::min(ctxSize, nCtxTrain);
-    if (isRecurrent)
-        ctxSize = std::min(ctxSize, 4096);
-    ctxSize = std::max(ctxSize, 2048);
-
-    // Calculate batch size based on available RAM
-    // Larger batch for systems with more memory, smaller for memory-constrained systems
-    int batchSize = 256;
-    if (ramGB >= 64)
-        batchSize = 2048;
-    else if (ramGB >= 32)
-        batchSize = 1024;
-    else if (ramGB >= 16)
-        batchSize = 512;
-    if (useAutocomplete)
-        batchSize = std::min(batchSize, 256);
-
-    // Calculate micro-batch size (ubatch) for in-flight sequences
-    int ubatchSize = std::min(batchSize, ramGB >= 32 ? 512 : 256);
-    int parallel = useAgent ? 2 : 1;
-    
-    // Calculate GPU layer offloading count if GPU is available
-    // With native driver support, enable more aggressive GPU offloading
+    // 1. GPU-Offloading Heuristik (Zuerst berechnen, damit 'gpuLayers' danach für die Threads bekannt ist)
     int gpuLayers = 0;
     if (hasGpu && nLayer > 0) {
-        gpuLayers = std::max(8, nLayer / 4);
-        if (ramGB >= 32)
-            gpuLayers = std::max(gpuLayers, nLayer / 2);
-        // If native GPU driver is enabled (CUDA, ROCm), allow offloading more layers
-        if (useNativeDriver && ramGB >= 16)
-            gpuLayers = std::max(gpuLayers, static_cast<int>(nLayer * 0.75));
-        gpuLayers = std::min(gpuLayers, nLayer);
+        double modelSizeGiB = static_cast<double>(modelSize) / (1024.0 * 1024.0 * 1024.0);
+        int estimatedVramGB = ParseLastInteger(gpuText);
+
+        if (hasGpuVram && estimatedVramGB > 0 && (modelSizeGiB + 1.5) < estimatedVramGB) {
+            gpuLayers = nLayer + 1; 
+        } else {
+            gpuLayers = std::max(8, nLayer / 4);
+            if (ramGB >= 32) gpuLayers = std::max(gpuLayers, nLayer / 2);
+            if (useNativeDriver && ramGB >= 16) gpuLayers = std::max(gpuLayers, static_cast<int>(nLayer * 0.75));
+        }
+        gpuLayers = std::min(gpuLayers, nLayer + 1);
     }
 
-    // Display model characteristics in results
+    // 2. Intelligente Thread-Berechnung
+    int threads = std::max(1, cpuCores - 1);
+    if (cpuCores >= 12) { 
+        threads = std::min(threads, cpuCores / 2); 
+    }
+    if (useAutocomplete) {
+        threads = std::min(threads, 4);
+    }
+    else if (useEmbedding) {
+        threads = (hasGpu && gpuLayers > 0) ? 2 : std::min(threads, 8);
+    }
+
+    // 3. Kontext-Größe festlegen
+    int ctxSize = 4096;
+    if (useAutocomplete) ctxSize = 4096;
+    else if (useEmbedding) ctxSize = 8192;
+    else if (useAgent) ctxSize = 16384;
+    else if (useChat) ctxSize = 8192;
+    if (nCtxTrain > 0) ctxSize = std::min(ctxSize, nCtxTrain);
+    if (isRecurrent) ctxSize = std::min(ctxSize, 4096);
+    ctxSize = std::max(ctxSize, 2048);
+
+    const bool useFlashAttn = (ctxSize >= 8192);
+
+    // 4. Batch-Größen berechnen
+    int batchSize = 256;
+    if (ramGB >= 64) batchSize = 2048;
+    else if (ramGB >= 32) batchSize = 1024;
+    else if (ramGB >= 16) batchSize = 512;
+    if (useAutocomplete) batchSize = std::min(batchSize, 256);
+    int ubatchSize = std::min(batchSize, ramGB >= 32 ? 512 : 256);
+    int parallel = useAgent ? 2 : 1;
+
     AddInfo("Model description: " + GetModelDescription(currentModel));
     AddInfo("Model size: " + FormatGiB(modelSize));
     AddInfo("Model parameters: " + FormatBillions(nParams));
     AddInfo(wxString::Format("Model context size (train): %d", nCtxTrain));
     AddInfo(wxString::Format("Model layers: %d", nLayer));
     AddInfo(wxString::Format("Model embedding size: %d", nEmbd));
+    if (hasGpu && !hasGpuVram) AddWarning("GPU offload was estimated from the selected GPU name only. VRAM size is not available.");
+    if (useNativeDriver && hasGpu) AddInfo("Native GPU driver mode enabled: Using CUDA/ROCm for accelerated inference.");
+    if (isRecurrent) AddWarning("Recurrent model detected. Context suggestion was kept conservative.");
+    if (isDiffusion) AddWarning("Diffusion model detected. Generated suggestions may need manual adjustment.");
+    if (useChat && !hasChatTemplate) AddWarning("No chat template was found in the model metadata.");
+    if (useEmbedding && !hasEncoder && !hasDecoder) AddWarning("Embedding usage was selected, but model capabilities could not be inferred clearly.");
 
-    // Generate warnings for special configurations
-    if (hasGpu && !hasGpuVram)
-        AddWarning("GPU offload was estimated from the selected GPU name only. VRAM size is not available.");
-    if (useNativeDriver && hasGpu)
-        AddInfo("Native GPU driver mode enabled: Using CUDA/ROCm for accelerated inference.");
-    if (isRecurrent)
-        AddWarning("Recurrent model detected. Context suggestion was kept conservative.");
-    if (isDiffusion)
-        AddWarning("Diffusion model detected. Generated suggestions may need manual adjustment.");
-    if (useChat && !hasChatTemplate)
-        AddWarning("No chat template was found in the model metadata.");
-    if (useEmbedding && !hasEncoder && !hasDecoder)
-        AddWarning("Embedding usage was selected, but model capabilities could not be inferred clearly.");
-
-    // Build common command-line parameters shared between CLI and server
     wxString commonParams;
-    if (!modelPath.IsEmpty())
-        commonParams << " --model \"" << modelPath << "\"";
+    if (!modelPath.IsEmpty()) commonParams << " --model \"" << modelPath << "\"";
     commonParams << " --ctx-size " << ctxSize;
     commonParams << " --threads " << threads;
     commonParams << " --batch-size " << batchSize;
-    if (gpuLayers > 0)
-        commonParams << " --n-gpu-layers " << gpuLayers;
-    if (useEmbedding)
-        commonParams << " --embedding";
+    if (gpuLayers > 0) commonParams << " --n-gpu-layers " << gpuLayers;
+    if (useFlashAttn) commonParams << " --flash-attn";
+    if (useEmbedding) commonParams << " --embedding";
 
-    // Lambda function to format and display styled output blocks
-    // Applies larger italic font for content, bold italic for headings
     auto addStyledOutputBlock = [&](const wxArrayString& lines) {
-        if (lines.IsEmpty())
-            return;
-
+        if (lines.IsEmpty()) return;
         if (!m_resultText) {
             for (size_t i = 0; i < lines.GetCount(); ++i)
                 AddInfo(lines[i]);
             return;
         }
-
         wxFont outputFont = m_resultTextFont;
         outputFont.SetPointSize(std::max(1, outputFont.GetPointSize() + 2));
         outputFont.SetStyle(wxFONTSTYLE_ITALIC);
-
         wxFont headingFont = outputFont;
         headingFont.SetWeight(wxFONTWEIGHT_BOLD);
-
         wxRichTextAttr outputAttr;
         outputAttr.SetFont(outputFont);
         outputAttr.SetTextColour(*wxBLACK);
-
         wxRichTextAttr headingAttr;
         headingAttr.SetFont(headingFont);
         headingAttr.SetTextColour(*wxBLACK);
-
         m_resultText->Newline();
         m_resultText->BeginStyle(headingAttr);
         m_resultText->WriteText(lines[0]);
         m_resultText->Newline();
         m_resultText->EndStyle();
-
         m_resultText->BeginStyle(outputAttr);
         for (size_t i = 1; i < lines.GetCount(); ++i) {
             m_resultText->WriteText(lines[i]);
@@ -1018,16 +979,12 @@ bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
         m_resultText->EndStyle();
     };
 
-    // Generate CLI run parameters if requested
     if (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue()) {
         wxArrayString lines;
         lines.Add("cli run parameters:");
         lines.Add("llama-cli" + commonParams);
         addStyledOutputBlock(lines);
     }
-
-    // Generate server run parameters if requested
-    // Includes additional parameters for parallel sequence processing
     if (m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue()) {
         wxString serverParams = commonParams;
         serverParams << " --ubatch-size " << ubatchSize;
@@ -1040,9 +997,6 @@ bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
         lines.Add("llama-server" + serverParams);
         addStyledOutputBlock(lines);
     }
-
-    // Generate preset server INI file if requested
-    // Provides configuration that can be saved and reused
     if (m_presetServerIniCheck && m_presetServerIniCheck->GetValue()) {
         wxArrayString lines;
         lines.Add("preset server INI file:");
@@ -1054,12 +1008,13 @@ bool DialogSuggestion::CreateSuggestion(const llama_model* currentModel)
         lines.Add(wxString::Format("ubatch_size=%d", ubatchSize));
         lines.Add(wxString::Format("parallel=%d", parallel));
         lines.Add(wxString::Format("n_gpu_layers=%d", gpuLayers));
+        lines.Add(wxString::Format("flash_attn=%s", useFlashAttn ? "true" : "false"));
         lines.Add(wxString::Format("embedding=%s", useEmbedding ? "true" : "false"));
         addStyledOutputBlock(lines);
     }
-
     return true;
 }
+
 
 bool DialogSuggestion::LoadModelInfo(const ConfigFile &confFile)
 {

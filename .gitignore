@@ -6,3 +6,4 @@ obj/
 include/prc.hxx.gch
 temp_src/
 run.log
+source/DialogSuggestion.cxx_min
