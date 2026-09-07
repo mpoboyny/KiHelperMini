@@ -12,6 +12,7 @@ GGML_INC     := $(LLAMA_BASE)/llama.cpp-0.3.0/ggml/include
 # --- Konfiguration ---
 TARGET_NAME := KiHelperMini
 OS_DEF      := LINUX_OS
+SETUP_ARCHIVE := $(BASE_DIR)/KiHelperMini_DebianTrxie_x64.7z
 
 # Llama Shared Libs
 LLAMA_LIBS := -lllama -lggml -lggml-base -lggml-cpu
@@ -31,13 +32,13 @@ PCH_GCH      := $(PCH_HEADER).gch
 
 SOURCES := $(wildcard $(SRC_DIR)/*.cxx)
 
-.PHONY: all debug release clean rund runr runddd echo _build .inner_link
+.PHONY: all debug release setup clean rund runr runddd echo _build .inner_link
 
 all: release
 
 echo:
 	@echo "Available phonies:"
-	@echo "  all debug release clean rund runr runddd echo"
+	@echo "  all debug release setup clean rund runr runddd echo"
 	@echo
 	@echo "Variables:"
 	@echo "  BASE_DIR=$(BASE_DIR)"
@@ -82,6 +83,11 @@ release: $(PCH_GCH)
 	@echo Copying ini...
 	@mkdir -p "$(BIN_DIR)/ini"
 	@cp -f "$(BASE_DIR)/ini/"* "$(BIN_DIR)/ini/"
+
+setup: release
+	@echo "Creating 7z archive..."
+	@rm -f "$(SETUP_ARCHIVE)"
+	@7z a -t7z -mx=9 "$(SETUP_ARCHIVE)" "$(BIN_DIR_ROOT)/release"
 
 # --- Run Phonies ---
 rund:
