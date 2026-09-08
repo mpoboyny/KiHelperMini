@@ -87,6 +87,9 @@ release: $(PCH_GCH)
 	@echo Copying tools...
 	@mkdir -p "$(BIN_DIR)/tools"
 	@cp -f "$(BASE_DIR)/tools/"* "$(BIN_DIR)/tools/"
+	@echo Copying info files...
+	@cp -f "$(BASE_DIR)/README.md" "$(BIN_DIR)/"
+	@cp -f "$(BASE_DIR)/HowToBuild.md" "$(BIN_DIR)/"
 
 build_safe_ldd:
 	@$(MAKE) -C safe_ldd all
