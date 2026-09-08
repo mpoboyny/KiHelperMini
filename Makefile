@@ -96,8 +96,8 @@ setup: release
 	@rm -fr "$(BIN_DIR_ROOT)/setup"
 	@mkdir -p "$(BIN_DIR_ROOT)/setup"
 	@mkdir -p "$(BIN_DIR_ROOT)/setup/$(TARGET_NAME)"
-	@cp -fr "$(BIN_DIR_ROOT)/release/" "$(BIN_DIR_ROOT)/setup/$(TARGET_NAME)/"
-	@7z a -t7z -mx=9 "$(BIN_DIR_ROOT)/setup/$(SETUP_ARCHIVE_NAME)" "$(BIN_DIR_ROOT)/setup/$(TARGET_NAME)"
+	@cp -fr "$(BIN_DIR_ROOT)/release/." "$(BIN_DIR_ROOT)/setup/$(TARGET_NAME)/"
+	@cd "$(BIN_DIR_ROOT)/setup" && 7z a -t7z -mx=9 "$(SETUP_ARCHIVE_NAME)" "$(TARGET_NAME)"
 	
 # --- Run Phonies ---
 rund:
