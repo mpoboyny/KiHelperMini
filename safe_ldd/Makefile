@@ -3,7 +3,7 @@ include $(PARENT_DIR)/common.mk
 
 TARGET_NAME := safe_ldd
 BIN_DIR_ROOT := $(PARENT_DIR)/bin
-TARGET := $(BIN_DIR_ROOT)/tools/$(TARGET_NAME)
+TARGET := $(BIN_DIR_ROOT)/release/tools/$(TARGET_NAME)
 
 SRC := safe_ldd.cxx
 
@@ -13,9 +13,12 @@ all: release
 release: $(TARGET)
 
 $(TARGET): $(SRC)
+	@echo "Building $(TARGET)..."
+	@mkdir -p $(dir $(TARGET))
 	$(CXX) $(COMMON_CXXFLAGS) $(SRC) -o $(TARGET)
 
 clean:
+	@echo "Clean..."
 	rm -f $(TARGET)
 
 echo:

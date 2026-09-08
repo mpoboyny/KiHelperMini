@@ -73,8 +73,8 @@ void scan_elf(const char* filename, int level) {
         if (fread(&str_shdr, 1, sizeof(str_shdr), f) == sizeof(str_shdr)) {
             
             int entries = dyn_shdr.sh_size / sizeof(Elf64_Dyn);
-            Elf64_Dyn* dyn_table = malloc(dyn_shdr.sh_size);
-            char* str_table = malloc(str_shdr.sh_size);
+            Elf64_Dyn* dyn_table = (Elf64_Dyn*)malloc(dyn_shdr.sh_size);
+            char* str_table = (char*)malloc(str_shdr.sh_size);
 
             if (dyn_table && str_table) {
                 fseek(f, dyn_shdr.sh_offset, SEEK_SET);
@@ -104,7 +104,7 @@ void scan_elf(const char* filename, int level) {
 
                         // 2. Try global standard paths if not found locally
                         if (!found) {
-                            size_t num_paths = sizeof(standard_paths) / sizeof(standard_paths);
+                            size_t num_paths = sizeof(standard_paths) / sizeof(standard_paths[0]);
                             for (size_t p = 0; p < num_paths; p++) {
                                 snprintf(found_path, sizeof(found_path), "%s%s", standard_paths[p], lib_name);
                                 t = fopen(found_path, "rb");
@@ -133,7 +133,7 @@ void scan_elf(const char* filename, int level) {
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        fprintf(stderr, "Usage: %s <path_to_binary>\n", argv);
+        fprintf(stderr, "Usage: %s <path_to_binary>\n", argv[0]);
         return 1;
     }
     printf("Static dependency analysis for: %s\n", argv[1]);
