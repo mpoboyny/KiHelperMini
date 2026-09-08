@@ -1,4 +1,5 @@
-# --- Pfade ---
+include common.mk
+
 BASE_DIR     := .
 WX_BASE_DIR  := ./wxWidgets/3.3.1
 SRC_DIR      := $(BASE_DIR)/source
@@ -11,7 +12,6 @@ GGML_INC     := $(LLAMA_BASE)/llama.cpp-0.3.0/ggml/include
 
 # --- Konfiguration ---
 TARGET_NAME := KiHelperMini
-OS_DEF      := LINUX_OS
 SETUP_ARCHIVE_NAME := $(TARGET_NAME)_DebianTrixie_x64.7z
 
 # Llama Shared Libs
@@ -21,10 +21,9 @@ LLAMA_LIBS := -lllama -lggml -lggml-base -lggml-cpu
 SYS_LIBS   := -lpthread -lm -ldl -lrt -lX11 -lgomp
 
 # --- Compiler Settings ---
-CXX         := g++
 # -fopenmp ist zwingend für die GOMP-Symbole
-COMMON_CXXFLAGS := -Wall -std=c++17 -fopenmp -I$(INC_DIR) -D$(OS_DEF)
-COMMON_CXXFLAGS += -I$(LLAMA_INC) -I$(GGML_INC)
+CURRENT_CXXFLAGS := $(COMMON_CXXFLAGS) -fopenmp -I$(INC_DIR) -D$(OS_DEF)
+CURRENT_CXXFLAGS += -I$(LLAMA_INC) -I$(GGML_INC)
 
 # --- PCH Settings ---
 PCH_HEADER   := $(INC_DIR)/prc.hxx
@@ -54,7 +53,7 @@ echo:
 	@echo "  TARGET_NAME=$(TARGET_NAME)"
 	@echo "  OS_DEF=$(OS_DEF)"
 	@echo "  CXX=$(CXX)"
-	@echo "  COMMON_CXXFLAGS=$(COMMON_CXXFLAGS)"
+	@echo "  CURRENT_CXXFLAGS=$(CURRENT_CXXFLAGS)"
 	@echo "  SYS_LIBS=$(SYS_LIBS)"
 	@echo "  PCH_HEADER=$(PCH_HEADER)"
 	@echo "  PCH_GCH=$(PCH_GCH)"
@@ -62,13 +61,13 @@ echo:
 
 $(PCH_GCH): $(PCH_HEADER)
 	@echo "Precompiling header..."
-	$(CXX) $(COMMON_CXXFLAGS) $(shell $(WX_CONF_PATH) --cxxflags) -x c++-header -c $< -o $@
+	$(CXX) $(CURRENT_CXXFLAGS) $(shell $(WX_CONF_PATH) --cxxflags) -x c++-header -c $< -o $@
 
 # --- Release Build ---
 release: BIN_DIR  := $(BIN_DIR_ROOT)/release
 release: OBJ_DIR  := $(OBJ_DIR_ROOT)/release
 release: WX_CONF_PATH := $(WX_BASE_DIR)/build-gtk-release-shared_x64/wx-config
-release: CXXFLAGS := $(COMMON_CXXFLAGS) -O3 -D_MPTRACE_
+release: CXXFLAGS := $(CURRENT_CXXFLAGS) -O3 -D_MPTRACE_
 release: LLAMA_LIB_DIR := $(LLAMA_BASE)/release-shared_x64-ncuda/lib
 release: LDFLAGS  := -Wl,-rpath,'$$ORIGIN' -L$(LLAMA_LIB_DIR) $(LLAMA_LIBS) $(SYS_LIBS)
 release: $(PCH_GCH)
@@ -84,6 +83,9 @@ release: $(PCH_GCH)
 	@echo Copying ini...
 	@mkdir -p "$(BIN_DIR)/ini"
 	@cp -f "$(BASE_DIR)/ini/"* "$(BIN_DIR)/ini/"
+	@echo Copying tools...
+	@mkdir -p "$(BIN_DIR)/tools"
+	@cp -f "$(BASE_DIR)/tools/"* "$(BIN_DIR)/tools/"
 
 setup: release
 	@echo "Creating 7z archive..."
