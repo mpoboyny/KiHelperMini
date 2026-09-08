@@ -12,7 +12,7 @@ GGML_INC     := $(LLAMA_BASE)/llama.cpp-0.3.0/ggml/include
 # --- Konfiguration ---
 TARGET_NAME := KiHelperMini
 OS_DEF      := LINUX_OS
-SETUP_ARCHIVE := $(BASE_DIR)/KiHelperMini_DebianTrxie_x64.7z
+SETUP_ARCHIVE_NAME := $(TARGET_NAME)_DebianTrixie_x64.7z
 
 # Llama Shared Libs
 LLAMA_LIBS := -lllama -lggml -lggml-base -lggml-cpu
@@ -58,6 +58,7 @@ echo:
 	@echo "  SYS_LIBS=$(SYS_LIBS)"
 	@echo "  PCH_HEADER=$(PCH_HEADER)"
 	@echo "  PCH_GCH=$(PCH_GCH)"
+	@echo "  SETUP_ARCHIVE_NAME=$(SETUP_ARCHIVE_NAME)"
 
 $(PCH_GCH): $(PCH_HEADER)
 	@echo "Precompiling header..."
@@ -86,9 +87,12 @@ release: $(PCH_GCH)
 
 setup: release
 	@echo "Creating 7z archive..."
-	@rm -f "$(SETUP_ARCHIVE)"
-	@7z a -t7z -mx=9 "$(SETUP_ARCHIVE)" "$(BIN_DIR_ROOT)/release"
-
+	@rm -fr "$(BIN_DIR_ROOT)/setup"
+	@mkdir -p "$(BIN_DIR_ROOT)/setup"
+	@mkdir -p "$(BIN_DIR_ROOT)/setup/$(TARGET_NAME)"
+	@cp -fr "$(BIN_DIR_ROOT)/release/" "$(BIN_DIR_ROOT)/setup/$(TARGET_NAME)/"
+	@7z a -t7z -mx=9 "$(BIN_DIR_ROOT)/setup/$(SETUP_ARCHIVE_NAME)" "$(BIN_DIR_ROOT)/setup/$(TARGET_NAME)"
+	
 # --- Run Phonies ---
 rund:
 	@$(MAKE) debug
