@@ -31,9 +31,10 @@ PCH_GCH      := $(PCH_HEADER).gch
 
 SOURCES := $(wildcard $(SRC_DIR)/*.cxx)
 
-.PHONY: all debug release setup clean rund runr runddd echo _build .inner_link
+.PHONY: all debug release build_safe_ldd setup clean rund runr runddd echo _build .inner_link
 
-all: release
+all: build_safe_ldd
+release: build_safe_ldd
 
 echo:
 	@echo "Available phonies:"
@@ -86,6 +87,9 @@ release: $(PCH_GCH)
 	@echo Copying tools...
 	@mkdir -p "$(BIN_DIR)/tools"
 	@cp -f "$(BASE_DIR)/tools/"* "$(BIN_DIR)/tools/"
+
+build_safe_ldd:
+	@$(MAKE) -C safe_ldd all
 
 setup: release
 	@echo "Creating 7z archive..."
