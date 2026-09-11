@@ -84,4 +84,6 @@ I use current llama trunk with CUDA.
         -d '{"model": "codestral-agent", "messages": [{"role": "user", "content": "warmup"}], "max_tokens": 1}'
       
       echo "✅ Modell ist vollständig geladen und mit maximaler Performance einsatzbereit!"
+
+    2. Very fast for me: Qwen2.5-Coder-7B-Instruct-Q6_K.gguf
       
