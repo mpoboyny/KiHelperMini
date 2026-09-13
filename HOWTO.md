@@ -86,4 +86,5 @@ I use current llama trunk with CUDA.
       echo "✅ Modell ist vollständig geladen und mit maximaler Performance einsatzbereit!"
 
     2. Very fast for me: Qwen2.5-Coder-7B-Instruct-Q6_K.gguf
+     test git
       
