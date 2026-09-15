@@ -1,0 +1,24 @@
+CXX = cl.exe
+
+CXXFLAGS = /nologo /EHsc /std:c++17 /O2 /D_CRT_SECURE_NO_WARNINGS
+
+TARGET_NAME = safe_ldd.exe
+BIN_DIR_ROOT = ..\bin
+TARGET = $(BIN_DIR_ROOT)\release\tools\$(TARGET_NAME)
+
+SRC = safe_ldd_ms.cxx
+OBJ = safe_ldd_ms.obj
+
+all: $(TARGET)
+
+$(TARGET): $(OBJ)
+	@echo Building $(TARGET)...
+	@if not exist $(BIN_DIR_ROOT)\release\tools mkdir $(BIN_DIR_ROOT)\release\tools
+	$(CXX) $(CXXFLAGS) $(OBJ) /Fe:"$@" /link
+
+$(OBJ): $(SRC)
+	$(CXX) $(CXXFLAGS) /c $(SRC) /Fo:"$@"
+
+clean:
+	@if exist $(OBJ) del /Q $(OBJ)
+	@if exist $(TARGET) del /Q $(TARGET)
