@@ -19,7 +19,7 @@ if /i not "%MODE%"=="debug" if /i not "%MODE%"=="release" if /i not "%MODE%"=="c
 )
 
 :: --- 2. Initialize VS Environment for x64 Compiler ---
-call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Professional\Common7\Tools\VsDevCmd.bat" -arch=x64
+call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
 
 set "CLEAN_MODE=0"
 if /i "%MODE%"=="clean" set "CLEAN_MODE=1"
