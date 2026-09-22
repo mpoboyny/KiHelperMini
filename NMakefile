@@ -7,9 +7,16 @@ WX_LIBDIR_PATH = ./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll
 WX_INCLUDE = /I"./wxWidgets/3.3.1/include" /I"$(WX_LIBDIR_PATH)/mswu"
 WX_LIBDIR = $(WX_LIBDIR_PATH)
 
-CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /D__WXMSW__ /DWXUSINGDLL /DwxNO_EXCEPTIONS /DUNICODE /D_UNICODE /DMP_UNICODE /D_MPTRACE_ /D_CRT_SECURE_NO_WARNINGS $(WX_INCLUDE) /I"./include"
+LLAMA_BASE = ./llama.cpp
+LLAMA_INC_PATH = $(LLAMA_BASE)\llama.cpp-0.3.0\include
+GGML_INC_PATH = $(LLAMA_BASE)\llama.cpp-0.3.0\ggml\include
+LLAMA_BIN_PATH = $(LLAMA_BASE)\release-shared_x64_ms
+LLAMA_LIB_PATH = $(LLAMA_BASE)\msbuild\src
+GGML_BASE_LIB_PATH = $(LLAMA_BASE)\msbuild\ggml\src
 
-LDFLAGS = /nologo /SUBSYSTEM:WINDOWS /MACHINE:X64 /LIBPATH:$(WX_LIBDIR)
+CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /D__WXMSW__ /DWXUSINGDLL /DwxNO_EXCEPTIONS /DUNICODE /D_UNICODE /DMP_UNICODE /D_MPTRACE_ /D_CRT_SECURE_NO_WARNINGS /DLLAMA_SHARED /DGGML_SHARED $(WX_INCLUDE) /I"./include" /I"$(LLAMA_INC_PATH)" /I"$(GGML_INC_PATH)"
+
+LDFLAGS = /nologo /SUBSYSTEM:WINDOWS /MACHINE:X64 /LIBPATH:$(WX_LIBDIR) /LIBPATH:$(LLAMA_LIB_PATH) /LIBPATH:$(GGML_BASE_LIB_PATH)
 
 WX_LIBS = \
     wxmsw33u_core.lib \
@@ -17,11 +24,15 @@ WX_LIBS = \
 	wxbase33u_net.lib \
     wxbase33u_xml.lib \
     wxmsw33u_stc.lib \
+    wxmsw33u_richtext.lib \
+    wxmsw33u_adv.lib \
     wxpng.lib \
     wxzlib.lib \
     wxtiff.lib \
     wxjpeg.lib \
     wxexpat.lib
+
+LLAMA_LIBS = llama.lib ggml.lib ggml-base.lib ggml-cpu.lib
 
 SYS_LIBS = user32.lib gdi32.lib comdlg32.lib shell32.lib ole32.lib oleaut32.lib advapi32.lib rpcrt4.lib
 
@@ -53,9 +64,14 @@ $(TARGET): $(SRC_FILES) $(PCH_FILE) $(OBJ_DIR)\resource.res $(HDRS)
 	@echo Building sources (incremental)...
 	@setlocal EnableDelayedExpansion & set "HDRS=" & for /f "delims=" %%H in ('dir /b /a-d $(INC_DIR)\*.hxx') do @(if "!HDRS!"=="" (set "HDRS=$(INC_DIR)\%%H") else (set "HDRS=!HDRS! $(INC_DIR)\%%H")) & for /f "delims=" %%F in ('dir /b /a-d $(SRC_DIR)\*.cxx') do @(if /I not "%%~nxF"=="prc.cxx" (nmake -nologo -f NMakefile HDRS="!HDRS!" $(OBJ_DIR)\%%~nF.obj)) & endlocal
 	@echo Linking $@...
-	$(LINK) $(LDFLAGS) /OUT:$@ $(OBJ_DIR)\*.obj $(OBJ_DIR)\*.res $(WX_LIBS) $(SYS_LIBS)
+	$(LINK) $(LDFLAGS) /OUT:$@ $(OBJ_DIR)\*.obj $(OBJ_DIR)\*.res $(WX_LIBS) $(LLAMA_LIBS) $(SYS_LIBS)
 	@echo Copying required wxWidgets DLLs...
 	@copy /Y "./wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll\*.dll" "$(BIN_DIR)\"
+	@echo Copying required llama.cpp DLLs...
+	@copy /Y "$(LLAMA_BIN_PATH)\llama.dll" "$(BIN_DIR)\"
+	@copy /Y "$(LLAMA_BIN_PATH)\ggml.dll" "$(BIN_DIR)\"
+	@copy /Y "$(LLAMA_BIN_PATH)\ggml-base.dll" "$(BIN_DIR)\"
+	@copy /Y "$(LLAMA_BIN_PATH)\ggml-cpu.dll" "$(BIN_DIR)\"
 	@copy /Y "config.xml" "$(BIN_DIR)\"
 	@if not exist "$(BIN_DIR)\scripts" mkdir "$(BIN_DIR)\scripts"
 	@copy /Y "scripts\*" "$(BIN_DIR)\scripts\"

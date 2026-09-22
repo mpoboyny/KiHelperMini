@@ -169,7 +169,14 @@ INI::GpuInfo DialogSuggestion::GetGpuInfoText()
     if (gpus.IsEmpty())
         return gpuInfo;
 
-    gpuInfo.Name = JoinStrings(gpus, "; ");
+    wxString joined;
+    for (size_t i = 0; i < gpus.Count(); ++i)
+    {
+        if (i > 0)
+            joined += "; ";
+        joined += gpus[i];
+    }
+    gpuInfo.Name = joined;
     return gpuInfo;
 }
 
