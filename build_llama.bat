@@ -4,6 +4,13 @@ setlocal enabledelayedexpansion
 REM set "CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1"
 REM set "PATH=%CUDA_PATH%\bin;%PATH%"
 
+call buildEnv.bat
+if %ERRORLEVEL% neq 0 (
+    echo Error: Failed to initialize Visual Studio command prompt.
+    echo Please check the path to VsDevCmd.bat.
+    exit /b 1
+)
+
 :: --- 1. Parameter Validation ---
 if "%~1"==" " (
     echo Error: Missing parameter.
@@ -17,9 +24,6 @@ if /i not "%MODE%"=="debug" if /i not "%MODE%"=="release" if /i not "%MODE%"=="c
     echo Usage: %0 [debug^|release^|clean]
     exit /b 1
 )
-
-:: --- 2. Initialize VS Environment for x64 Compiler ---
-call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
 
 set "CLEAN_MODE=0"
 if /i "%MODE%"=="clean" set "CLEAN_MODE=1"

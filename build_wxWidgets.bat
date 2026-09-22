@@ -1,8 +1,7 @@
 @echo off
 setlocal
 
-rem --- Setup Visual Studio Environment for x64 ---
-call "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\Tools\VsDevCmd.bat" -arch=x64
+call buildEnv.bat
 if %ERRORLEVEL% neq 0 (
     echo Error: Failed to initialize Visual Studio command prompt.
     echo Please check the path to VsDevCmd.bat.
