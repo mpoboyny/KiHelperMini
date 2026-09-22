@@ -3,9 +3,8 @@
     <Systems>
         <System Name="Windows">
             <Models>
-                <!-- Only / is to use as path separator --> 
-                <!--Model File="C:/MyTools/llama/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true"/>
-                <Model File="C:/MyTools/llama/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf"  / -->
+                <!-- Model File="%USERPROFILE%/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true"/>
+                <Model File="%USERPROFILE%/LocalKiModels/qwen2.5-coder-7b-instruct-q5_k_m.gguf"  / -->
             </Models>
             <LLamaCpp>
                 <Bin Path="C:/MyTools/llama-nocuda/" />

@@ -4,13 +4,40 @@
 
 namespace
 {
+    wxString ExpandEnvVars(const wxString& path)
+    {
+        wxString res = path;
+        size_t pos = 0;
+        while (true) {
+            size_t start = res.Find('%', pos);
+            if (start == wxString::npos)
+                break;
+            size_t end = res.Find('%', start + 1);
+            if (end == wxString::npos)
+                break;
+            wxString name = res.Mid(start + 1, end - start - 1);
+            wxString value;
+            wxGetEnv(name, &value);
+            if (!value.IsEmpty()) {
+                res = res.Left(start) + value + res.Mid(end + 1);
+                pos = start + value.Len();
+            }
+            else {
+                pos = end + 1;
+            }
+        }
+        return res;
+    }
+
     wxString ExpandHomePath(const wxString& path)
     {
-        if (path == "~")
+        wxString expanded = ExpandEnvVars(path);
+
+        if (expanded == "~")
             return wxGetHomeDir();
 
-        if (path.StartsWith("~/") || path.StartsWith("~\\")) {
-            wxString suffix = path.Mid(2);
+        if (expanded.StartsWith("~/") || expanded.StartsWith("~\\")) {
+            wxString suffix = expanded.Mid(2);
             while (!suffix.IsEmpty() && (suffix[0] == '/' || suffix[0] == '\\')) {
                 suffix.Remove(0, 1);
             }
@@ -26,7 +53,7 @@ namespace
             return home + sep + suffix;
         }
 
-        return path;
+        return expanded;
     }
 
     wxXmlNode* GetSystemsNode(wxXmlNode* root)
