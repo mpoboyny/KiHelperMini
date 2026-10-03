@@ -12,8 +12,8 @@
         </System>
         <System Name="Linux">
             <Models>
-                <Model File="~/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true" />
-                <Model File="~/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
+                <Model File="~/LocalKiModels/Qwen2.5-7B-Instruct-Q4_K_M.gguf"/>
+                <Model File="~/LocalKiModels/Qwen_Qwen3.5-9B-Q4_K_M.gguf" Current="true" />
             </Models>
             <LLamaCpp>
                 <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
@@ -59,7 +59,7 @@
                 <Parameter Name="-c" Value="8192" />
 
                 <!-- Host Binding: Enforces IPv4 loopback bypasses slow local DNS resolution issues -->
-                <Parameter Name="--host" Value="msi" />
+                <Parameter Name="--host" Value="127.0.0.1" />
 
                 <!-- Port Allocation: Standard port for llama.cpp API communication -->
                 <Parameter Name="--port" Value="8080" />

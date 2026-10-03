@@ -8,6 +8,7 @@
 #include "../resources/edit-4.xpm"
 #include "../resources/restart.xpm"
 #include "../resources/build.xpm"
+#include "../resources/suggestion.xpm"
 
 CMainDialogMenu::CMainDialogMenu() 
     : wxMenuBar()
@@ -44,6 +45,7 @@ CMainDialogMenu::CMainDialogMenu()
 
     wxMenu* toolsMenu = new wxMenu();
     wxMenuItem* parameterSuggestionItem = new wxMenuItem(toolsMenu, ID_PARAMETER_SUGGESTION, "Parameter suggestion...", "Open parameter suggestion");
+    parameterSuggestionItem->SetBitmap(wxBitmap(suggestion_xpm));
     toolsMenu->Append(parameterSuggestionItem);
     Append(toolsMenu, "&Tools");
 
