@@ -13,7 +13,8 @@
         <System Name="Linux">
             <Models>
                 <Model File="~/LocalKiModels/Qwen2.5-7B-Instruct-Q4_K_M.gguf" />
-                <Model File="~/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" Current="true" />
+                <Model File="~/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" />
+                <Model File="~/LocalKiModels/Codestral-22B-v0.1-Q5_K_M.gguf" Current="true" />
             </Models>
             <LLamaCpp>
                 <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />

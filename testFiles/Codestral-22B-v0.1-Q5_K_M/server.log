@@ -1,0 +1,129 @@
+0.00.002.153 I srv  llama_server: initializing ...
+0.00.092.351 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.098.005 I srv    operator(): Available models (1):
+0.00.098.007 I srv    operator():   [    preset] Codestral-22B
+0.00.098.053 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+0.00.098.059 W srv  llama_server: security: router mode enabled - do not expose to untrusted environments
+0.00.098.060 I srv  llama_server: starting server in router mode. models will be automatically loaded on-demand
+0.00.100.124 I srv  llama_server: listening on http://127.0.0.1:8080
+0.00.100.125 W srv  llama_server: notice: server default port will be changed to :9931 in a future release (ref: https://github.com/ggml-org/llama.cpp/pull/26508)
+0.01.026.135 I srv          join: request for name=Codestral-22B queued at position 1
+0.01.026.138 I srv  ensure_model: waiting until model name=Codestral-22B is fully loaded...
+0.01.026.139 I srv  ensure_model: slot available, loading queued model name=Codestral-22B
+0.01.026.168 I srv          load: spawning server instance with name=Codestral-22B on port 33527
+0.01.026.181 I srv          load: spawning server instance with args:
+0.01.026.182 I srv          load:   /home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server
+0.01.026.182 I srv          load:   --chat-template-file
+0.01.026.182 I srv          load:   /home/tato/GitHub/KiHelperMiniDir/testFiles/Codestral-22B-v0.1-Q5_K_M/Codestral-22B-v0.1-Q5_K_M.jinja
+0.01.026.182 I srv          load:   --host
+0.01.026.182 I srv          load:   127.0.0.1
+0.01.026.182 I srv          load:   --jinja
+0.01.026.182 I srv          load:   --log-colors
+0.01.026.182 I srv          load:   off
+0.01.026.183 I srv          load:   --port
+0.01.026.183 I srv          load:   33527
+0.01.026.183 I srv          load:   --alias
+0.01.026.183 I srv          load:   Codestral-22B
+0.01.026.183 I srv          load:   --ctx-size
+0.01.026.183 I srv          load:   16384
+0.01.026.183 I srv          load:   --flash-attn
+0.01.026.183 I srv          load:   on
+0.01.026.183 I srv          load:   --model
+0.01.026.183 I srv          load:   /home/tato/LocalKiModels/Codestral-22B-v0.1-Q5_K_M.gguf
+0.01.026.184 I srv          load:   --n-gpu-layers
+0.01.026.184 I srv          load:   20
+0.01.026.184 I srv          load:   --parallel
+0.01.026.184 I srv          load:   1
+0.01.026.184 I srv          load:   --threads
+0.01.026.184 I srv          load:   6
+0.01.026.184 I srv          load:   --threads-batch
+0.01.026.184 I srv          load:   6
+[33527] 0.00.027.656 I srv  llama_server: initializing ...
+[33527] 0.00.027.663 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+[33527] 0.00.027.940 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+[33527] 0.00.030.238 I srv    load_model: loading model '/home/tato/LocalKiModels/Codestral-22B-v0.1-Q5_K_M.gguf'
+[33527] 0.00.164.089 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 20, abort
+[33527] 0.01.620.920 I cmn          init: llama threadpool init, n_threads = 6
+[33527] 0.02.309.201 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 16384, kv_unified = 'false'
+[33527] 0.02.311.137 I srv  llama_server: model loaded
+[33527] 0.02.311.141 I srv  llama_server: listening on http://127.0.0.1:33527
+0.03.370.127 I srv  proxy_reques: proxying request to model Codestral-22B on port 33527
+[33527] 0.02.311.343 I srv    operator(): child server monitoring thread started, waiting for EOF on stdin...
+[33527] 0.02.313.500 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+[33527] 0.02.313.533 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0
+[33527] 0.02.933.036 I slot print_timing: id  0 | task 0 | prompt eval time =     619.48 ms /     6 tokens (  103.25 ms per token,     9.69 tokens per second)
+[33527] 0.02.933.038 I slot print_timing: id  0 | task 0 |        eval time =       0.00 ms /     1 tokens (    0.00 ms per token,     0.00 tokens per second)
+[33527] 0.02.933.039 I slot print_timing: id  0 | task 0 |       total time =     619.48 ms /     7 tokens
+[33527] 0.02.933.041 I slot print_timing: id  0 | task 0 |    graphs reused =          1
+[33527] 0.02.933.059 I slot      release: id  0 | task 0 | stop processing: n_tokens = 6, truncated = 0
+0.54.671.798 I srv  proxy_reques: proxying request to model Codestral-22B on port 33527
+[33527] 0.53.616.264 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 17109180509
+0.54.691.619 I srv  proxy_reques: proxying request to model Codestral-22B on port 33527
+[33527] 0.53.656.703 I slot launch_slot_: id  0 | task 2 | processing task, is_child = 0
+[33527] 0.57.918.159 I slot print_timing: id  0 | task 2 | prompt eval time =    2668.07 ms /   578 tokens (    4.62 ms per token,   216.64 tokens per second)
+[33527] 0.57.918.162 I slot print_timing: id  0 | task 2 |        eval time =    1593.36 ms /     9 tokens (  199.17 ms per token,     5.02 tokens per second)
+[33527] 0.57.918.162 I slot print_timing: id  0 | task 2 |       total time =    4261.43 ms /   587 tokens
+[33527] 0.57.918.163 I slot print_timing: id  0 | task 2 |    graphs reused =          8
+[33527] 0.57.918.191 I slot      release: id  0 | task 2 | stop processing: n_tokens = 589, truncated = 0
+[33527] 0.57.918.200 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 17164165641
+[33527] 0.57.947.712 I slot launch_slot_: id  0 | task 3 | processing task, is_child = 0
+[33527] 1.04.313.758 I slot print_timing: id  0 | task 3 | prompt processing, n_tokens =   2048, progress = 0.47, t =   6.37 s / 321.71 tokens per second
+[33527] 1.11.277.609 I slot print_timing: id  0 | task 3 | prompt processing, n_tokens =   4096, progress = 0.94, t =  13.33 s / 307.28 tokens per second
+1.32.359.077 E srv    operator(): http client error: Connection handling canceled
+[33527] 1.31.626.887 W srv          stop: cancel task, id_task = 3
+[33527] 1.31.948.368 I slot      release: id  0 | task 3 | stop processing: n_tokens = 4435, truncated = 0
+2.41.351.004 I srv  proxy_reques: proxying request to model Codestral-22B on port 33527
+[33527] 2.40.305.713 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 1.000 (> 0.100 thold), f_keep = 0.987
+[33527] 2.40.305.748 I slot launch_slot_: id  0 | task 74 | processing task, is_child = 0
+[33527] 2.40.305.759 W slot   operator(): id  0 | task 74 | need to evaluate at least 1 token for each active slot (n_past = 4378, task.n_tokens() = 4378)
+[33527] 2.40.305.759 W slot   operator(): id  0 | task 74 | n_past was set to 4377
+[33527] 3.13.772.470 I slot print_timing: id  0 | task 74 | n_gen =    100, tg =   2.99 t/s, tg_3s =   3.02 t/s
+[33527] 3.16.899.143 I slot print_timing: id  0 | task 74 | n_gen =    109, tg =   2.98 t/s, tg_3s =   2.88 t/s
+[33527] 3.20.032.694 I slot print_timing: id  0 | task 74 | n_gen =    118, tg =   2.97 t/s, tg_3s =   2.87 t/s
+[33527] 3.23.136.935 I slot print_timing: id  0 | task 74 | n_gen =    127, tg =   2.97 t/s, tg_3s =   2.90 t/s
+[33527] 3.26.167.717 I slot print_timing: id  0 | task 74 | n_gen =    136, tg =   2.97 t/s, tg_3s =   2.97 t/s
+[33527] 3.29.186.588 I slot print_timing: id  0 | task 74 | n_gen =    145, tg =   2.97 t/s, tg_3s =   2.98 t/s
+[33527] 3.32.524.784 I slot print_timing: id  0 | task 74 | n_gen =    155, tg =   2.97 t/s, tg_3s =   3.00 t/s
+[33527] 3.35.563.747 I slot print_timing: id  0 | task 74 | n_gen =    164, tg =   2.97 t/s, tg_3s =   2.96 t/s
+[33527] 3.38.595.229 I slot print_timing: id  0 | task 74 | n_gen =    173, tg =   2.97 t/s, tg_3s =   2.97 t/s
+[33527] 3.41.931.451 I slot print_timing: id  0 | task 74 | n_gen =    183, tg =   2.97 t/s, tg_3s =   3.00 t/s
+[33527] 3.45.038.590 I slot print_timing: id  0 | task 74 | n_gen =    192, tg =   2.97 t/s, tg_3s =   2.90 t/s
+[33527] 3.48.062.161 I slot print_timing: id  0 | task 74 | n_gen =    201, tg =   2.97 t/s, tg_3s =   2.98 t/s
+[33527] 3.51.078.097 I slot print_timing: id  0 | task 74 | n_gen =    210, tg =   2.97 t/s, tg_3s =   2.98 t/s
+[33527] 3.51.421.197 I slot print_timing: id  0 | task 74 | prompt eval time =     380.43 ms /     1 tokens (  380.43 ms per token,     2.63 tokens per second)
+[33527] 3.51.421.200 I slot print_timing: id  0 | task 74 |        eval time =   70735.00 ms /   211 tokens (  336.83 ms per token,     2.97 tokens per second)
+[33527] 3.51.421.200 I slot print_timing: id  0 | task 74 |       total time =   71115.43 ms /   212 tokens
+[33527] 3.51.421.201 I slot print_timing: id  0 | task 74 |    graphs reused =        275
+[33527] 3.51.421.325 I slot      release: id  0 | task 74 | stop processing: n_tokens = 4588, truncated = 0
+3.52.505.514 I srv  proxy_reques: proxying request to model Codestral-22B on port 33527
+[33527] 3.51.456.490 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.927 (> 0.100 thold), f_keep = 0.813
+[33527] 3.51.456.521 I slot launch_slot_: id  0 | task 286 | processing task, is_child = 0
+[33527] 4.24.495.997 I slot print_timing: id  0 | task 286 | n_gen =    100, tg =   3.14 t/s, tg_3s =   3.17 t/s
+[33527] 4.27.671.269 I slot print_timing: id  0 | task 286 | n_gen =    110, tg =   3.14 t/s, tg_3s =   3.15 t/s
+[33527] 4.30.862.832 I slot print_timing: id  0 | task 286 | n_gen =    120, tg =   3.14 t/s, tg_3s =   3.13 t/s
+[33527] 4.34.004.341 I slot print_timing: id  0 | task 286 | n_gen =    130, tg =   3.14 t/s, tg_3s =   3.18 t/s
+[33527] 4.37.243.616 I slot print_timing: id  0 | task 286 | n_gen =    140, tg =   3.14 t/s, tg_3s =   3.09 t/s
+[33527] 4.40.450.136 I slot print_timing: id  0 | task 286 | n_gen =    150, tg =   3.14 t/s, tg_3s =   3.12 t/s
+[33527] 4.43.613.193 I slot print_timing: id  0 | task 286 | n_gen =    160, tg =   3.14 t/s, tg_3s =   3.16 t/s
+[33527] 4.46.821.901 I slot print_timing: id  0 | task 286 | n_gen =    170, tg =   3.14 t/s, tg_3s =   3.12 t/s
+[33527] 4.50.028.388 I slot print_timing: id  0 | task 286 | n_gen =    180, tg =   3.14 t/s, tg_3s =   3.12 t/s
+[33527] 4.51.960.024 I slot print_timing: id  0 | task 286 | prompt eval time =    1479.95 ms /   292 tokens (    5.07 ms per token,   197.30 tokens per second)
+[33527] 4.51.960.026 I slot print_timing: id  0 | task 286 |        eval time =   59023.53 ms /   186 tokens (  319.05 ms per token,     3.13 tokens per second)
+[33527] 4.51.960.027 I slot print_timing: id  0 | task 286 |       total time =   60503.48 ms /   478 tokens
+[33527] 4.51.960.027 I slot print_timing: id  0 | task 286 |    graphs reused =        458
+[33527] 4.51.960.141 I slot      release: id  0 | task 286 | stop processing: n_tokens = 4206, truncated = 0
+6.11.921.524 I srv  proxy_reques: proxying request to model Codestral-22B on port 33527
+7.02.494.988 I srv  proxy_reques: proxying request to model Codestral-22B on port 33527
+[33527] 7.01.438.385 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.273 (> 0.100 thold), f_keep = 0.001
+[33527] 7.01.664.393 I slot launch_slot_: id  0 | task 473 | processing task, is_child = 0
+[33527] 7.21.657.681 I slot print_timing: id  0 | task 473 | n_gen =    100, tg =   5.21 t/s, tg_3s =   5.26 t/s
+[33527] 7.24.750.604 I slot print_timing: id  0 | task 473 | n_gen =    116, tg =   5.21 t/s, tg_3s =   5.17 t/s
+[33527] 7.27.783.357 I slot print_timing: id  0 | task 473 | n_gen =    132, tg =   5.21 t/s, tg_3s =   5.28 t/s
+[33527] 7.30.845.041 I slot print_timing: id  0 | task 473 | n_gen =    148, tg =   5.22 t/s, tg_3s =   5.23 t/s
+[33527] 7.33.927.081 I slot print_timing: id  0 | task 473 | n_gen =    164, tg =   5.21 t/s, tg_3s =   5.19 t/s
+[33527] 7.37.013.257 I slot print_timing: id  0 | task 473 | n_gen =    180, tg =   5.21 t/s, tg_3s =   5.18 t/s
+[33527] 7.37.405.865 I slot print_timing: id  0 | task 473 | prompt eval time =     998.24 ms /     8 tokens (  124.78 ms per token,     8.01 tokens per second)
+[33527] 7.37.405.867 I slot print_timing: id  0 | task 473 |        eval time =   34743.21 ms /   182 tokens (  191.95 ms per token,     5.21 tokens per second)
+[33527] 7.37.405.867 I slot print_timing: id  0 | task 473 |       total time =   35741.45 ms /   190 tokens
+[33527] 7.37.405.868 I slot print_timing: id  0 | task 473 |    graphs reused =        638
+[33527] 7.37.405.877 I slot      release: id  0 | task 473 | stop processing: n_tokens = 192, truncated = 0

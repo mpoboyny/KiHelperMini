@@ -4,10 +4,10 @@
 SERVER_BIND="127.0.0.1"
 HOST="127.0.0.1"
 PORT="8080"
-MODEL_ID="Qwen35-9B-Q4_K_M"
+MODEL_ID="Codestral-22B"
 LLAMA_SERVER="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server"
-INI_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M/preset.ini"
-LOG_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M/server.log"
+INI_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Codestral-22B-v0.1-Q5_K_M/preset.ini"
+LOG_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Codestral-22B-v0.1-Q5_K_M/server.log"
 
 # 1. Radikale Prüfung und Beendigung ALLER Instanzen (Haupt- und Kind-Prozesse)
 if pgrep -x "llama-server" > /dev/null; then

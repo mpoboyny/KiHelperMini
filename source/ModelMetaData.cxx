@@ -71,6 +71,99 @@ static wxString ModelMetadataValue(const gguf_context* context, int64_t keyId)
     return result;
 }
 
+static wxString ModelChatTemplateValue(const llama_model* model)
+{
+    auto toWxString = [](const char* text) {
+        if (!text) {
+            return wxString();
+        }
+
+        wxString result = wxString::FromUTF8(text);
+        if (result.IsEmpty() && text[0] != '\0') {
+            result = wxString::From8BitData(text);
+        }
+        return result;
+    };
+
+    const char* defaultTemplate = llama_model_chat_template(model, nullptr);
+    const char* toolUseTemplate = llama_model_chat_template(model, "tool_use");
+    wxString chatTemplate = toWxString(defaultTemplate);
+
+    if (chatTemplate.IsEmpty() || chatTemplate == "chatml") {
+        wxString toolUse = toWxString(toolUseTemplate);
+        if (!toolUse.IsEmpty()) {
+            chatTemplate = toolUse;
+        }
+    }
+
+    return chatTemplate;
+}
+
+static wxString FallbackChatTemplateForModel(const ModelMetaData::Properties& properties, const wxString& modelPath)
+{
+    auto matchesMistral = [](const wxString& text) {
+        wxString lowerText = text.Lower();
+        return lowerText.Contains("mistral") || lowerText.Contains("codestral");
+    };
+
+    const auto nameIt = properties.find("general.name");
+    if (nameIt != properties.end() && matchesMistral(nameIt->second.second.GetString())) {
+        return wxString::FromUTF8(R"({%- if messages[0]['role'] == 'system' %}
+    {%- set system_message = messages[0]['content'] %}
+    {%- set loop_messages = messages[1:] %}
+{%- else %}
+    {%- set loop_messages = messages %}
+{%- endif %}
+
+{{- bos_token }}
+{%- for message in loop_messages %}
+    {%- if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}
+        {{- raise_exception('After the optional system message, conversation roles must alternate user/assistant/user/assistant/...') }}
+    {%- endif %}
+    {%- if message['role'] == 'user' %}
+        {%- if loop.last and system_message is defined %}
+            {{- '[INST] ' + system_message + '\n\n' + message['content'] + '[/INST]' }}
+        {%- else %}
+            {{- '[INST] ' + message['content'] + '[/INST]' }}
+        {%- endif %}
+    {%- elif message['role'] == 'assistant' %}
+        {{- ' ' + message['content'] + eos_token}}
+    {%- else %}
+        {{- raise_exception('Only user and assistant roles are supported, with the exception of an initial optional system message!') }}
+    {%- endif %}
+{%- endfor %})");
+    }
+
+    if (matchesMistral(wxFileName(modelPath).GetFullName())) {
+        return wxString::FromUTF8(R"({%- if messages[0]['role'] == 'system' %}
+    {%- set system_message = messages[0]['content'] %}
+    {%- set loop_messages = messages[1:] %}
+{%- else %}
+    {%- set loop_messages = messages %}
+{%- endif %}
+
+{{- bos_token }}
+{%- for message in loop_messages %}
+    {%- if (message['role'] == 'user') != (loop.index0 % 2 == 0) %}
+        {{- raise_exception('After the optional system message, conversation roles must alternate user/assistant/user/assistant/...') }}
+    {%- endif %}
+    {%- if message['role'] == 'user' %}
+        {%- if loop.last and system_message is defined %}
+            {{- '[INST] ' + system_message + '\n\n' + message['content'] + '[/INST]' }}
+        {%- else %}
+            {{- '[INST] ' + message['content'] + '[/INST]' }}
+        {%- endif %}
+    {%- elif message['role'] == 'assistant' %}
+        {{- ' ' + message['content'] + eos_token}}
+    {%- else %}
+        {{- raise_exception('Only user and assistant roles are supported, with the exception of an initial optional system message!') }}
+    {%- endif %}
+{%- endfor %})");
+    }
+
+    return wxString();
+}
+
 static const std::map<std::string, std::string>& GetFriendlyNames()
 {
     static const std::map<std::string, std::string> names = {
@@ -153,9 +246,16 @@ bool ModelMetaData::Load(const wxString& modelPath)
         m_properties["api_info.n_layer"] = {"API Info Layers", wxVariant(llama_model_n_layer(model))};
         m_properties["api_info.model_size"] = {"API Info Size", wxVariant(wxString::Format("%llu bytes", static_cast<unsigned long long>(llama_model_size(model))))};
         m_properties["api_info.n_params"] = {"API Info Parameters", wxVariant(wxString::Format("%llu", static_cast<unsigned long long>(llama_model_n_params(model))))};
-        const char* templateText = llama_model_chat_template(model, nullptr);
-        if (templateText) {
-            m_properties["tokenizer.chat_template"] = {"Tokenizer Chat Template", wxVariant(wxString::FromUTF8(templateText))};
+        wxString chatTemplate = ModelChatTemplateValue(model);
+        if (!chatTemplate.IsEmpty()) {
+            m_properties["tokenizer.chat_template"] = {"Tokenizer Chat Template", wxVariant(chatTemplate)};
+        }
+    }
+
+    if (m_properties.find("tokenizer.chat_template") == m_properties.end()) {
+        wxString fallbackChatTemplate = FallbackChatTemplateForModel(m_properties, modelPath);
+        if (!fallbackChatTemplate.IsEmpty()) {
+            m_properties["tokenizer.chat_template"] = {"Tokenizer Chat Template", wxVariant(fallbackChatTemplate)};
         }
     }
 

@@ -127,6 +127,7 @@ void DialogServerStatus::UpdateStatus()
     }
 
     m_textCtrl->SetValue(status);
+    m_textCtrl->ShowPosition(m_textCtrl->GetLastPosition());
 }
 
 void DialogServerStatus::OnKill(wxCommandEvent& event)
