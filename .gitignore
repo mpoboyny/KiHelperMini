@@ -4,7 +4,7 @@ wxWidgets-3.3.1_References/
 bin/
 obj/
 include/prc.hxx.gch
-temp_src/
+testFiles/
 run.log
 source/DialogSuggestion.cxx_min
 KiHelperMini_DebianTrxie_x64.7z

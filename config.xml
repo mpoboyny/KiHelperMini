@@ -12,8 +12,8 @@
         </System>
         <System Name="Linux">
             <Models>
-                <Model File="~/LocalKiModels/Qwen2.5-7B-Instruct-Q4_K_M.gguf"/>
-                <Model File="~/LocalKiModels/Qwen_Qwen3.5-9B-Q4_K_M.gguf" Current="true" />
+                <Model File="~/LocalKiModels/Qwen2.5-7B-Instruct-Q4_K_M.gguf" />
+                <Model File="~/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" Current="true" />
             </Models>
             <LLamaCpp>
                 <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
@@ -42,8 +42,6 @@
                 <!-- Chat Engine Template: Forces llama-cli to parse and apply the native Jinja template embedded inside Mistral GGUF metadata. -->
                 <Parameter Name="--jinja" Value="" />
 
-                <!-- Conversation Mode: Converts the text generator into a persistent, interactive chat session with memory. -->
-                <Parameter Name="-cnv" Value="" />
             </LlamaChatParameters>
             <LlamaServerParameters>
                 <!-- Path to your CUDA-compiled llama-server binary -->

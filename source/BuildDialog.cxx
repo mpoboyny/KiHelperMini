@@ -230,17 +230,14 @@ void BuildDialog::OnBuildGcc(wxCommandEvent& event)
 void BuildDialog::OnOpenLlamaSource(wxCommandEvent& event)
 {
     TrFu;
-    wxString sourcePath = m_llamaSource->GetValue();
-    wxDirDialog dlg(this, "Select llama.cpp source folder", wxGetCwd(),
+    wxString sourcePath = m_llamaSource->GetValue().Trim();
+    wxDirDialog dlg(this, "Select llama.cpp source folder", sourcePath.IsEmpty() ? wxGetCwd() : sourcePath,
                     wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
-    wxString currPath = sourcePath.Trim();
-    if (!currPath.IsEmpty())
-        dlg.SetPath(currPath);
     if (dlg.ShowModal() != wxID_OK) {
         return;
     }
-
     sourcePath = dlg.GetPath();
+    Tr("New path " << sourcePath);
     m_llamaSource->SetValue(sourcePath);
 }
 
