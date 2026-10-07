@@ -1,0 +1,293 @@
+0.00.002.137 I srv  llama_server: initializing ...
+0.00.138.208 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.186.068 I srv    operator(): Available models (1):
+0.00.186.072 I srv    operator():   [    preset] Qwen35-9B-Q4_K_M
+0.00.186.126 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+0.00.186.136 W srv  llama_server: security: router mode enabled - do not expose to untrusted environments
+0.00.186.136 I srv  llama_server: starting server in router mode. models will be automatically loaded on-demand
+0.00.188.232 I srv  llama_server: listening on http://127.0.0.1:8080
+0.00.188.233 W srv  llama_server: notice: server default port will be changed to :9931 in a future release (ref: https://github.com/ggml-org/llama.cpp/pull/26508)
+0.01.043.614 I srv          join: request for name=Qwen35-9B-Q4_K_M queued at position 1
+0.01.043.629 I srv  ensure_model: waiting until model name=Qwen35-9B-Q4_K_M is fully loaded...
+0.01.043.637 I srv  ensure_model: slot available, loading queued model name=Qwen35-9B-Q4_K_M
+0.01.043.813 I srv          load: spawning server instance with name=Qwen35-9B-Q4_K_M on port 58627
+0.01.043.882 I srv          load: spawning server instance with args:
+0.01.043.883 I srv          load:   /home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server
+0.01.043.884 I srv          load:   --host
+0.01.043.885 I srv          load:   127.0.0.1
+0.01.043.885 I srv          load:   --jinja
+0.01.043.886 I srv          load:   --log-colors
+0.01.043.887 I srv          load:   off
+0.01.043.887 I srv          load:   --port
+0.01.043.888 I srv          load:   58627
+0.01.043.888 I srv          load:   --alias
+0.01.043.889 I srv          load:   Qwen35-9B-Q4_K_M
+0.01.043.889 I srv          load:   --ctx-size
+0.01.043.890 I srv          load:   16384
+0.01.043.891 I srv          load:   --flash-attn
+0.01.043.891 I srv          load:   on
+0.01.043.892 I srv          load:   --model
+0.01.043.892 I srv          load:   /home/tato/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf
+0.01.043.893 I srv          load:   --n-gpu-layers
+0.01.043.894 I srv          load:   22
+0.01.043.894 I srv          load:   --parallel
+0.01.043.895 I srv          load:   1
+0.01.043.895 I srv          load:   --threads
+0.01.043.896 I srv          load:   6
+0.01.043.896 I srv          load:   --threads-batch
+0.01.043.897 I srv          load:   6
+[58627] 0.00.026.076 I srv  llama_server: initializing ...
+[58627] 0.00.026.084 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+[58627] 0.00.026.375 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+[58627] 0.00.028.735 I srv    load_model: loading model '/home/tato/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf'
+[58627] 0.00.880.522 W model has unused tensor blk.32.attn_norm.weight (size = 16384 bytes) -- ignoring
+[58627] 0.00.880.526 W model has unused tensor blk.32.post_attention_norm.weight (size = 16384 bytes) -- ignoring
+[58627] 0.00.880.532 W model has unused tensor blk.32.attn_q.weight (size = 35651584 bytes) -- ignoring
+[58627] 0.00.880.534 W model has unused tensor blk.32.attn_k.weight (size = 4456448 bytes) -- ignoring
+[58627] 0.00.880.536 W model has unused tensor blk.32.attn_v.weight (size = 4456448 bytes) -- ignoring
+[58627] 0.00.880.543 W model has unused tensor blk.32.attn_output.weight (size = 17825792 bytes) -- ignoring
+[58627] 0.00.880.545 W model has unused tensor blk.32.attn_q_norm.weight (size = 1024 bytes) -- ignoring
+[58627] 0.00.880.548 W model has unused tensor blk.32.attn_k_norm.weight (size = 1024 bytes) -- ignoring
+[58627] 0.00.880.550 W model has unused tensor blk.32.ffn_gate.weight (size = 53477376 bytes) -- ignoring
+[58627] 0.00.880.552 W model has unused tensor blk.32.ffn_down.weight (size = 53477376 bytes) -- ignoring
+[58627] 0.00.880.554 W model has unused tensor blk.32.ffn_up.weight (size = 53477376 bytes) -- ignoring
+[58627] 0.00.880.557 W model has unused tensor blk.32.nextn.eh_proj.weight (size = 35651584 bytes) -- ignoring
+[58627] 0.00.880.559 W model has unused tensor blk.32.nextn.enorm.weight (size = 16384 bytes) -- ignoring
+[58627] 0.00.880.562 W model has unused tensor blk.32.nextn.hnorm.weight (size = 16384 bytes) -- ignoring
+[58627] 0.00.880.568 W model has unused tensor blk.32.nextn.shared_head_norm.weight (size = 16384 bytes) -- ignoring
+[58627] 0.01.422.155 I cmn          init: llama threadpool init, n_threads = 6
+[58627] 0.01.584.792 I srv    load_model: initializing, n_slots = 1, n_ctx_slot = 16384, kv_unified = 'false'
+[58627] 0.01.588.312 I srv  llama_server: model loaded
+[58627] 0.01.588.318 I srv  llama_server: listening on http://127.0.0.1:58627
+0.02.668.999 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 0.01.588.528 I srv    operator(): child server monitoring thread started, waiting for EOF on stdin...
+[58627] 0.01.589.838 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = -1
+[58627] 0.01.589.889 I slot launch_slot_: id  0 | task 0 | processing task, is_child = 0
+[58627] 0.01.867.022 I slot print_timing: id  0 | task 0 | prompt eval time =     277.11 ms /    12 tokens (   23.09 ms per token,    43.30 tokens per second)
+[58627] 0.01.867.026 I slot print_timing: id  0 | task 0 |        eval time =       0.00 ms /     1 tokens (    0.00 ms per token,     0.00 tokens per second)
+[58627] 0.01.867.026 I slot print_timing: id  0 | task 0 |       total time =     277.11 ms /    13 tokens
+[58627] 0.01.867.028 I slot print_timing: id  0 | task 0 |    graphs reused =          1
+[58627] 0.01.867.053 I slot      release: id  0 | task 0 | stop processing: n_tokens = 12, truncated = 0
+2.35.924.418 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 2.34.846.767 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 7143525021
+2.35.934.991 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 2.34.915.869 I slot launch_slot_: id  0 | task 3 | processing task, is_child = 0
+[58627] 2.41.197.721 I slot print_timing: id  0 | task 3 | n_gen =    100, tg =  19.28 t/s, tg_3s =  19.48 t/s
+[58627] 2.44.231.904 I slot print_timing: id  0 | task 3 | n_gen =    158, tg =  19.22 t/s, tg_3s =  19.12 t/s
+[58627] 2.47.271.278 I slot print_timing: id  0 | task 3 | n_gen =    214, tg =  19.00 t/s, tg_3s =  18.42 t/s
+[58627] 2.47.437.905 I slot print_timing: id  0 | task 3 | prompt eval time =    1147.15 ms /   540 tokens (    2.12 ms per token,   470.73 tokens per second)
+[58627] 2.47.437.907 I slot print_timing: id  0 | task 3 |        eval time =   11374.85 ms /   217 tokens (   52.66 ms per token,    18.99 tokens per second)
+[58627] 2.47.437.908 I slot print_timing: id  0 | task 3 |       total time =   12522.00 ms /   757 tokens
+[58627] 2.47.437.909 I slot print_timing: id  0 | task 3 |    graphs reused =        216
+[58627] 2.47.437.938 I slot      release: id  0 | task 3 | stop processing: n_tokens = 756, truncated = 0
+[58627] 2.47.437.949 I slot get_availabl: id  0 | task -1 | selected slot by LRU, t_last = 7309095906
+[58627] 2.47.479.438 I slot launch_slot_: id  0 | task 4 | processing task, is_child = 0
+[58627] 2.51.029.486 I slot print_timing: id  0 | task 4 | prompt processing, n_tokens =   4096, progress = 0.59, t =   3.55 s / 1153.80 tokens per second
+[58627] 2.52.927.099 I slot print_timing: id  0 | task 4 | prompt processing, n_tokens =   6144, progress = 0.88, t =   5.45 s / 1127.83 tokens per second
+[58627] 2.53.348.859 I slot print_timing: id  0 | task 4 | prompt processing, n_tokens =   6400, progress = 0.91, t =   5.87 s / 1090.40 tokens per second
+[58627] 2.53.599.347 I slot print_timing: id  0 | task 4 | prompt processing, n_tokens =   6407, progress = 0.92, t =   6.12 s / 1046.92 tokens per second
+[58627] 2.53.820.112 I slot print_timing: id  0 | task 4 | prompt processing, n_tokens =   6481, progress = 0.93, t =   6.34 s / 1022.14 tokens per second
+[58627] 2.54.151.733 I slot print_timing: id  0 | task 4 | prompt processing, n_tokens =   6993, progress = 1.00, t =   6.67 s / 1048.07 tokens per second
+[58627] 3.00.800.403 I slot print_timing: id  0 | task 4 | n_gen =    100, tg =  15.64 t/s, tg_3s =  15.80 t/s
+[58627] 3.03.812.763 I slot print_timing: id  0 | task 4 | n_gen =    147, tg =  15.63 t/s, tg_3s =  15.60 t/s
+[58627] 3.06.869.561 I slot print_timing: id  0 | task 4 | n_gen =    194, tg =  15.57 t/s, tg_3s =  15.38 t/s
+[58627] 3.07.636.075 I slot print_timing: id  0 | task 4 | prompt eval time =    6992.84 ms /  6997 tokens (    1.00 ms per token,  1000.59 tokens per second)
+[58627] 3.07.636.078 I slot print_timing: id  0 | task 4 |        eval time =   13163.77 ms /   206 tokens (   64.21 ms per token,    15.57 tokens per second)
+[58627] 3.07.636.078 I slot print_timing: id  0 | task 4 |       total time =   20156.61 ms /  7203 tokens
+[58627] 3.07.636.079 I slot print_timing: id  0 | task 4 |    graphs reused =        419
+[58627] 3.07.636.297 I slot      release: id  0 | task 4 | stop processing: n_tokens = 7202, truncated = 0
+3.08.735.812 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 3.07.672.567 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.977 (> 0.100 thold), f_keep = 0.889
+[58627] 3.07.672.883 I slot launch_slot_: id  0 | task 438 | processing task, is_child = 0
+[58627] 3.13.600.193 I slot print_timing: id  0 | task 438 | prompt eval time =     415.41 ms /   152 tokens (    2.73 ms per token,   365.91 tokens per second)
+[58627] 3.13.600.195 I slot print_timing: id  0 | task 438 |        eval time =    5511.88 ms /    91 tokens (   61.24 ms per token,    16.33 tokens per second)
+[58627] 3.13.600.196 I slot print_timing: id  0 | task 438 |       total time =    5927.29 ms /   243 tokens
+[58627] 3.13.600.197 I slot print_timing: id  0 | task 438 |    graphs reused =        508
+[58627] 3.13.600.406 I slot      release: id  0 | task 438 | stop processing: n_tokens = 6642, truncated = 0
+3.39.049.041 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 3.37.990.875 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.894 (> 0.100 thold), f_keep = 0.986
+[58627] 3.37.991.258 I slot launch_slot_: id  0 | task 531 | processing task, is_child = 0
+[58627] 3.45.382.982 I slot print_timing: id  0 | task 531 | n_gen =    100, tg =  15.99 t/s, tg_3s =  16.15 t/s
+[58627] 3.48.409.986 I slot print_timing: id  0 | task 531 | n_gen =    147, tg =  15.84 t/s, tg_3s =  15.53 t/s
+[58627] 3.51.450.779 I slot print_timing: id  0 | task 531 | n_gen =    194, tg =  15.74 t/s, tg_3s =  15.46 t/s
+[58627] 3.53.808.171 I slot print_timing: id  0 | task 531 | prompt eval time =    1201.16 ms /   775 tokens (    1.55 ms per token,   645.21 tokens per second)
+[58627] 3.53.808.173 I slot print_timing: id  0 | task 531 |        eval time =   14615.73 ms /   230 tokens (   63.82 ms per token,    15.67 tokens per second)
+[58627] 3.53.808.174 I slot print_timing: id  0 | task 531 |       total time =   15816.89 ms /  1005 tokens
+[58627] 3.53.808.174 I slot print_timing: id  0 | task 531 |    graphs reused =        735
+[58627] 3.53.808.397 I slot      release: id  0 | task 531 | stop processing: n_tokens = 7552, truncated = 0
+3.54.912.756 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 3.53.849.881 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.996 (> 0.100 thold), f_keep = 0.865
+[58627] 3.53.850.187 I slot launch_slot_: id  0 | task 765 | processing task, is_child = 0
+[58627] 3.59.206.659 I slot print_timing: id  0 | task 765 | prompt eval time =     423.40 ms /   162 tokens (    2.61 ms per token,   382.62 tokens per second)
+[58627] 3.59.206.661 I slot print_timing: id  0 | task 765 |        eval time =    4933.05 ms /    83 tokens (   60.16 ms per token,    16.62 tokens per second)
+[58627] 3.59.206.661 I slot print_timing: id  0 | task 765 |       total time =    5356.45 ms /   245 tokens
+[58627] 3.59.206.662 I slot print_timing: id  0 | task 765 |    graphs reused =        816
+[58627] 3.59.206.866 I slot      release: id  0 | task 765 | stop processing: n_tokens = 6644, truncated = 0
+4.00.320.865 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 3.59.259.538 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.903 (> 0.100 thold), f_keep = 0.987
+[58627] 3.59.259.867 I slot launch_slot_: id  0 | task 850 | processing task, is_child = 0
+[58627] 4.06.853.723 I slot print_timing: id  0 | task 850 | n_gen =    100, tg =  14.85 t/s, tg_3s =  15.00 t/s
+[58627] 4.09.511.513 I slot print_timing: id  0 | task 850 | prompt eval time =     926.50 ms /   707 tokens (    1.31 ms per token,   763.08 tokens per second)
+[58627] 4.09.511.517 I slot print_timing: id  0 | task 850 |        eval time =    9325.12 ms /   139 tokens (   67.57 ms per token,    14.80 tokens per second)
+[58627] 4.09.511.517 I slot print_timing: id  0 | task 850 |       total time =   10251.63 ms /   846 tokens
+[58627] 4.09.511.518 I slot print_timing: id  0 | task 850 |    graphs reused =        953
+[58627] 4.09.511.736 I slot      release: id  0 | task 850 | stop processing: n_tokens = 7403, truncated = 0
+4.10.609.491 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 4.09.546.120 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.969 (> 0.100 thold), f_keep = 0.870
+[58627] 4.09.546.439 I slot launch_slot_: id  0 | task 992 | processing task, is_child = 0
+[58627] 4.15.314.189 I slot print_timing: id  0 | task 992 | prompt eval time =     472.87 ms /   241 tokens (    1.96 ms per token,   509.65 tokens per second)
+[58627] 4.15.314.195 I slot print_timing: id  0 | task 992 |        eval time =    5294.86 ms /    84 tokens (   63.79 ms per token,    15.68 tokens per second)
+[58627] 4.15.314.196 I slot print_timing: id  0 | task 992 |       total time =    5767.73 ms /   325 tokens
+[58627] 4.15.314.197 I slot print_timing: id  0 | task 992 |    graphs reused =       1034
+[58627] 4.15.314.407 I slot      release: id  0 | task 992 | stop processing: n_tokens = 6724, truncated = 0
+5.26.987.097 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 5.25.925.481 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.898 (> 0.100 thold), f_keep = 0.987
+[58627] 5.25.925.822 I slot launch_slot_: id  0 | task 1078 | processing task, is_child = 0
+[58627] 5.33.620.792 I slot print_timing: id  0 | task 1078 | n_gen =    100, tg =  15.23 t/s, tg_3s =  15.39 t/s
+[58627] 5.36.646.578 I slot print_timing: id  0 | task 1078 | n_gen =    146, tg =  15.22 t/s, tg_3s =  15.20 t/s
+[58627] 5.39.697.280 I slot print_timing: id  0 | task 1078 | n_gen =    192, tg =  15.19 t/s, tg_3s =  15.08 t/s
+[58627] 5.42.764.873 I slot print_timing: id  0 | task 1078 | n_gen =    239, tg =  15.21 t/s, tg_3s =  15.32 t/s
+[58627] 5.42.989.789 I slot print_timing: id  0 | task 1078 | prompt eval time =    1195.56 ms /   753 tokens (    1.59 ms per token,   629.83 tokens per second)
+[58627] 5.42.989.792 I slot print_timing: id  0 | task 1078 |        eval time =   15868.39 ms /   242 tokens (   65.84 ms per token,    15.19 tokens per second)
+[58627] 5.42.989.792 I slot print_timing: id  0 | task 1078 |       total time =   17063.95 ms /   995 tokens
+[58627] 5.42.989.793 I slot print_timing: id  0 | task 1078 |    graphs reused =       1273
+[58627] 5.42.990.018 I slot      release: id  0 | task 1078 | stop processing: n_tokens = 7631, truncated = 0
+5.44.088.110 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 5.43.024.328 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.980 (> 0.100 thold), f_keep = 0.845
+[58627] 5.43.024.672 I slot launch_slot_: id  0 | task 1324 | processing task, is_child = 0
+[58627] 5.49.498.284 I slot print_timing: id  0 | task 1324 | n_gen =    100, tg =  16.41 t/s, tg_3s =  16.57 t/s
+[58627] 5.52.500.503 I slot print_timing: id  0 | task 1324 | n_gen =    149, tg =  16.38 t/s, tg_3s =  16.32 t/s
+[58627] 5.55.548.628 I slot print_timing: id  0 | task 1324 | n_gen =    198, tg =  16.30 t/s, tg_3s =  16.08 t/s
+[58627] 5.56.731.346 I slot print_timing: id  0 | task 1324 | prompt eval time =     440.09 ms /   186 tokens (    2.37 ms per token,   422.64 tokens per second)
+[58627] 5.56.731.349 I slot print_timing: id  0 | task 1324 |        eval time =   13266.56 ms /   216 tokens (   61.70 ms per token,    16.21 tokens per second)
+[58627] 5.56.731.350 I slot print_timing: id  0 | task 1324 |       total time =   13706.65 ms /   402 tokens
+[58627] 5.56.731.351 I slot print_timing: id  0 | task 1324 |    graphs reused =       1486
+[58627] 5.56.731.567 I slot      release: id  0 | task 1324 | stop processing: n_tokens = 6801, truncated = 0
+5.57.841.526 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 5.56.781.771 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.903 (> 0.100 thold), f_keep = 0.968
+[58627] 5.56.782.100 I slot launch_slot_: id  0 | task 1542 | processing task, is_child = 0
+[58627] 6.04.161.293 I slot print_timing: id  0 | task 1542 | n_gen =    100, tg =  15.34 t/s, tg_3s =  15.49 t/s
+[58627] 6.07.169.851 I slot print_timing: id  0 | task 1542 | n_gen =    144, tg =  15.11 t/s, tg_3s =  14.62 t/s
+[58627] 6.10.181.830 I slot print_timing: id  0 | task 1542 | n_gen =    187, tg =  14.91 t/s, tg_3s =  14.28 t/s
+[58627] 6.13.199.638 I slot print_timing: id  0 | task 1542 | n_gen =    232, tg =  14.91 t/s, tg_3s =  14.91 t/s
+[58627] 6.16.227.044 I slot print_timing: id  0 | task 1542 | n_gen =    276, tg =  14.85 t/s, tg_3s =  14.53 t/s
+[58627] 6.17.996.574 I slot print_timing: id  0 | task 1542 | prompt eval time =     924.83 ms /   707 tokens (    1.31 ms per token,   764.46 tokens per second)
+[58627] 6.17.996.577 I slot print_timing: id  0 | task 1542 |        eval time =   20289.62 ms /   303 tokens (   67.18 ms per token,    14.88 tokens per second)
+[58627] 6.17.996.578 I slot print_timing: id  0 | task 1542 |       total time =   21214.45 ms /  1010 tokens
+[58627] 6.17.996.579 I slot print_timing: id  0 | task 1542 |    graphs reused =       1786
+[58627] 6.17.996.839 I slot      release: id  0 | task 1542 | stop processing: n_tokens = 7591, truncated = 0
+6.19.094.973 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 6.18.031.804 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.941 (> 0.100 thold), f_keep = 0.849
+[58627] 6.18.032.131 I slot launch_slot_: id  0 | task 1848 | processing task, is_child = 0
+[58627] 6.24.246.963 I slot print_timing: id  0 | task 1848 | prompt eval time =     609.74 ms /   447 tokens (    1.36 ms per token,   733.10 tokens per second)
+[58627] 6.24.246.967 I slot print_timing: id  0 | task 1848 |        eval time =    5605.08 ms /    86 tokens (   65.94 ms per token,    15.16 tokens per second)
+[58627] 6.24.246.967 I slot print_timing: id  0 | task 1848 |       total time =    6214.81 ms /   533 tokens
+[58627] 6.24.246.968 I slot print_timing: id  0 | task 1848 |    graphs reused =       1869
+[58627] 6.24.247.222 I slot      release: id  0 | task 1848 | stop processing: n_tokens = 6932, truncated = 0
+6.29.848.969 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 6.28.787.701 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.906 (> 0.100 thold), f_keep = 0.987
+[58627] 6.28.788.020 I slot launch_slot_: id  0 | task 1936 | processing task, is_child = 0
+[58627] 6.36.207.317 I slot print_timing: id  0 | task 1936 | n_gen =    100, tg =  15.30 t/s, tg_3s =  15.46 t/s
+[58627] 6.39.261.755 I slot print_timing: id  0 | task 1936 | n_gen =    144, tg =  15.01 t/s, tg_3s =  14.41 t/s
+[58627] 6.42.269.047 I slot print_timing: id  0 | task 1936 | n_gen =    186, tg =  14.76 t/s, tg_3s =  13.97 t/s
+[58627] 6.45.319.497 I slot print_timing: id  0 | task 1936 | n_gen =    229, tg =  14.63 t/s, tg_3s =  14.10 t/s
+[58627] 6.48.335.071 I slot print_timing: id  0 | task 1936 | n_gen =    274, tg =  14.68 t/s, tg_3s =  14.92 t/s
+[58627] 6.50.484.049 I slot print_timing: id  0 | task 1936 | prompt eval time =     949.55 ms /   707 tokens (    1.34 ms per token,   744.56 tokens per second)
+[58627] 6.50.484.052 I slot print_timing: id  0 | task 1936 |        eval time =   20746.46 ms /   304 tokens (   68.47 ms per token,    14.60 tokens per second)
+[58627] 6.50.484.053 I slot print_timing: id  0 | task 1936 |       total time =   21696.01 ms /  1011 tokens
+[58627] 6.50.484.054 I slot print_timing: id  0 | task 1936 |    graphs reused =       2170
+[58627] 6.50.484.315 I slot      release: id  0 | task 1936 | stop processing: n_tokens = 7853, truncated = 0
+6.51.581.051 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 6.50.517.686 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.931 (> 0.100 thold), f_keep = 0.821
+[58627] 6.50.518.006 I slot launch_slot_: id  0 | task 2243 | processing task, is_child = 0
+[58627] 6.57.797.010 I slot print_timing: id  0 | task 2243 | n_gen =    100, tg =  15.58 t/s, tg_3s =  15.74 t/s
+[58627] 7.00.837.256 I slot print_timing: id  0 | task 2243 | n_gen =    146, tg =  15.44 t/s, tg_3s =  15.13 t/s
+[58627] 7.03.892.578 I slot print_timing: id  0 | task 2243 | n_gen =    190, tg =  15.18 t/s, tg_3s =  14.40 t/s
+[58627] 7.06.907.679 I slot print_timing: id  0 | task 2243 | n_gen =    236, tg =  15.20 t/s, tg_3s =  15.26 t/s
+[58627] 7.07.915.231 I slot print_timing: id  0 | task 2243 | prompt eval time =     926.24 ms /   528 tokens (    1.75 ms per token,   570.04 tokens per second)
+[58627] 7.07.915.233 I slot print_timing: id  0 | task 2243 |        eval time =   16470.96 ms /   252 tokens (   65.62 ms per token,    15.24 tokens per second)
+[58627] 7.07.915.234 I slot print_timing: id  0 | task 2243 |       total time =   17397.20 ms /   780 tokens
+[58627] 7.07.915.235 I slot print_timing: id  0 | task 2243 |    graphs reused =       2419
+[58627] 7.07.915.443 I slot      release: id  0 | task 2243 | stop processing: n_tokens = 7179, truncated = 0
+7.40.000.060 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 7.38.939.213 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.885 (> 0.100 thold), f_keep = 0.965
+[58627] 7.38.939.519 I slot launch_slot_: id  0 | task 2498 | processing task, is_child = 0
+[58627] 7.46.794.592 I slot print_timing: id  0 | task 2498 | n_gen =    100, tg =  15.08 t/s, tg_3s =  15.23 t/s
+[58627] 7.49.809.049 I slot print_timing: id  0 | task 2498 | n_gen =    144, tg =  14.93 t/s, tg_3s =  14.60 t/s
+[58627] 7.52.880.796 I slot print_timing: id  0 | task 2498 | n_gen =    189, tg =  14.86 t/s, tg_3s =  14.65 t/s
+[58627] 7.55.938.092 I slot print_timing: id  0 | task 2498 | n_gen =    234, tg =  14.83 t/s, tg_3s =  14.72 t/s
+[58627] 7.58.997.469 I slot print_timing: id  0 | task 2498 | n_gen =    279, tg =  14.81 t/s, tg_3s =  14.71 t/s
+[58627] 8.02.015.607 I slot print_timing: id  0 | task 2498 | n_gen =    322, tg =  14.73 t/s, tg_3s =  14.25 t/s
+[58627] 8.05.071.083 I slot print_timing: id  0 | task 2498 | n_gen =    365, tg =  14.65 t/s, tg_3s =  14.07 t/s
+[58627] 8.08.123.598 I slot print_timing: id  0 | task 2498 | n_gen =    409, tg =  14.63 t/s, tg_3s =  14.41 t/s
+[58627] 8.11.134.911 I slot print_timing: id  0 | task 2498 | n_gen =    452, tg =  14.59 t/s, tg_3s =  14.28 t/s
+[58627] 8.13.437.326 I slot print_timing: id  0 | task 2498 | prompt eval time =    1290.30 ms /   902 tokens (    1.43 ms per token,   699.06 tokens per second)
+[58627] 8.13.437.329 I slot print_timing: id  0 | task 2498 |        eval time =   33207.48 ms /   485 tokens (   68.61 ms per token,    14.58 tokens per second)
+[58627] 8.13.437.330 I slot print_timing: id  0 | task 2498 |       total time =   34497.78 ms /  1387 tokens
+[58627] 8.13.437.331 I slot print_timing: id  0 | task 2498 |    graphs reused =       2900
+[58627] 8.13.437.611 I slot      release: id  0 | task 2498 | stop processing: n_tokens = 8310, truncated = 0
+8.14.543.839 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 8.13.480.937 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.959 (> 0.100 thold), f_keep = 0.777
+[58627] 8.13.481.239 I slot launch_slot_: id  0 | task 2987 | processing task, is_child = 0
+[58627] 8.17.304.879 I slot print_timing: id  0 | task 2987 | prompt eval time =     524.63 ms /   319 tokens (    1.64 ms per token,   608.04 tokens per second)
+[58627] 8.17.304.882 I slot print_timing: id  0 | task 2987 |        eval time =    3298.99 ms /    55 tokens (   61.09 ms per token,    16.37 tokens per second)
+[58627] 8.17.304.882 I slot print_timing: id  0 | task 2987 |       total time =    3823.62 ms /   374 tokens
+[58627] 8.17.304.883 I slot print_timing: id  0 | task 2987 |    graphs reused =       2953
+[58627] 8.17.305.136 I slot      release: id  0 | task 2987 | stop processing: n_tokens = 6785, truncated = 0
+8.18.460.280 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 8.17.403.396 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.905 (> 0.100 thold), f_keep = 0.991
+[58627] 8.17.403.742 I slot launch_slot_: id  0 | task 3044 | processing task, is_child = 0
+[58627] 8.24.671.912 I slot print_timing: id  0 | task 3044 | n_gen =    100, tg =  15.64 t/s, tg_3s =  15.80 t/s
+[58627] 8.27.680.217 I slot print_timing: id  0 | task 3044 | n_gen =    144, tg =  15.31 t/s, tg_3s =  14.63 t/s
+[58627] 8.30.716.380 I slot print_timing: id  0 | task 3044 | n_gen =    188, tg =  15.11 t/s, tg_3s =  14.49 t/s
+[58627] 8.33.779.531 I slot print_timing: id  0 | task 3044 | n_gen =    232, tg =  14.96 t/s, tg_3s =  14.36 t/s
+[58627] 8.36.818.223 I slot print_timing: id  0 | task 3044 | n_gen =    276, tg =  14.88 t/s, tg_3s =  14.48 t/s
+[58627] 8.39.848.493 I slot print_timing: id  0 | task 3044 | n_gen =    321, tg =  14.88 t/s, tg_3s =  14.85 t/s
+[58627] 8.42.852.097 I slot print_timing: id  0 | task 3044 | n_gen =    367, tg =  14.93 t/s, tg_3s =  15.31 t/s
+[58627] 8.45.898.781 I slot print_timing: id  0 | task 3044 | n_gen =    411, tg =  14.88 t/s, tg_3s =  14.44 t/s
+[58627] 8.48.923.439 I slot print_timing: id  0 | task 3044 | n_gen =    457, tg =  14.91 t/s, tg_3s =  15.21 t/s
+[58627] 8.51.962.401 I slot print_timing: id  0 | task 3044 | n_gen =    501, tg =  14.87 t/s, tg_3s =  14.48 t/s
+[58627] 8.54.968.684 I slot print_timing: id  0 | task 3044 | n_gen =    544, tg =  14.83 t/s, tg_3s =  14.30 t/s
+[58627] 8.57.973.757 I slot print_timing: id  0 | task 3044 | n_gen =    589, tg =  14.84 t/s, tg_3s =  14.97 t/s
+[58627] 9.00.951.924 I slot print_timing: id  0 | task 3044 | prompt eval time =     937.90 ms /   707 tokens (    1.33 ms per token,   753.81 tokens per second)
+[58627] 9.00.951.927 I slot print_timing: id  0 | task 3044 |        eval time =   42610.26 ms /   634 tokens (   67.31 ms per token,    14.86 tokens per second)
+[58627] 9.00.951.927 I slot print_timing: id  0 | task 3044 |       total time =   43548.16 ms /  1341 tokens
+[58627] 9.00.951.928 I slot print_timing: id  0 | task 3044 |    graphs reused =       3583
+[58627] 9.00.952.214 I slot      release: id  0 | task 3044 | stop processing: n_tokens = 8067, truncated = 0
+9.02.052.412 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 9.00.988.876 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.967 (> 0.100 thold), f_keep = 0.814
+[58627] 9.00.989.221 I slot launch_slot_: id  0 | task 3681 | processing task, is_child = 0
+[58627] 9.06.519.137 I slot print_timing: id  0 | task 3681 | prompt eval time =     552.78 ms /   379 tokens (    1.46 ms per token,   685.62 tokens per second)
+[58627] 9.06.519.140 I slot print_timing: id  0 | task 3681 |        eval time =    4977.11 ms /    80 tokens (   63.00 ms per token,    15.87 tokens per second)
+[58627] 9.06.519.140 I slot print_timing: id  0 | task 3681 |       total time =    5529.89 ms /   459 tokens
+[58627] 9.06.519.141 I slot print_timing: id  0 | task 3681 |    graphs reused =       3661
+[58627] 9.06.519.344 I slot      release: id  0 | task 3681 | stop processing: n_tokens = 6870, truncated = 0
+9.07.636.206 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 9.06.574.384 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.906 (> 0.100 thold), f_keep = 0.988
+[58627] 9.06.574.736 I slot launch_slot_: id  0 | task 3763 | processing task, is_child = 0
+[58627] 9.14.028.535 I slot print_timing: id  0 | task 3763 | n_gen =    100, tg =  15.23 t/s, tg_3s =  15.39 t/s
+[58627] 9.17.067.859 I slot print_timing: id  0 | task 3763 | n_gen =    146, tg =  15.20 t/s, tg_3s =  15.13 t/s
+[58627] 9.20.071.115 I slot print_timing: id  0 | task 3763 | n_gen =    189, tg =  14.99 t/s, tg_3s =  14.32 t/s
+[58627] 9.23.098.185 I slot print_timing: id  0 | task 3763 | n_gen =    233, tg =  14.90 t/s, tg_3s =  14.54 t/s
+[58627] 9.26.124.540 I slot print_timing: id  0 | task 3763 | n_gen =    276, tg =  14.79 t/s, tg_3s =  14.21 t/s
+[58627] 9.29.164.879 I slot print_timing: id  0 | task 3763 | n_gen =    321, tg =  14.79 t/s, tg_3s =  14.80 t/s
+[58627] 9.32.168.281 I slot print_timing: id  0 | task 3763 | n_gen =    364, tg =  14.73 t/s, tg_3s =  14.32 t/s
+[58627] 9.35.227.715 I slot print_timing: id  0 | task 3763 | n_gen =    410, tg =  14.77 t/s, tg_3s =  15.04 t/s
+[58627] 9.38.246.301 I slot print_timing: id  0 | task 3763 | n_gen =    455, tg =  14.78 t/s, tg_3s =  14.91 t/s
+[58627] 9.40.328.732 I slot print_timing: id  0 | task 3763 | prompt eval time =     954.49 ms /   707 tokens (    1.35 ms per token,   740.71 tokens per second)
+[58627] 9.40.328.734 I slot print_timing: id  0 | task 3763 |        eval time =   32799.49 ms /   487 tokens (   67.49 ms per token,    14.82 tokens per second)
+[58627] 9.40.328.734 I slot print_timing: id  0 | task 3763 |       total time =   33753.97 ms /  1194 tokens
+[58627] 9.40.328.735 I slot print_timing: id  0 | task 3763 |    graphs reused =       4144
+[58627] 9.40.328.970 I slot      release: id  0 | task 3763 | stop processing: n_tokens = 7980, truncated = 0
+9.41.425.376 I srv  proxy_reques: proxying request to model Qwen35-9B-Q4_K_M on port 58627
+[58627] 9.40.364.002 I slot get_availabl: id  0 | task -1 | selected slot by LCP similarity, f_sim_best = 0.919 (> 0.100 thold), f_keep = 0.809
+[58627] 9.40.364.336 I slot launch_slot_: id  0 | task 4253 | processing task, is_child = 0
+[58627] 9.47.415.653 I slot print_timing: id  0 | task 4253 | n_gen =    100, tg =  16.03 t/s, tg_3s =  16.19 t/s
+[58627] 9.50.430.589 I slot print_timing: id  0 | task 4253 | n_gen =    147, tg =  15.88 t/s, tg_3s =  15.59 t/s
+[58627] 9.53.473.560 I slot print_timing: id  0 | task 4253 | n_gen =    192, tg =  15.61 t/s, tg_3s =  14.79 t/s
+[58627] 9.56.475.320 I slot print_timing: id  0 | task 4253 | n_gen =    239, tg =  15.62 t/s, tg_3s =  15.66 t/s
+[58627] 9.57.483.269 I slot print_timing: id  0 | task 4253 | prompt eval time =     874.32 ms /   612 tokens (    1.43 ms per token,   699.97 tokens per second)
+[58627] 9.57.483.272 I slot print_timing: id  0 | task 4253 |        eval time =   16244.59 ms /   255 tokens (   63.96 ms per token,    15.64 tokens per second)
+[58627] 9.57.483.272 I slot print_timing: id  0 | task 4253 |       total time =   17118.91 ms /   867 tokens
+[58627] 9.57.483.273 I slot print_timing: id  0 | task 4253 |    graphs reused =       4396
+[58627] 9.57.483.497 I slot      release: id  0 | task 4253 | stop processing: n_tokens = 7278, truncated = 0

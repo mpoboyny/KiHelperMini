@@ -34,10 +34,10 @@
                 <Parameter Name="--repeat-penalty" Value="1.1" />
                 
                 <!-- CPU Threads: Number of physical CPU cores allocated for computing parts of the model not offloaded to the GPU. -->
-                <Parameter Name="-t" Value="4" />
+                <Parameter Name="-t" Value="6" />
                 
                 <!-- GPU Layers: Number of neural network layers offloaded to the VRAM of your graphics card for faster hardware acceleration. -->
-                <Parameter Name="-ngl" Value="24" /> 
+                <Parameter Name="-ngl" Value="22" /> 
 
                 <!-- Chat Engine Template: Forces llama-cli to parse and apply the native Jinja template embedded inside Mistral GGUF metadata. -->
                 <Parameter Name="--jinja" Value="" />
@@ -48,10 +48,10 @@
                 <DefBin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server" />
                 
                 <!-- CPU Threads: Match your physical core allocation from the CLI (8 cores) -->
-                <Parameter Name="-t" Value="8" />
+                <Parameter Name="-t" Value="6" />
                 
                 <!-- GPU Layers: Keep your exact VRAM offloading layout (24 layers) for acceleration -->
-                <Parameter Name="-ngl" Value="24" /> 
+                <Parameter Name="-ngl" Value="22" /> 
 
                 <!-- Context Size: Set to 8192 for an extended local memory window without heavy performance drops -->
                 <Parameter Name="-c" Value="8192" />
