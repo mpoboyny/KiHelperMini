@@ -12,6 +12,66 @@
 #include "BuildToolBar.hxx"
 #include "../resources/app.xpm"
 
+#ifdef _WIN32
+static void AddVsInstallPath(const wxString& installPath, wxArrayString& found)
+{
+    wxFileName bat(installPath + "\\Common7\\Tools\\VsDevCmd.bat");
+    if (bat.FileExists()) {
+        for (const wxString& p : found) {
+            if (p.CmpNoCase(bat.GetFullPath()) == 0) {
+                return;
+            }
+        }
+        found.Add(bat.GetFullPath());
+    }
+}
+
+static wxArrayString FindVisualStudioInstalls()
+{
+    wxArrayString seen;
+
+    // 1) vswhere from the Visual Studio Installer (finds custom locations)
+    const wxString vswhere = "C:\\Program Files (x86)\\Microsoft Visual Studio\\Installer\\vswhere.exe";
+    if (wxFileName::FileExists(vswhere)) {
+        wxArrayString out;
+        wxArrayString err;
+        long code = wxExecute(wxString::Format("\"%s\" -all -prerelease -products * -property installationPath", vswhere), out, err, wxEXEC_SYNC);
+        if (code == 0) {
+            for (const wxString& line : out) {
+                wxString install = line;
+                install.Trim();
+                if (!install.IsEmpty()) {
+                    AddVsInstallPath(install, seen);
+                }
+            }
+        }
+    }
+
+    // 2) Standard installation locations
+    wxString roots[2] = { "ProgramFiles(x86)", "ProgramFiles" };
+    wxString years[4] = { "2017", "2019", "2022", "2026" };
+    wxString editions[4] = { "Community", "Professional", "Enterprise", "BuildTools" };
+    for (const wxString& root : roots) {
+        wxString base;
+        if (!wxGetEnv(root, &base)) {
+            continue;
+        }
+        for (const wxString& year : years) {
+            for (const wxString& edition : editions) {
+                wxFileName install;
+                install.AssignDir(base);
+                install.AppendDir("Microsoft Visual Studio");
+                install.AppendDir(year);
+                install.AppendDir(edition);
+                AddVsInstallPath(install.GetFullPath(), seen);
+            }
+        }
+    }
+
+    return seen;
+}
+#endif
+
 BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
     : wxFrame(parent, wxID_ANY, "Build", wxDefaultPosition, wxSize(700, 450), wxDEFAULT_FRAME_STYLE & ~(wxRESIZE_BORDER | wxMAXIMIZE_BOX))
     , m_defBinOuDir(defBinOuDir)
@@ -54,6 +114,17 @@ BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
     cmakeRow->Add(m_checkCmakeButton, 0, wxALL, 10);
     toolsBox->Add(cmakeRow, 0, wxEXPAND);
 
+#ifdef _WIN32
+    wxBoxSizer* gppRow = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* gppLabel = new wxStaticText(this, wxID_ANY, "Visual Studio :");
+    gppRow->Add(gppLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
+    m_vsComboBox = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(300, -1), 0, nullptr, wxCB_READONLY);
+    m_vsComboBox->SetName("vs_info");
+    gppRow->Add(m_vsComboBox, 1, wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 10);
+    m_checkGccButton = new wxButton(this, ID_CHECK_GCC, "Check");
+    gppRow->Add(m_checkGccButton, 0, wxALL, 10);
+    toolsBox->Add(gppRow, 0, wxEXPAND);
+#else
     wxBoxSizer* gppRow = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* gppLabel = new wxStaticText(this, wxID_ANY, "g++ :");
     gppRow->Add(gppLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
@@ -63,6 +134,7 @@ BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
     m_checkGccButton = new wxButton(this, ID_CHECK_GCC, "Check");
     gppRow->Add(m_checkGccButton, 0, wxALL, 10);
     toolsBox->Add(gppRow, 0, wxEXPAND);
+#endif
 
     wxBoxSizer* toolsRow = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* sourceLabel = new wxStaticText(this, wxID_ANY, "Folder of llama.cpp :");
@@ -109,12 +181,22 @@ BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
 
     m_cmakePathText->SetValue(CMakePath());
 
+#ifdef _WIN32
+    wxArrayString vsBats = FindVisualStudioInstalls();
+    for (const wxString& bat : vsBats) {
+        m_vsComboBox->Append(bat);
+    }
+    if (m_vsComboBox->GetCount() > 0) {
+        m_vsComboBox->SetSelection(0);
+    }
+#else
     ProcessRunner runner;
     wxString gppOutput = runner.Run("whereis", "g++");
     if (!gppOutput.IsEmpty()) {
         wxString firstLine = gppOutput.BeforeFirst('\n');
         m_gppInfoText->SetValue(firstLine.AfterFirst(':').Trim(false));
     }
+#endif
 }
 
 int BuildDialog::ShowModalLike()
@@ -196,6 +278,25 @@ void BuildDialog::OnCheckCMake(wxCommandEvent& event)
     ShowGenericMessageBox(output, "CMake version", wxOK | wxICON_INFORMATION, this);
 }
 
+#ifdef _WIN32
+void BuildDialog::OnCheckGcc(wxCommandEvent &event)
+{
+    wxString vsBat = m_vsComboBox->GetValue();
+    if (vsBat.IsEmpty()) {
+        ShowGenericMessageBox("No Visual Studio installation found.\nPlease install Visual Studio with the C++ workload.", "Check Visual Studio", wxOK | wxICON_INFORMATION, this);
+        return;
+    }
+
+    wxString command = "cmd /c call \"" + vsBat + "\" -arch=x64 && cl";
+    long exitCode = wxExecute(command, wxEXEC_SYNC);
+    if (exitCode != 0) {
+        ShowGenericMessageBox("Failed to initialize Visual Studio environment:\n" + vsBat, "Check Visual Studio", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    ShowGenericMessageBox("Visual Studio is available:\n" + vsBat, "Check Visual Studio", wxOK | wxICON_INFORMATION, this);
+}
+#else
 void BuildDialog::OnCheckGcc(wxCommandEvent &event)
 {
     wxString gppPath = m_gppInfoText->GetValue();
@@ -213,6 +314,7 @@ void BuildDialog::OnCheckGcc(wxCommandEvent &event)
 
     ShowGenericMessageBox(output, "g++ version", wxOK | wxICON_INFORMATION, this);
 }
+#endif
 
 void BuildDialog::OnBuildCMake(wxCommandEvent& event)
 {

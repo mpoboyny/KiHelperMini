@@ -35,6 +35,7 @@ private:
     wxTextCtrl* m_llamaSource;
     wxTextCtrl* m_cmakePathText;
     wxTextCtrl* m_gppInfoText;
+    wxComboBox* m_vsComboBox{nullptr};
     wxString m_defBinOuDir;
     wxWindow* m_parent{nullptr};
     wxEventLoopBase* m_eventLoop{nullptr};
