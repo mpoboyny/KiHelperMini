@@ -153,7 +153,7 @@ namespace
                 path = defBin->GetAttribute("path", "");
 
             if (!path.IsEmpty()) {
-                res = path;
+                res = ExpandHomePath(path);
                 break;
             }
         }
@@ -344,7 +344,7 @@ wxString ConfigFile::GetLLamaBinPath() const
                 if (pathAttr.IsEmpty())
                     continue;
 
-                wxFileName fn(pathAttr);
+                wxFileName fn(ExpandHomePath(pathAttr));
                 if (!fn.IsAbsolute()) {
                     // If relative, resolve against config file directory
                     wxFileName cfg(g_ConfFile);

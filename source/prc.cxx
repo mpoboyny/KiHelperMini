@@ -30,73 +30,118 @@ const wxString g_DefaultConfFileContent = wxString::FromUTF8(R"xml(<?xml version
     <Systems>
         <System Name="Windows">
             <Models>
-                <!-- Model File="%USERPROFILE%/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true"/>
-                <Model File="%USERPROFILE%/LocalKiModels/qwen2.5-coder-7b-instruct-q5_k_m.gguf"  / -->
+                <Model File="%USERPROFILE%/LocalKiModels/qwen2.5-coder-7b-instruct-q5_k_m.gguf" Current="true" />
             </Models>
             <LLamaCpp>
-                <Bin Path="C:/MyTools/llama-nocuda/" />
+                <Bin Path="%USERPROFILE%/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/"/>
             </LLamaCpp>
+             <LlamaChatParameters>
+                <DefBin Path="%USERPROFILE%/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
+
+                <!-- Temperature: Controls randomness. Higher values (e.g. 1.0) make output more creative, lower values (e.g. 0.2) make output more deterministic. -->
+                <Parameter Name="--temp" Value="0.7" />
+
+                <!-- Top-K Sampling: Limits the candidate token pool to the K most likely tokens. Modern llama.cpp uses a hyphen instead of an underscore. -->
+                <Parameter Name="--top-k" Value="40" />
+
+                <!-- Top-P Sampling (Nucleus): Limits the candidate token pool to the top cumulative probability. Modern llama.cpp uses a hyphen instead of an underscore. -->
+                <Parameter Name="--top-p" Value="0.9" />
+
+                <!-- Repeat Penalty: Discourages the model from repeating the same phrases. -->
+                <Parameter Name="--repeat-penalty" Value="1.1" />
+
+                <!-- CPU Threads: Number of physical CPU cores allocated for computing parts of the model not offloaded to the GPU. -->
+                <Parameter Name="-t" Value="6" />
+
+                <!-- GPU Layers: Number of neural network layers to offload to the VRAM of your graphics card for hardware acceleration. -->
+                <Parameter Name="-ngl" Value="22" />
+
+                <!-- Chat Engine Template: Forces llama-cli to parse and apply the native Jinja template embedded inside Mistral GGUF metadata. -->
+                <Parameter Name="--jinja" Value="" />
+
+            </LlamaChatParameters>
+            <LlamaServerParameters>
+                <!-- Path to your CUDA-compiled llama-server binary -->
+                <DefBin Path="%USERPROFILE%/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server" />
+
+                <!-- CPU Threads: Match your physical core allocation from the CLI (6 cores in this example). -->
+                <Parameter Name="-t" Value="6" />
+
+                <!-- GPU Layers: Keep your exact VRAM offloading layout (22 layers) for acceleration -->
+                <Parameter Name="-ngl" Value="22" />
+
+                <!-- Context Size: Set to 8192 for an extended local memory window without heavy performance drops -->
+                <Parameter Name="-c" Value="8192" />
+
+                <!-- Host Binding: Enforces IPv4 loopback bypasses slow local DNS resolution issues -->
+                <Parameter Name="--host" Value="127.0.0.1" />
+
+                <!-- Port Allocation: Standard llama.cpp API communication -->
+                <Parameter Name="--port" Value="8080" />
+
+                <!-- Flash Attention: Highly recommended for local models with large context windows. -->
+                <!-- It drastically reduces VRAM requirements for the context cache and speeds up generation. -->
+                <Parameter Name="--flash-attn" Value="on" />
+            </LlamaServerParameters>
         </System>
         <System Name="Linux">
             <Models>
-                <!-- Model File="~/LocalKiModels/DeepSeek-R1-Distill-Qwen-1.5B.Q5_K_M.gguf" Current="true" />
-                <Model File="~/LocalKiModels/Mistral-7B-Instruct-v0.3-Q5_K_M.gguf" />
-                <Model File="~/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf" / -->
+                <Model File="~/LocalKiModels/Qwen2.5-7B-Instruct-Q4_K_M.gguf" Current="true" />
+                <Model File="~/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" />
+                <Model File="~/LocalKiModels/Codestral-22B-v0.1-Q5_K_M.gguf"/>
             </Models>
             <LLamaCpp>
                 <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
             </LLamaCpp>
             <LlamaChatParameters>
                 <DefBin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
-                
-                <!-- Temperature: Controls randomness. Higher values (e.g., 1.0) make output more creative, lower values (e.g., 0.2) make it more deterministic. -->
+
+                <!-- Temperature: Controls randomness. Higher values (e.g. 1.0) make output more creative, lower values (e.g. 0.2) make output more deterministic. -->
                 <Parameter Name="--temp" Value="0.7" />
-                
-                <!-- Top-K Sampling: Limits the next-token pool to the K most likely tokens. Modern llama.cpp uses a hyphen instead of an underscore. -->
+
+                <!-- Top-K Sampling: Limits the candidate token pool to the K most likely tokens. Modern llama.cpp uses a hyphen instead of an underscore. -->
                 <Parameter Name="--top-k" Value="40" />
-                
-                <!-- Top-P Sampling (Nucleus): Limits token pool to a cumulative probability threshold. Modern llama.cpp uses a hyphen instead of an underscore. -->
+
+                <!-- Top-P Sampling (Nucleus): Limits the candidate token pool to the top cumulative probability. Modern llama.cpp uses a hyphen instead of an underscore. -->
                 <Parameter Name="--top-p" Value="0.9" />
-                
-                <!-- Repeat Penalty: Discourages the model from repeating phrases. Modern llama.cpp uses a hyphen instead of an underscore. -->
+
+                <!-- Repeat Penalty: Discourages the model from repeating the same phrases. -->
                 <Parameter Name="--repeat-penalty" Value="1.1" />
-                
+
                 <!-- CPU Threads: Number of physical CPU cores allocated for computing parts of the model not offloaded to the GPU. -->
-                <Parameter Name="-t" Value="4" />
-                
-                <!-- GPU Layers: Number of neural network layers offloaded to the VRAM of your graphics card for faster hardware acceleration. -->
-                <Parameter Name="-ngl" Value="24" /> 
+                <Parameter Name="-t" Value="6" />
+
+                <!-- GPU Layers: Number of neural network layers to offload to the VRAM of your graphics card for hardware acceleration. -->
+                <Parameter Name="-ngl" Value="22" />
 
                 <!-- Chat Engine Template: Forces llama-cli to parse and apply the native Jinja template embedded inside Mistral GGUF metadata. -->
                 <Parameter Name="--jinja" Value="" />
 
-                <!-- Conversation Mode: Converts the text generator into a persistent, interactive chat session with memory. -->
-                <Parameter Name="-cnv" Value="" />
             </LlamaChatParameters>
             <LlamaServerParameters>
                 <!-- Path to your CUDA-compiled llama-server binary -->
                 <DefBin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server" />
-                
-                <!-- CPU Threads: Match your physical core allocation from the CLI (8 cores) -->
-                <Parameter Name="-t" Value="8" />
-                
-                <!-- GPU Layers: Keep your exact VRAM offloading layout (24 layers) for acceleration -->
-                <Parameter Name="-ngl" Value="24" /> 
+
+                <!-- CPU Threads: Match your physical core allocation from the CLI (6 cores in this example). -->
+                <Parameter Name="-t" Value="6" />
+
+                <!-- GPU Layers: Keep your exact VRAM offloading layout (22 layers) for acceleration -->
+                <Parameter Name="-ngl" Value="22" />
 
                 <!-- Context Size: Set to 8192 for an extended local memory window without heavy performance drops -->
                 <Parameter Name="-c" Value="8192" />
 
                 <!-- Host Binding: Enforces IPv4 loopback bypasses slow local DNS resolution issues -->
-                <Parameter Name="--host" Value="msi" />
+                <Parameter Name="--host" Value="127.0.0.1" />
 
-                <!-- Port Allocation: Standard port for llama.cpp API communication -->
+                <!-- Port Allocation: Standard llama.cpp API communication -->
                 <Parameter Name="--port" Value="8080" />
-                
+
                 <!-- Flash Attention: Highly recommended for local models with large context windows. -->
                 <!-- It drastically reduces VRAM requirements for the context cache and speeds up generation. -->
                 <Parameter Name="--flash-attn" Value="on" />
             </LlamaServerParameters>
-       </System>
+        </System>
     </Systems>
 </Settings>
 )xml");
@@ -116,10 +161,10 @@ const wxString g_ConfFileName = L"config.xml";
 const wxString g_ConfFile = []() {
     wxString targetPath = g_ConfDir + g_ConfFileName;
     wxFileName targetFn(targetPath);
-    if (!targetFn.FileExists()) {
+    if (!targetFn.FileExists() || targetFn.GetSize() == 0) {
         wxString srcPath = g_BinDir + g_ConfFileName;
         wxFileName srcFn(srcPath);
-        if (srcFn.FileExists()) {
+        if (srcFn.FileExists() && srcFn.GetSize() > 0) {
             wxCopyFile(srcPath, targetPath);
         }
         else {
@@ -128,6 +173,10 @@ const wxString g_ConfFile = []() {
                 file.Write(g_DefaultConfFileContent);
                 file.Close();
             }
+        }
+        if (!targetFn.FileExists() || targetFn.GetSize() == 0) {
+            TrStr(wxString::Format("config.xml was NOT created at %s (bin source: %s, exists=%s)",
+                targetPath, srcPath, srcFn.FileExists() ? "yes" : "no"));
         }
     }
     return targetPath;
