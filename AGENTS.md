@@ -17,6 +17,6 @@
 - **Build Command:** `make -j$(nproc) release`
 
 ### Environment B: Windows
-- **Compiler:** MSVC (Visual Studio 2022 Community via Developer Command Prompt)
-- **Build System:** `nmake` (Makefile.vc)
-- **Build Command:** `nmake /f Makefile.vc`
+- **Compiler:** MSVC (Visual Studio via Developer Command Prompt)
+- **Build System:** `nmake` (NMakefile)
+- **Build Command:** `nmake /f NMakefile`

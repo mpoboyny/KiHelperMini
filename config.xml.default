@@ -60,7 +60,7 @@
                 <Parameter Name="-c" Value="8192" />
 
                 <!-- Host Binding: Enforces IPv4 loopback bypasses slow local DNS resolution issues -->
-                <Parameter Name="--host" Value="msi" />
+                <Parameter Name="--host" Value="127.0.0.1" />
 
                 <!-- Port Allocation: Standard port for llama.cpp API communication -->
                 <Parameter Name="--port" Value="8080" />

@@ -31,6 +31,14 @@ CMainDialog::CMainDialog()
     TrFu;
     
    SetMinSize(s_defMinSize);
+   {
+       int n = wxDisplay::GetFromPoint(wxGetMousePosition());
+       if (n >= 0) {
+           wxRect geo = wxDisplay(n).GetGeometry();
+           wxSize sz = GetSize();
+           SetPosition(wxPoint(geo.x + (geo.width - sz.x) / 2, geo.y + (geo.height - sz.y) / 2));
+       }
+   }
    #ifdef _WIN32
         // Explicitly load the icon named APP_ICON from resources
         SetIcon(wxICON(APP_ICON));
@@ -71,6 +79,7 @@ CMainDialog::CMainDialog()
     Bind(wxEVT_MENU, &CMainDialog::OnParameterSuggestion, this, ID_PARAMETER_SUGGESTION);
     Bind(wxEVT_MENU, &CMainDialog::OnModelInfo, this, ID_MODEL_INFO);
     Bind(wxEVT_CLOSE_WINDOW, &CMainDialog::OnClose, this);
+    Bind(wxEVT_SHOW, &CMainDialog::OnShow, this);
 
     wxString msg;
     if (m_ConfFile->HaveError(msg))
@@ -175,7 +184,43 @@ void CMainDialog::OnModelInfo(wxCommandEvent& event)
     dlg.ShowModal();
 }
 
-void CMainDialog::OnClose(wxCloseEvent& event) 
+#if defined(_WIN32)
+static void ForceForegroundWindow(wxWindow* win)
+{
+    HWND hwnd = win->GetHandle();
+    HWND fore = GetForegroundWindow();
+    if (!fore || fore == hwnd)
+        return;
+
+    DWORD foreThread = GetWindowThreadProcessId(fore, nullptr);
+    DWORD curThread = GetCurrentThreadId();
+    if (foreThread != curThread)
+    {
+        AttachThreadInput(curThread, foreThread, TRUE);
+        SetForegroundWindow(hwnd);
+        AttachThreadInput(curThread, foreThread, FALSE);
+    }
+    else
+    {
+        SetForegroundWindow(hwnd);
+    }
+}
+#endif
+
+void CMainDialog::OnShow(wxShowEvent& event)
+{
+    if (IsShown()) {
+#if defined(_WIN32)
+        ForceForegroundWindow(this);
+#else
+        Raise();
+#endif
+        SetFocus();
+    }
+    event.Skip();
+}
+
+void CMainDialog::OnClose(wxCloseEvent& event)
 {
     if (wxTheApp && wxTheApp->IsMainLoopRunning()) {
         wxTheApp->ExitMainLoop();

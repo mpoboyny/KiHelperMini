@@ -37,6 +37,7 @@ class CMainDialog : public wxFrame
         void OnParameterSuggestion(wxCommandEvent& event);
         void OnModelInfo(wxCommandEvent& event);
         void OnClose(wxCloseEvent& event);
+        void OnShow(wxShowEvent& event);
 };
 
 #endif // MAINDIALOG_HXX

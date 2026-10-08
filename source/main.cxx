@@ -67,9 +67,11 @@ int main(int argc, char* argv[])
 
     CMainDialog* dialog = new CMainDialog();
     wxTheApp->SetTopWindow(dialog);
-    dialog->Show(true);
 
     WaitDialog::Hide();
+
+    dialog->Show(true);
+    dialog->Raise();
 
     wxTheApp->MainLoop();
     
