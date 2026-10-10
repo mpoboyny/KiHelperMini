@@ -32,6 +32,8 @@ class DialogSuggestion : public wxDialog
     wxButton* m_copyBtn;
     wxTextCtrl* m_llamaCliText;
     wxTextCtrl* m_llamaServerText;
+    wxString m_llamaCliHelp;
+    wxString m_llamaServerHelp;
 
     static int ParseLastInteger(const wxString& text);
     static bool LooksUnknownValue(const wxString& text);
@@ -41,6 +43,8 @@ class DialogSuggestion : public wxDialog
     static wxString FormatRamInfoText(const wxString& name, const wxString& type, int sizeGB, int speedMTs);
     static wxString FormatGpuInfoText(const wxString& name, int vramGB);
     static wxString TrimValue(const wxString& value);
+    static wxString GetFullExecutablePath(const wxString& path);
+    static bool IsParameterSupported(const wxString& helpText, const wxString& parameter);
     static INI::CpuInfo GetCpuInfoText();
     static INI::RamInfo GetRamInfoText();
     static unsigned long long GetGpuVramBytes();
@@ -51,6 +55,7 @@ class DialogSuggestion : public wxDialog
     void AddWarning(const wxString& text);
     void AddError(const wxString& text);
     void AddSettingsSummary();
+    bool LoadLlamaHelp(wxTextCtrl* textCtrl, const wxString& executableName, wxString& helpText);
     bool LoadModel(const wxString& modelPath, llama_model*& currentModel);
     bool CreateSuggestion(const llama_model* currentModel);
     void OnCopyToClipboard(wxCommandEvent& event);

@@ -6,6 +6,7 @@
 #include "DialogSuggestion.hxx"
 #include "ConfigFile.hxx"
 #include "IniFile.hxx"
+#include "ProcessRunner.hxx"
 #include "ScopeGuard.hxx"
 #include "llama.h"
 #include "../resources/app.xpm"
@@ -103,6 +104,19 @@ wxString DialogSuggestion::TrimValue(const wxString &value)
     res.Trim(true);
     res.Trim(false);
     return res;
+}
+
+wxString DialogSuggestion::GetFullExecutablePath(const wxString &path)
+{
+    wxFileName executable(TrimValue(path));
+    if (!executable.IsAbsolute())
+        executable.MakeAbsolute();
+    return executable.GetFullPath();
+}
+
+bool DialogSuggestion::IsParameterSupported(const wxString &helpText, const wxString &parameter)
+{
+    return !parameter.IsEmpty() && helpText.Contains(parameter);
 }
 
 #ifdef _WIN32
@@ -591,22 +605,8 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     wxFlexGridSizer *llamaGrid = new wxFlexGridSizer(2, 3, 8, 8);
     llamaGrid->AddGrowableCol(1, 1);
 
-#ifdef _WIN32
-    const wxString cliExeName = "llama-cli.exe";
-    const wxString serverExeName = "llama-server.exe";
-#else
-    const wxString cliExeName = "llama-cli";
-    const wxString serverExeName = "llama-server";
-#endif
-
-    const wxString llamaBinPath = confFile.GetLLamaBinPath();
-    wxString llamaCliPath;
-    wxString llamaServerPath;
-    if (!llamaBinPath.IsEmpty())
-    {
-        llamaCliPath = wxFileName(llamaBinPath, cliExeName).GetFullPath();
-        llamaServerPath = wxFileName(llamaBinPath, serverExeName).GetFullPath();
-    }
+    const wxString llamaCliPath = confFile.GetChatDefPath();
+    const wxString llamaServerPath = confFile.GetServerDefPath();
 
     wxStaticText *llamaCliLabel = new wxStaticText(this, wxID_ANY, "llama-cli:");
     m_llamaCliText = new wxTextCtrl(this, wxID_ANY, llamaCliPath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
@@ -853,6 +853,35 @@ void DialogSuggestion::AddSettingsSummary()
                              boolText(outCli), boolText(outServer), boolText(outPreset)));
 }
 
+bool DialogSuggestion::LoadLlamaHelp(wxTextCtrl *textCtrl, const wxString &executableName, wxString &helpText)
+{
+    helpText.clear();
+    const wxString executablePath = textCtrl ? GetFullExecutablePath(textCtrl->GetValue()) : wxString();
+    if (executablePath.IsEmpty())
+    {
+        AddError("No " + executableName + " executable selected.");
+        return false;
+    }
+
+    if (!wxFileName::FileExists(executablePath))
+    {
+        AddError(executableName + " executable does not exist: " + executablePath);
+        return false;
+    }
+
+    AddStep("Reading " + executableName + " options");
+    ProcessRunner runner;
+    helpText = runner.Run(executablePath, "--help");
+    if (helpText.IsEmpty())
+    {
+        AddError("Could not read --help output from: " + executablePath);
+        return false;
+    }
+
+    AddInfo("Read --help from: " + executablePath);
+    return true;
+}
+
 bool DialogSuggestion::LoadModel(const wxString &modelPath, llama_model *&currentModel)
 {
     if (currentModel)
@@ -1007,19 +1036,6 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     if (useEmbedding && !hasEncoder && !hasDecoder)
         AddWarning("Embedding usage was selected, but model capabilities could not be inferred clearly.");
 
-    wxString commonParams;
-    if (!modelPath.IsEmpty())
-        commonParams << " --model \"" << modelPath << "\"";
-    commonParams << " --ctx-size " << ctxSize;
-    commonParams << " --threads " << threads;
-    commonParams << " --batch-size " << batchSize;
-    if (gpuLayers > 0)
-        commonParams << " --n-gpu-layers " << gpuLayers;
-    if (useFlashAttn)
-        commonParams << " --flash-attn";
-    if (useEmbedding)
-        commonParams << " --embedding";
-
     auto addStyledOutputBlock = [&](const wxArrayString &lines)
     {
         if (lines.IsEmpty())
@@ -1057,22 +1073,68 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
 
     if (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue())
     {
+        wxString cliParams;
+        auto appendCliParameter = [&](const wxString &parameter, const wxString &value = wxString())
+        {
+            if (!IsParameterSupported(m_llamaCliHelp, parameter))
+            {
+                AddWarning("llama-cli does not support " + parameter + "; it was omitted.");
+                return;
+            }
+            cliParams << " " << parameter;
+            if (!value.IsEmpty())
+                cliParams << " " << value;
+        };
+        if (!modelPath.IsEmpty())
+            appendCliParameter("--model", modelPath);
+        appendCliParameter("--ctx-size", wxString::Format("%d", ctxSize));
+        appendCliParameter("--threads", wxString::Format("%d", threads));
+        appendCliParameter("--batch-size", wxString::Format("%d", batchSize));
+        if (gpuLayers > 0)
+            appendCliParameter("--n-gpu-layers", wxString::Format("%d", gpuLayers));
+        if (useFlashAttn)
+            appendCliParameter("--flash-attn", "on");
+        if (useEmbedding)
+            appendCliParameter("--embedding");
+
         wxArrayString lines;
         lines.Add("cli run parameters:");
-        lines.Add("llama-cli" + commonParams);
+        lines.Add(GetFullExecutablePath(m_llamaCliText->GetValue()) + cliParams);
         addStyledOutputBlock(lines);
     }
     if (m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue())
     {
-        wxString serverParams = commonParams;
-        serverParams << " --ubatch-size " << ubatchSize;
-        serverParams << " --parallel " << parallel;
+        wxString serverParams;
+        auto appendServerParameter = [&](const wxString &parameter, const wxString &value = wxString())
+        {
+            if (!IsParameterSupported(m_llamaServerHelp, parameter))
+            {
+                AddWarning("llama-server does not support " + parameter + "; it was omitted.");
+                return;
+            }
+            serverParams << " " << parameter;
+            if (!value.IsEmpty())
+                serverParams << " " << value;
+        };
+        if (!modelPath.IsEmpty())
+            appendServerParameter("--model", modelPath);
+        appendServerParameter("--ctx-size", wxString::Format("%d", ctxSize));
+        appendServerParameter("--threads", wxString::Format("%d", threads));
+        appendServerParameter("--batch-size", wxString::Format("%d", batchSize));
+        if (gpuLayers > 0)
+            appendServerParameter("--n-gpu-layers", wxString::Format("%d", gpuLayers));
+        if (useFlashAttn)
+            appendServerParameter("--flash-attn", "on");
+        if (useEmbedding)
+            appendServerParameter("--embedding");
+        appendServerParameter("--ubatch-size", wxString::Format("%d", ubatchSize));
+        appendServerParameter("--parallel", wxString::Format("%d", parallel));
         if (useChat && hasChatTemplate)
-            serverParams << " --jinja";
+            appendServerParameter("--jinja");
 
         wxArrayString lines;
         lines.Add("server run parameters:");
-        lines.Add("llama-server" + serverParams);
+        lines.Add(GetFullExecutablePath(m_llamaServerText->GetValue()) + serverParams);
         addStyledOutputBlock(lines);
     }
     if (m_presetServerIniCheck && m_presetServerIniCheck->GetValue())
@@ -1125,6 +1187,17 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent &event)
         if (m_copyBtn)
             m_copyBtn->Enable(false);
     }
+
+    m_llamaCliHelp.clear();
+    m_llamaServerHelp.clear();
+
+    if (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue() &&
+        !LoadLlamaHelp(m_llamaCliText, "llama-cli", m_llamaCliHelp))
+        return;
+
+    if (m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue() &&
+        !LoadLlamaHelp(m_llamaServerText, "llama-server", m_llamaServerHelp))
+        return;
 
     AddSettingsSummary();
 
