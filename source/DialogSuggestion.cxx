@@ -731,8 +731,15 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
         wxDefaultPosition,
         wxSize(-1, resultHeight),
         wxVSCROLL | wxHSCROLL | wxRE_READONLY);
+    m_resultText->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
+    m_resultText->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
     m_resultText->SetMinSize(wxSize(-1, resultHeight));
     m_resultTextFont = m_resultText->GetFont();
+    wxRichTextAttr resultAttr;
+    resultAttr.SetFont(m_resultTextFont);
+    resultAttr.SetTextColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
+    resultAttr.SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
+    m_resultText->SetDefaultStyle(resultAttr);
     resultBox->Add(m_resultText, 1, wxALL | wxEXPAND, 10);
     mainSizer->Add(resultBox, 1, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
@@ -797,12 +804,10 @@ void DialogSuggestion::AddWarning(const wxString &text)
         return;
 
     m_resultText->BeginBold();
-    m_resultText->BeginTextColour(wxColour("ORANGE"));
     m_resultText->WriteText("Warning: " + text);
 
     if (m_copyBtn && !m_resultText->IsEmpty())
         m_copyBtn->Enable(true);
-    m_resultText->EndTextColour();
     m_resultText->EndBold();
     m_resultText->Newline();
 }
@@ -813,12 +818,10 @@ void DialogSuggestion::AddError(const wxString &text)
         return;
 
     m_resultText->BeginBold();
-    m_resultText->BeginTextColour(*wxRED);
     m_resultText->WriteText("Error: " + text);
 
     if (m_copyBtn && !m_resultText->IsEmpty())
         m_copyBtn->Enable(true);
-    m_resultText->EndTextColour();
     m_resultText->EndBold();
     m_resultText->Newline();
 }
@@ -1053,10 +1056,10 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
         headingFont.SetWeight(wxFONTWEIGHT_BOLD);
         wxRichTextAttr outputAttr;
         outputAttr.SetFont(outputFont);
-        outputAttr.SetTextColour(*wxBLACK);
+        outputAttr.SetTextColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
         wxRichTextAttr headingAttr;
         headingAttr.SetFont(headingFont);
-        headingAttr.SetTextColour(*wxBLACK);
+        headingAttr.SetTextColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
         m_resultText->Newline();
         m_resultText->BeginStyle(headingAttr);
         m_resultText->WriteText(lines[0]);
@@ -1181,7 +1184,8 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent &event)
         m_resultText->SetFont(m_resultTextFont);
         wxRichTextAttr attr;
         attr.SetFont(m_resultTextFont);
-        attr.SetTextColour(*wxBLACK);
+        attr.SetTextColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
+        attr.SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW));
         m_resultText->SetDefaultStyle(attr);
         m_resultText->Clear();
         if (m_copyBtn)
