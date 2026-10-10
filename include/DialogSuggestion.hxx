@@ -30,6 +30,8 @@ class DialogSuggestion : public wxDialog
     wxRichTextCtrl* m_resultText;
     wxFont m_resultTextFont;
     wxButton* m_copyBtn;
+    wxTextCtrl* m_llamaCliText;
+    wxTextCtrl* m_llamaServerText;
 
     static int ParseLastInteger(const wxString& text);
     static bool LooksUnknownValue(const wxString& text);
@@ -52,11 +54,15 @@ class DialogSuggestion : public wxDialog
     bool LoadModel(const wxString& modelPath, llama_model*& currentModel);
     bool CreateSuggestion(const llama_model* currentModel);
     void OnCopyToClipboard(wxCommandEvent& event);
+    void OnSelectLlamaCliFile(wxCommandEvent& event);
+    void OnSelectLlamaServerFile(wxCommandEvent& event);
+    void SelectLlamaFile(wxTextCtrl* textCtrl, const wxString& executableName);
 
     bool LoadModelInfo(const ConfigFile& confFile);
     
     void OnDoItBtn(wxCommandEvent& event);
     void OnCloseBtn(wxCommandEvent& event);
+    void OnCloseWindow(wxCloseEvent& event);
 
 public:
     DialogSuggestion(wxWindow* parent, const ConfigFile& confFile);

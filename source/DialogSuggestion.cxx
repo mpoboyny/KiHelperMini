@@ -541,7 +541,7 @@ INI::GpuInfo DialogSuggestion::GetGpuInfoText()
 const wxSize DialogSuggestion::s_defSize = wxSize(860, 980);
 
 DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
-    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_CheckStep(0), m_modelCmb(nullptr), m_cpuCmb(nullptr), m_ramCmb(nullptr), m_gpuCmb(nullptr), m_nativeDriverCheck(nullptr), m_chatCheck(nullptr), m_agentCheck(nullptr), m_embeddingCheck(nullptr), m_autocompleteCheck(nullptr), m_cliRunParamsCheck(nullptr), m_serverRunParamsCheck(nullptr), m_presetServerIniCheck(nullptr), m_resultText(nullptr)
+    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_CheckStep(0), m_modelCmb(nullptr), m_cpuCmb(nullptr), m_ramCmb(nullptr), m_gpuCmb(nullptr), m_nativeDriverCheck(nullptr), m_chatCheck(nullptr), m_agentCheck(nullptr), m_embeddingCheck(nullptr), m_autocompleteCheck(nullptr), m_cliRunParamsCheck(nullptr), m_serverRunParamsCheck(nullptr), m_presetServerIniCheck(nullptr), m_resultText(nullptr), m_llamaCliText(nullptr), m_llamaServerText(nullptr)
 {
     TrFu;
     SetIcon(wxIcon(app_xpm));
@@ -588,7 +588,7 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
 
     wxStaticBoxSizer *llamaBox = new wxStaticBoxSizer(wxVERTICAL, this, "llama.cpp");
 
-    wxFlexGridSizer *llamaGrid = new wxFlexGridSizer(2, 2, 8, 8);
+    wxFlexGridSizer *llamaGrid = new wxFlexGridSizer(2, 3, 8, 8);
     llamaGrid->AddGrowableCol(1, 1);
 
 #ifdef _WIN32
@@ -599,7 +599,7 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     const wxString serverExeName = "llama-server";
 #endif
 
-    wxString llamaBinPath = confFile.GetLLamaBinPath();
+    const wxString llamaBinPath = confFile.GetLLamaBinPath();
     wxString llamaCliPath;
     wxString llamaServerPath;
     if (!llamaBinPath.IsEmpty())
@@ -609,14 +609,18 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     }
 
     wxStaticText *llamaCliLabel = new wxStaticText(this, wxID_ANY, "llama-cli:");
-    wxTextCtrl *llamaCliText = new wxTextCtrl(this, wxID_ANY, llamaCliPath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_llamaCliText = new wxTextCtrl(this, wxID_ANY, llamaCliPath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    wxButton *selectLlamaCliFileBtn = new wxButton(this, wxID_ANY, "Select file");
     llamaGrid->Add(llamaCliLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
-    llamaGrid->Add(llamaCliText, 1, wxEXPAND);
+    llamaGrid->Add(m_llamaCliText, 1, wxEXPAND);
+    llamaGrid->Add(selectLlamaCliFileBtn, 0, wxALIGN_CENTER_VERTICAL);
 
     wxStaticText *llamaServerLabel = new wxStaticText(this, wxID_ANY, "llama-server:");
-    wxTextCtrl *llamaServerText = new wxTextCtrl(this, wxID_ANY, llamaServerPath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    m_llamaServerText = new wxTextCtrl(this, wxID_ANY, llamaServerPath, wxDefaultPosition, wxDefaultSize, wxTE_READONLY);
+    wxButton *selectLlamaServerFileBtn = new wxButton(this, wxID_ANY, "Select file");
     llamaGrid->Add(llamaServerLabel, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 2);
-    llamaGrid->Add(llamaServerText, 1, wxEXPAND);
+    llamaGrid->Add(m_llamaServerText, 1, wxEXPAND);
+    llamaGrid->Add(selectLlamaServerFileBtn, 0, wxALIGN_CENTER_VERTICAL);
 
     llamaBox->Add(llamaGrid, 1, wxALL | wxEXPAND, 10);
     mainSizer->Add(llamaBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
@@ -708,7 +712,7 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     m_serverRunParamsCheck = new wxCheckBox(this, wxID_ANY, "server run parameters");
     m_presetServerIniCheck = new wxCheckBox(this, wxID_ANY, "preset server INI file");
 
-    m_cliRunParamsCheck->SetValue(true);
+    m_serverRunParamsCheck->SetValue(true);
 
     wxBoxSizer *outputFormatRow = new wxBoxSizer(wxHORIZONTAL);
     outputFormatRow->Add(m_cliRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
@@ -741,13 +745,16 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     wxButton *doItBtn = new wxButton(this, wxID_ANY, "Do it!");
     doItBtn->SetBitmap(wxBitmap(conf_model));
     btnSizer->Add(doItBtn, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 8);
-    wxButton *closeBtn = new wxButton(this, wxID_CLOSE, "Close");
+    wxButton *closeBtn = new wxButton(this, wxID_CANCEL, "Close");
     btnSizer->Add(closeBtn, 0, wxALIGN_CENTER_VERTICAL);
     mainSizer->Add(btnSizer, 0, wxALL | wxEXPAND, 10);
 
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnCopyToClipboard, this, m_copyBtn->GetId());
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnDoItBtn, this, doItBtn->GetId());
-    Bind(wxEVT_BUTTON, &DialogSuggestion::OnCloseBtn, this, wxID_CLOSE);
+    Bind(wxEVT_BUTTON, &DialogSuggestion::OnCloseBtn, this, wxID_CANCEL);
+    Bind(wxEVT_CLOSE_WINDOW, &DialogSuggestion::OnCloseWindow, this);
+    Bind(wxEVT_BUTTON, &DialogSuggestion::OnSelectLlamaCliFile, this, selectLlamaCliFileBtn->GetId());
+    Bind(wxEVT_BUTTON, &DialogSuggestion::OnSelectLlamaServerFile, this, selectLlamaServerFileBtn->GetId());
 
     SetSizer(mainSizer);
     mainSizer->SetSizeHints(this);
@@ -1158,7 +1165,43 @@ void DialogSuggestion::OnCopyToClipboard(wxCommandEvent &event)
     }
 }
 
+void DialogSuggestion::OnSelectLlamaCliFile(wxCommandEvent &event)
+{
+    SelectLlamaFile(m_llamaCliText, "llama-cli");
+}
+
+void DialogSuggestion::OnSelectLlamaServerFile(wxCommandEvent &event)
+{
+    SelectLlamaFile(m_llamaServerText, "llama-server");
+}
+
+void DialogSuggestion::SelectLlamaFile(wxTextCtrl *textCtrl, const wxString &executableName)
+{
+    if (!textCtrl)
+        return;
+
+    wxFileName currentFile(textCtrl->GetValue());
+    wxFileDialog openFileDialog(
+        this,
+        "Select " + executableName,
+        currentFile.GetPath(),
+        currentFile.GetFullName(),
+        "Executable files (*)|*",
+        wxFD_OPEN | wxFD_FILE_MUST_EXIST);
+
+    if (openFileDialog.ShowModal() == wxID_OK)
+        textCtrl->SetValue(openFileDialog.GetPath());
+}
+
 void DialogSuggestion::OnCloseBtn(wxCommandEvent &event)
 {
-    EndModal(wxID_CLOSE);
+    EndModal(wxID_CANCEL);
+}
+
+void DialogSuggestion::OnCloseWindow(wxCloseEvent &event)
+{
+    if (IsModal())
+        EndModal(wxID_CANCEL);
+    else
+        event.Skip();
 }

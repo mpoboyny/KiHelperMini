@@ -14,7 +14,7 @@
 ### Environment A: Linux
 - **Compiler:** `g++` (GCC)
 - **Build System:** `GNU Make` (Makefile)
-- **Build Command:** `make -j$(nproc) release`
+- **Build Command:** `make release`
 
 ### Environment B: Windows
 - **Compiler:** MSVC (Visual Studio via Developer Command Prompt)

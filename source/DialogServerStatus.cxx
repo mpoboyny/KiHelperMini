@@ -82,11 +82,10 @@ long DialogServerStatus::FindServerPid()
 
 wxArrayString DialogServerStatus::GetLastLogLines(size_t maxLines)
 {
+    TrFu;
+    TrStr(g_SrvLogFile);
     wxArrayString lines;
-    if (!wxFileExists(g_SrvLogFile)) {
-        return lines;
-    }
-
+    TrRet(!wxFileExists(g_SrvLogFile), lines);
     wxTextFile file(g_SrvLogFile);
     if (!file.Open()) {
         return lines;
