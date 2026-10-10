@@ -46,6 +46,8 @@ ModelInfoDialog::ModelInfoDialog(wxWindow* parent, const std::map<std::string, s
             label += " ...";
             m_grid->SetCellBackgroundColour(row, 0, s_HighlightLongValue);
             m_grid->SetCellBackgroundColour(row, 1, s_HighlightLongValue);
+            m_grid->SetCellTextColour(row, 0, *wxBLACK);
+            m_grid->SetCellTextColour(row, 1, *wxBLACK);
             value = value.Left(64) + "...";
         }
         m_grid->SetCellValue(row, 0, label);
@@ -75,7 +77,7 @@ void ModelInfoDialog::OnCellDoubleClicked(wxGridEvent& event)
 {
     const int row = event.GetRow();
     if (row < 0 || static_cast<size_t>(row) >= m_rowKeys.size() ||
-        m_grid->GetCellBackgroundColour(row, 1) != s_HighlightLongValue) {
+        !m_grid->GetCellValue(row, 0).EndsWith(" ...")) {
         event.Skip();
         return;
     }

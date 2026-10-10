@@ -74,21 +74,27 @@ void ConfigDlg::SetupXmlHighlighting()
     // Set XML Lexer
     m_textCtrl->SetLexer(wxSTC_LEX_XML);
 
-    // Style colors (Example: Dark blue for tags, Red for attributes)
-    m_textCtrl->StyleSetForeground(wxSTC_H_TAG, wxColour(0, 0, 150));
-    m_textCtrl->StyleSetForeground(wxSTC_H_ATTRIBUTE, wxColour(150, 0, 0));
-    m_textCtrl->StyleSetForeground(wxSTC_H_VALUE, wxColour(0, 150, 0));
-    m_textCtrl->StyleSetForeground(wxSTC_H_COMMENT, wxColour(128, 128, 128));
-    
+    // Use the current user colour scheme instead of fixed editor colours.
+    wxColour background = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
+    wxColour foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
+    m_textCtrl->StyleSetBackground(wxSTC_STYLE_DEFAULT, background);
+    m_textCtrl->StyleSetForeground(wxSTC_STYLE_DEFAULT, foreground);
+
     // Enable line numbers
     m_textCtrl->SetMarginType(0, wxSTC_MARGIN_NUMBER);
     m_textCtrl->SetMarginWidth(0, 35);
+    m_textCtrl->StyleSetBackground(wxSTC_STYLE_LINENUMBER, background);
+    m_textCtrl->StyleSetForeground(wxSTC_STYLE_LINENUMBER, foreground);
+    m_textCtrl->SetSelBackground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+    m_textCtrl->SetSelForeground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
+    m_textCtrl->SetCaretForeground(foreground);
 
     // Set font
     wxFont monoFont(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     for (int i = 0; i <= wxSTC_STYLE_MAX; ++i) {
         m_textCtrl->StyleSetFont(i, monoFont);
     }
+    m_textCtrl->StyleClearAll();
 }
 
 void ConfigDlg::LoadXmlContent()

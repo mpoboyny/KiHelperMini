@@ -52,14 +52,16 @@ CMainDialogPanel::CMainDialogPanel(wxWindow* parent, ConfigFile *cfgFile)
         models.push_back({"No models configured", false});
     }
 
-    m_listModels = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(600, 75), wxLC_REPORT | wxLC_NO_HEADER | wxLC_SINGLE_SEL);
+    const int modelListHeight = std::max(75, static_cast<int>(models.size()) * GetCharHeight() + 8);
+    m_listModels = new wxListCtrl(this, wxID_ANY, wxDefaultPosition, wxSize(600, modelListHeight), wxLC_REPORT | wxLC_NO_HEADER | wxLC_SINGLE_SEL);
     m_listModels->InsertColumn(0, "Path", wxLIST_FORMAT_LEFT, 580);
     for (const auto& model : models) {
         long index = m_listModels->GetItemCount();
         m_listModels->InsertItem(index, model.Path);
         
         if (model.Current) {
-            m_listModels->SetItemBackgroundColour(index, g_ColorLightGreen);
+            m_listModels->SetItemBackgroundColour(index, wxColour(220, 255, 220));
+            m_listModels->SetItemTextColour(index, *wxBLACK);
         }
     }
 
