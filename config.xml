@@ -59,9 +59,10 @@
         </System>
         <System Name="Linux">
             <Models>
-                <Model File="~/LocalKiModels/Qwen2.5-7B-Instruct-Q4_K_M.gguf" Current="true" />
-                <Model File="~/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" />
-                <Model File="~/LocalKiModels/Codestral-22B-v0.1-Q5_K_M.gguf"/>
+                <!-- Good for programming tasks -->
+                <Model File="~/LocalKiModels/Qwen2.5-7B-Instruct-Q4_K_M.gguf" />
+                <!-- Allaround model -->
+                <Model File="~/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" Current="true" />
             </Models>
             <LLamaCpp>
                 <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
@@ -113,6 +114,9 @@
                 <!-- Flash Attention: Highly recommended for local models with large context windows. -->
                 <!-- It drastically reduces VRAM requirements for the context cache and speeds up generation. -->
                 <Parameter Name="--flash-attn" Value="on" />
+
+                 <!-- Chat Engine Template: Forces llama-cli to parse and apply the native Jinja template embedded inside Mistral GGUF metadata. -->
+                <Parameter Name="--jinja" Value="" />
             </LlamaServerParameters>
        </System>
     </Systems>
