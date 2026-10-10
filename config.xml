@@ -60,9 +60,9 @@
         <System Name="Linux">
             <Models>
                 <!-- Good for programming tasks -->
-                <Model File="~/LocalKiModels/Qwen2.5-7B-Instruct-Q4_K_M.gguf" />
+                <Model File="~/LocalKiModels/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf" Current="true" />
                 <!-- Allaround model -->
-                <Model File="~/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" Current="true" />
+                <Model File="~/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" />
             </Models>
             <LLamaCpp>
                 <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />

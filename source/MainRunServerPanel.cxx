@@ -74,11 +74,6 @@ namespace
         return fn.GetFullPath();
     }
 
-    bool IsChatOnlyParameter(const ConfigFile::ChatParameter& param)
-    {
-        return param.Name == "-cnv" || param.Name == "--jinja";
-    }
-
     wxString GetDefaultServerPath(const ConfigFile& confFile)
     {
         wxString res = BuildServerPathFromBase(confFile.GetServerDefPath());
@@ -129,9 +124,6 @@ CMainRunServerPanel::CMainRunServerPanel(wxWindow* parent, const ConfigFile &con
     }
 
     for (const auto& param : params) {
-        if (IsChatOnlyParameter(param)) {
-            continue;
-        }
         wxString paramText = param.Name;
         if (!param.Value.IsEmpty()) {
             paramText += " " + param.Value;
