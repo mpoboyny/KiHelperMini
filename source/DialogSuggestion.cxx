@@ -1107,6 +1107,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
             appendCliParameter("--flash-attn", "on");
         if (useEmbedding)
             appendCliParameter("--embedding");
+        appendCliParameter("--jinja");
 
         wxArrayString lines;
         lines.Add("cli run parameters:");
@@ -1142,8 +1143,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
             appendServerParameter("--embedding");
         appendServerParameter("--ubatch-size", wxString::Format("%d", ubatchSize));
         appendServerParameter("--parallel", wxString::Format("%d", parallel));
-        if (useChat && hasChatTemplate)
-            appendServerParameter("--jinja");
+        appendServerParameter("--jinja");
 
         wxArrayString lines;
         lines.Add("server run parameters:");
@@ -1164,6 +1164,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
         lines.Add(wxString::Format("n_gpu_layers=%d", gpuLayers));
         lines.Add(wxString::Format("flash_attn=%s", useFlashAttn ? "true" : "false"));
         lines.Add(wxString::Format("embedding=%s", useEmbedding ? "true" : "false"));
+        lines.Add("jinja=true");
         addStyledOutputBlock(lines);
     }
     return true;
