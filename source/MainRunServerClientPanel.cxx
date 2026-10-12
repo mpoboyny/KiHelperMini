@@ -28,7 +28,7 @@ CMainRunServerClientPanel::CMainRunServerClientPanel(wxWindow* parent, const CMa
 
     groupSizer->Add(clientSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
-    mainSizer->Add(groupSizer, 0, wxEXPAND);
+    mainSizer->Add(groupSizer, 0, wxEXPAND | wxLEFT | wxRIGHT, 10);
     SetSizer(mainSizer);
 
     Bind(wxEVT_BUTTON, &CMainRunServerClientPanel::OnRun, this, runButton->GetId());
