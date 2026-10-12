@@ -6,7 +6,7 @@ HOST="127.0.0.1"
 PORT="8080"
 MODEL_ID="Qwen35-9B-Q4_K_M"
 LLAMA_SERVER="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server"
-INI_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M/preset.ini"
+INI_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M//preset.ini"
 LOG_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M/server.log"
 
 # 1. Radikale Prüfung und Beendigung ALLER Instanzen (Haupt- und Kind-Prozesse)
@@ -40,9 +40,6 @@ taskset -c 0-11 "$LLAMA_SERVER" \
   --host "$SERVER_BIND" \
   --port "$PORT" \
   --models-preset "$INI_PATH" \
-  --jinja \
-  --models-max 1 \
-  --parallel 1 \
   > "$LOG_PATH" 2>&1 &
 
 # 3. Warten, bis das Modell im Router aktiv registriert ist

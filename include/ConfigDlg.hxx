@@ -21,6 +21,7 @@ private:
     void OnShowConfFolder(wxCommandEvent& event);
     void OnShowDefConfFolder(wxCommandEvent& event);
     void OnOK(wxCommandEvent& event);
+    void OnMarginClick(wxStyledTextEvent& event);
 
     wxDECLARE_EVENT_TABLE();
 };

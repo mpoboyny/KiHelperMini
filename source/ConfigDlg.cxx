@@ -27,6 +27,7 @@ ConfigDlg::ConfigDlg(wxWindow* parent)
     // 1. Das Textfeld (StyledTextCtrl)
     m_textCtrl = new wxStyledTextCtrl(this, wxID_ANY);
     SetupXmlHighlighting();
+    m_textCtrl->Bind(wxEVT_STC_MARGINCLICK, &ConfigDlg::OnMarginClick, this);
     mainSizer->Add(m_textCtrl, 1, wxEXPAND | wxALL, 10);
 
     // 2. Die untere Zeile (Horizontal)
@@ -72,6 +73,9 @@ ConfigDlg::ConfigDlg(wxWindow* parent)
 void ConfigDlg::SetupXmlHighlighting()
 {
     m_textCtrl->SetLexer(wxSTC_LEX_XML);
+    m_textCtrl->SetProperty("fold", "1");
+    m_textCtrl->SetProperty("fold.html", "1");
+    m_textCtrl->SetProperty("fold.compact", "1");
 
     wxColour background = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
     wxColour foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
@@ -97,9 +101,32 @@ void ConfigDlg::SetupXmlHighlighting()
     m_textCtrl->SetMarginWidth(0, 35);
     m_textCtrl->StyleSetBackground(wxSTC_STYLE_LINENUMBER, background);
     m_textCtrl->StyleSetForeground(wxSTC_STYLE_LINENUMBER, foreground);
+    m_textCtrl->SetMarginType(1, wxSTC_MARGIN_SYMBOL);
+    m_textCtrl->SetMarginMask(1, wxSTC_MASK_FOLDERS);
+    m_textCtrl->SetMarginSensitive(1, true);
+    m_textCtrl->SetMarginWidth(1, 16);
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_BOXPLUS);
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_BOXMINUS);
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_BOXPLUSCONNECTED);
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_BOXMINUSCONNECTED);
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_TCORNER);
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_LCORNER);
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_VLINE);
     m_textCtrl->SetSelBackground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
     m_textCtrl->SetSelForeground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
     m_textCtrl->SetCaretForeground(foreground);
+}
+
+void ConfigDlg::OnMarginClick(wxStyledTextEvent& event)
+{
+    if (event.GetMargin() != 1) {
+        return;
+    }
+
+    int line = m_textCtrl->LineFromPosition(event.GetPosition());
+    if (m_textCtrl->GetFoldLevel(line) & wxSTC_FOLDLEVELHEADERFLAG) {
+        m_textCtrl->ToggleFold(line);
+    }
 }
 
 void ConfigDlg::LoadXmlContent()
