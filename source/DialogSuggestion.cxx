@@ -555,7 +555,7 @@ INI::GpuInfo DialogSuggestion::GetGpuInfoText()
 const wxSize DialogSuggestion::s_defSize = wxSize(860, 980);
 
 DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
-    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_CheckStep(0), m_modelCmb(nullptr), m_cpuCmb(nullptr), m_ramCmb(nullptr), m_gpuCmb(nullptr), m_nativeDriverCheck(nullptr), m_chatCheck(nullptr), m_agentCheck(nullptr), m_embeddingCheck(nullptr), m_autocompleteCheck(nullptr), m_cliRunParamsCheck(nullptr), m_serverRunParamsCheck(nullptr), m_presetServerIniCheck(nullptr), m_resultText(nullptr), m_llamaCliText(nullptr), m_llamaServerText(nullptr)
+    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_CheckStep(0), m_modelCmb(nullptr), m_cpuCmb(nullptr), m_ramCmb(nullptr), m_gpuCmb(nullptr), m_nativeDriverCheck(nullptr), m_chatCheck(nullptr), m_agentCheck(nullptr), m_embeddingCheck(nullptr), m_autocompleteCheck(nullptr), m_cliRunParamsCheck(nullptr), m_serverRunParamsCheck(nullptr), m_presetServerIniCheck(nullptr), m_resultText(nullptr), m_setRunParamsAsDefaultBtn(nullptr), m_llamaCliText(nullptr), m_llamaServerText(nullptr)
 {
     TrFu;
     SetIcon(wxIcon(app_xpm));
@@ -718,11 +718,15 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     outputFormatRow->Add(m_cliRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
     outputFormatRow->Add(m_serverRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
     outputFormatRow->Add(m_presetServerIniCheck, 0, wxALIGN_CENTER_VERTICAL);
+    outputFormatRow->AddStretchSpacer(1);
+    m_setRunParamsAsDefaultBtn = new wxButton(this, wxID_ANY, "Set run parameters as default...");
+    m_setRunParamsAsDefaultBtn->Enable(false);
+    outputFormatRow->Add(m_setRunParamsAsDefaultBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 16);
 
     outputFormatBox->Add(outputFormatRow, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(outputFormatBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
 
-    wxStaticBoxSizer *resultBox = new wxStaticBoxSizer(wxVERTICAL, this, "Result (it is possible suggestions, are not always 100% correct, no warranty is given)");
+    wxStaticBoxSizer *resultBox = new wxStaticBoxSizer(wxVERTICAL, this, "Result (it is possible suggestions, are not always 100% best, no warranty is given)");
     const int resultHeight = GetCharHeight() * 10;
     m_resultText = new wxRichTextCtrl(
         this,
@@ -757,6 +761,7 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     mainSizer->Add(btnSizer, 0, wxALL | wxEXPAND, 10);
 
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnCopyToClipboard, this, m_copyBtn->GetId());
+    m_setRunParamsAsDefaultBtn->Bind(wxEVT_BUTTON, &DialogSuggestion::OnSetRunParamsAsDefaultBtn, this);
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnDoItBtn, this, doItBtn->GetId());
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnCloseBtn, this, wxID_CANCEL);
     Bind(wxEVT_CLOSE_WINDOW, &DialogSuggestion::OnCloseWindow, this);
@@ -1169,6 +1174,12 @@ bool DialogSuggestion::LoadModelInfo(const ConfigFile &confFile)
 void DialogSuggestion::OnDoItBtn(wxCommandEvent &event)
 {
     m_CheckStep = 0;
+    if (m_setRunParamsAsDefaultBtn)
+    {
+        const bool hasRunParameters = (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue()) ||
+                                      (m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue());
+        m_setRunParamsAsDefaultBtn->Enable(hasRunParameters);
+    }
     llama_model *currentModel = nullptr;
 
     auto cleanup = ScopeGuard{[&]
@@ -1240,6 +1251,11 @@ void DialogSuggestion::OnCopyToClipboard(wxCommandEvent &event)
         wxTheClipboard->SetData(new wxTextDataObject(m_resultText->GetValue()));
         wxTheClipboard->Close();
     }
+}
+
+void DialogSuggestion::OnSetRunParamsAsDefaultBtn(wxCommandEvent &event)
+{
+    TrFu;
 }
 
 void DialogSuggestion::OnSelectLlamaCliFile(wxCommandEvent &event)

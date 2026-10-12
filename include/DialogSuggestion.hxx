@@ -30,6 +30,7 @@ class DialogSuggestion : public wxDialog
     wxRichTextCtrl* m_resultText;
     wxFont m_resultTextFont;
     wxButton* m_copyBtn;
+    wxButton* m_setRunParamsAsDefaultBtn;
     wxTextCtrl* m_llamaCliText;
     wxTextCtrl* m_llamaServerText;
     wxString m_llamaCliHelp;
@@ -59,6 +60,7 @@ class DialogSuggestion : public wxDialog
     bool LoadModel(const wxString& modelPath, llama_model*& currentModel);
     bool CreateSuggestion(const llama_model* currentModel);
     void OnCopyToClipboard(wxCommandEvent& event);
+    void OnSetRunParamsAsDefaultBtn(wxCommandEvent& event);
     void OnSelectLlamaCliFile(wxCommandEvent& event);
     void OnSelectLlamaServerFile(wxCommandEvent& event);
     void SelectLlamaFile(wxTextCtrl* textCtrl, const wxString& executableName);
