@@ -17,6 +17,7 @@ public:
     ~ProcessRunner() = default;
 
     wxString Run(const wxString& exePath, const wxString& args);
+    bool RunDefaultBrowserAsync(const wxString& url);
     bool RunAsyncInNewWindow(const wxString& scriptPath, int displayIndex, const wxString title);
     bool RunServerAsyncInNewWindow(const wxString& scriptContent, int displayIndex, const wxString title, bool hidden = false);
     bool RunSyncInNewWindow(const wxString& scriptPath, int displayIndex, const wxString title);

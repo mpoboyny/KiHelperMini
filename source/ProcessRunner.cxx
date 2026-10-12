@@ -34,6 +34,11 @@ wxString ProcessRunner::Run(const wxString& exePath, const wxString& args)
     return output;
 }
 
+bool ProcessRunner::RunDefaultBrowserAsync(const wxString& url)
+{
+    return wxLaunchDefaultBrowser(url);
+}
+
 #ifdef _WIN32
 
 bool ProcessRunner::RunAsyncInNewWindow(const wxString& scriptPath, int WXUNUSED(displayIndex), const wxString WXUNUSED(title))

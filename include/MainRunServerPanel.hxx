@@ -28,6 +28,7 @@ class CMainRunServerPanel : public wxPanel
 
 public:
     CMainRunServerPanel(wxWindow* parent, const ConfigFile &confFile);
+    bool GetServerUrl(wxString& url) const;
 };
 
 #endif // MAINRUNSERVERPANEL_HXX

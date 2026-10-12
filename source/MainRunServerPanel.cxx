@@ -174,6 +174,38 @@ CMainRunServerPanel::CMainRunServerPanel(wxWindow* parent, const ConfigFile &con
     Layout();
 }
 
+bool CMainRunServerPanel::GetServerUrl(wxString& url) const
+{
+    url.clear();
+
+    wxString host;
+    wxString port;
+    wxStringTokenizer tokens(m_textServerParams->GetValue());
+    while (tokens.HasMoreTokens()) {
+        wxString token = tokens.GetNextToken();
+        if (token == "--host" && tokens.HasMoreTokens()) {
+            host = tokens.GetNextToken();
+        }
+        else if (token.StartsWith("--host=")) {
+            host = token.Mid(7);
+        }
+        else if (token == "--port" && tokens.HasMoreTokens()) {
+            port = tokens.GetNextToken();
+        }
+        else if (token.StartsWith("--port=")) {
+            port = token.Mid(7);
+        }
+    }
+
+    long portNumber = 0;
+    if (host.IsEmpty() || port.IsEmpty() || !port.ToLong(&portNumber) || portNumber < 1 || portNumber > 65535) {
+        return false;
+    }
+
+    url = wxString::Format("http://%s:%ld", host, portNumber);
+    return true;
+}
+
 void CMainRunServerPanel::OnSelectFile(wxCommandEvent& event)
 {
     TrFu;
