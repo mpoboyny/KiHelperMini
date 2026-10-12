@@ -14,7 +14,7 @@ class DialogServerStatus : public wxDialog
     wxButton* m_closeBtn;
     long m_serverPid = -1;
 
-    long FindServerPid();
+    static long FindServerPid();
     wxArrayString GetLastLogLines(size_t maxLines);
     void UpdateStatus();
 
@@ -24,6 +24,8 @@ class DialogServerStatus : public wxDialog
 public:
     DialogServerStatus(wxWindow* parent);
     ~DialogServerStatus() override = default;
+
+    static bool IsServerRunning();
 };
 
 #endif // DIALOGSERVERSTATUS_HXX

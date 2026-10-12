@@ -9,6 +9,7 @@
 #include "MainDialogPanel.hxx"
 #include "MainRunChatPanel.hxx"
 #include "MainRunServerPanel.hxx"
+#include "MainRunServerClientPanel.hxx"
 
 #include "MainDialog.hxx"
 #include "MainDialogStatusBar.hxx"
@@ -21,7 +22,7 @@
 #include "../resources/app.xpm"
 
 /* static */
-const wxSize CMainDialog::s_defMinSize = wxSize(1000, 700);
+const wxSize CMainDialog::s_defMinSize = wxSize(1000, 750);
 
 
 CMainDialog::CMainDialog()
@@ -63,6 +64,9 @@ CMainDialog::CMainDialog()
 
     m_runServerPanel = new CMainRunServerPanel(this, *m_ConfFile);
     mainSizer->Add(m_runServerPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
+
+    m_runServerClientPanel = new CMainRunServerClientPanel(this);
+    mainSizer->Add(m_runServerClientPanel, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 5);
 
     SetSizer(mainSizer);
 

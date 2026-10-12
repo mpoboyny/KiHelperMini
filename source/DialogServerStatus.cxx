@@ -80,6 +80,11 @@ long DialogServerStatus::FindServerPid()
     return -1;
 }
 
+bool DialogServerStatus::IsServerRunning()
+{
+    return FindServerPid() > 0;
+}
+
 wxArrayString DialogServerStatus::GetLastLogLines(size_t maxLines)
 {
     TrFu;

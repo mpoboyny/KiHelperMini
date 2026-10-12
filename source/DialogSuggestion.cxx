@@ -1135,6 +1135,8 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
         appendServerParameter("--ctx-size", wxString::Format("%d", ctxSize));
         appendServerParameter("--threads", wxString::Format("%d", threads));
         appendServerParameter("--batch-size", wxString::Format("%d", batchSize));
+        appendServerParameter("--host", "127.0.0.1");
+        appendServerParameter("--port", "8080");
         if (gpuLayers > 0)
             appendServerParameter("--n-gpu-layers", wxString::Format("%d", gpuLayers));
         if (useFlashAttn)
