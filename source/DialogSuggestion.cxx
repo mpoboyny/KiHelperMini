@@ -714,11 +714,11 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     m_presetServerIniCheck = new wxCheckBox(this, wxID_ANY, "preset server INI file");
 
     m_serverRunParamsCheck->SetValue(true);
+    m_presetServerIniCheck->SetValue(false);
 
     wxBoxSizer *outputFormatRow = new wxBoxSizer(wxHORIZONTAL);
     outputFormatRow->Add(m_cliRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
     outputFormatRow->Add(m_serverRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
-    outputFormatRow->Add(m_presetServerIniCheck, 0, wxALIGN_CENTER_VERTICAL);
     outputFormatRow->AddStretchSpacer(1);
     m_setRunParamsAsDefaultBtn = new wxButton(this, wxID_ANY, "Set run parameters as default...");
     m_setRunParamsAsDefaultBtn->Enable(false);
