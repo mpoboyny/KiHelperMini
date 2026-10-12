@@ -4,6 +4,7 @@
 
 #include "prc.hxx"
 #include "DialogSuggestion.hxx"
+#include "ConfigDlg.hxx"
 #include "ConfigFile.hxx"
 #include "IniFile.hxx"
 #include "ProcessRunner.hxx"
@@ -1082,7 +1083,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     if (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue())
     {
         wxString cliParams;
-        auto appendCliParameter = [&](const wxString &parameter, const wxString &value = wxString())
+        auto appendCliParameter = [&](const wxString &parameter, const wxString &value = wxString(), bool saveAsDefault = true)
         {
             if (!IsParameterSupported(m_llamaCliHelp, parameter))
             {
@@ -1092,9 +1093,11 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
             cliParams << " " << parameter;
             if (!value.IsEmpty())
                 cliParams << " " << value;
+            if (saveAsDefault)
+                m_cliSuggestedParameters.push_back({parameter, value});
         };
         if (!modelPath.IsEmpty())
-            appendCliParameter("--model", modelPath);
+            appendCliParameter("--model", modelPath, false);
         appendCliParameter("--ctx-size", wxString::Format("%d", ctxSize));
         appendCliParameter("--threads", wxString::Format("%d", threads));
         appendCliParameter("--batch-size", wxString::Format("%d", batchSize));
@@ -1113,7 +1116,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     if (m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue())
     {
         wxString serverParams;
-        auto appendServerParameter = [&](const wxString &parameter, const wxString &value = wxString())
+        auto appendServerParameter = [&](const wxString &parameter, const wxString &value = wxString(), bool saveAsDefault = true)
         {
             if (!IsParameterSupported(m_llamaServerHelp, parameter))
             {
@@ -1123,9 +1126,11 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
             serverParams << " " << parameter;
             if (!value.IsEmpty())
                 serverParams << " " << value;
+            if (saveAsDefault)
+                m_serverSuggestedParameters.push_back({parameter, value});
         };
         if (!modelPath.IsEmpty())
-            appendServerParameter("--model", modelPath);
+            appendServerParameter("--model", modelPath, false);
         appendServerParameter("--ctx-size", wxString::Format("%d", ctxSize));
         appendServerParameter("--threads", wxString::Format("%d", threads));
         appendServerParameter("--batch-size", wxString::Format("%d", batchSize));
@@ -1205,6 +1210,8 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent &event)
 
     m_llamaCliHelp.clear();
     m_llamaServerHelp.clear();
+    m_cliSuggestedParameters.clear();
+    m_serverSuggestedParameters.clear();
 
     if (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue() &&
         !LoadLlamaHelp(m_llamaCliText, "llama-cli", m_llamaCliHelp))
@@ -1256,6 +1263,124 @@ void DialogSuggestion::OnCopyToClipboard(wxCommandEvent &event)
 void DialogSuggestion::OnSetRunParamsAsDefaultBtn(wxCommandEvent &event)
 {
     TrFu;
+
+    const bool useCliParameters = m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue();
+    const bool useServerParameters = m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue();
+    if (!useCliParameters && !useServerParameters)
+        return;
+
+    ConfigFile confFile;
+    wxString errorMessage;
+    if (confFile.HaveError(errorMessage))
+    {
+        AddError(errorMessage);
+        return;
+    }
+
+    wxString xmlContent = confFile;
+    wxStringInputStream input(xmlContent);
+    wxXmlDocument xmlDocument;
+    if (!xmlDocument.Load(input))
+    {
+        AddError("Could not load the configuration XML.");
+        return;
+    }
+
+    wxXmlNode *systemsNode = nullptr;
+    wxXmlNode *rootNode = xmlDocument.GetRoot();
+    for (wxXmlNode *node = rootNode ? rootNode->GetChildren() : nullptr; node; node = node->GetNext())
+    {
+        if (node->GetType() == wxXML_ELEMENT_NODE && node->GetName().CmpNoCase("Systems") == 0)
+        {
+            systemsNode = node;
+            break;
+        }
+    }
+
+    wxXmlNode *systemNode = nullptr;
+    const wxString systemName = confFile.GetCurrentSysName();
+    for (wxXmlNode *node = systemsNode ? systemsNode->GetChildren() : nullptr; node; node = node->GetNext())
+    {
+        if (node->GetType() == wxXML_ELEMENT_NODE && node->GetName().CmpNoCase("System") == 0 &&
+            node->GetAttribute("Name", "").CmpNoCase(systemName) == 0)
+        {
+            systemNode = node;
+            break;
+        }
+    }
+
+    if (!systemNode)
+    {
+        AddError("Could not find the current system configuration.");
+        return;
+    }
+
+    auto replaceParameters = [&](const wxString &containerName, const SuggestedParameterList &parameters)
+    {
+        wxXmlNode *containerNode = nullptr;
+        for (wxXmlNode *node = systemNode->GetChildren(); node; node = node->GetNext())
+        {
+            if (node->GetType() == wxXML_ELEMENT_NODE && node->GetName().CmpNoCase(containerName) == 0)
+            {
+                containerNode = node;
+                break;
+            }
+        }
+        if (!containerNode)
+            return false;
+
+        for (wxXmlNode *node = containerNode->GetChildren(); node;)
+        {
+            wxXmlNode *nextNode = node->GetNext();
+            if (node->GetType() == wxXML_ELEMENT_NODE && node->GetName().CmpNoCase("Parameter") == 0)
+            {
+                containerNode->RemoveChild(node);
+                delete node;
+            }
+            node = nextNode;
+        }
+
+        for (const auto &parameter : parameters)
+        {
+            wxXmlNode *parameterNode = new wxXmlNode(wxXML_ELEMENT_NODE, "Parameter");
+            parameterNode->AddAttribute("Name", parameter.Name);
+            parameterNode->AddAttribute("Value", parameter.Value);
+            containerNode->AddChild(parameterNode);
+        }
+        return true;
+    };
+
+    if ((useCliParameters && !replaceParameters("LlamaChatParameters", m_cliSuggestedParameters)) ||
+        (useServerParameters && !replaceParameters("LlamaServerParameters", m_serverSuggestedParameters)))
+    {
+        AddError("Could not find a selected parameter configuration.");
+        return;
+    }
+
+    wxStringOutputStream output;
+    xmlDocument.Save(output);
+    wxWindow *parent = GetParent();
+    wxString suggestedXml = output.GetString();
+    EndModal(wxID_CANCEL);
+
+    wxTheApp->CallAfter([parent, suggestedXml]
+                        {
+                            ConfigDlg *dialog = new ConfigDlg(parent);
+                            dialog->SetXmlContent(suggestedXml);
+                            if (dialog->ShowModal() == wxID_OK)
+                            {
+                                if (dialog->IsModified())
+                                {
+                                    dialog->SaveConfig();
+                                    wxExecute(wxStandardPaths::Get().GetExecutablePath());
+                                    dialog->Destroy();
+                                    if (parent)
+                                        parent->Close(true);
+                                    return;
+                                }
+                            }
+                            dialog->Destroy();
+                        });
 }
 
 void DialogSuggestion::OnSelectLlamaCliFile(wxCommandEvent &event)

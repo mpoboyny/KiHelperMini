@@ -11,6 +11,13 @@ namespace INI { struct CpuInfo; struct GpuInfo; struct RamInfo; }
 
 class DialogSuggestion : public wxDialog
 {
+    struct SuggestedParameter
+    {
+        wxString Name;
+        wxString Value;
+    };
+    typedef std::list<SuggestedParameter> SuggestedParameterList;
+
     static const wxSize s_defSize;
 
     int m_CheckStep;
@@ -35,6 +42,8 @@ class DialogSuggestion : public wxDialog
     wxTextCtrl* m_llamaServerText;
     wxString m_llamaCliHelp;
     wxString m_llamaServerHelp;
+    SuggestedParameterList m_cliSuggestedParameters;
+    SuggestedParameterList m_serverSuggestedParameters;
 
     static int ParseLastInteger(const wxString& text);
     static bool LooksUnknownValue(const wxString& text);

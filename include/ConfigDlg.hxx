@@ -9,6 +9,7 @@ class ConfigDlg : public wxDialog
 {
 public:
     ConfigDlg(wxWindow* parent);
+    void SetXmlContent(const wxString& content);
     bool IsModified() const;
     void SaveConfig();
 private:

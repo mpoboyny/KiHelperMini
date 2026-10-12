@@ -71,16 +71,28 @@ ConfigDlg::ConfigDlg(wxWindow* parent)
 
 void ConfigDlg::SetupXmlHighlighting()
 {
-    // Set XML Lexer
     m_textCtrl->SetLexer(wxSTC_LEX_XML);
 
-    // Use the current user colour scheme instead of fixed editor colours.
     wxColour background = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
     wxColour foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
     m_textCtrl->StyleSetBackground(wxSTC_STYLE_DEFAULT, background);
     m_textCtrl->StyleSetForeground(wxSTC_STYLE_DEFAULT, foreground);
 
-    // Enable line numbers
+    wxFont monoFont(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    m_textCtrl->StyleSetFont(wxSTC_STYLE_DEFAULT, monoFont);
+    m_textCtrl->StyleClearAll();
+
+    m_textCtrl->StyleSetForeground(wxSTC_H_TAG, wxColour(0, 0, 180));
+    m_textCtrl->StyleSetForeground(wxSTC_H_TAGEND, wxColour(0, 0, 180));
+    m_textCtrl->StyleSetForeground(wxSTC_H_ATTRIBUTE, wxColour(128, 64, 0));
+    m_textCtrl->StyleSetForeground(wxSTC_H_DOUBLESTRING, wxColour(160, 0, 0));
+    m_textCtrl->StyleSetForeground(wxSTC_H_SINGLESTRING, wxColour(160, 0, 0));
+    m_textCtrl->StyleSetForeground(wxSTC_H_COMMENT, wxColour(0, 128, 0));
+    m_textCtrl->StyleSetForeground(wxSTC_H_ENTITY, wxColour(128, 0, 128));
+    m_textCtrl->StyleSetForeground(wxSTC_H_XMLSTART, wxColour(128, 0, 128));
+    m_textCtrl->StyleSetForeground(wxSTC_H_XMLEND, wxColour(128, 0, 128));
+    m_textCtrl->StyleSetForeground(wxSTC_H_CDATA, wxColour(128, 64, 0));
+
     m_textCtrl->SetMarginType(0, wxSTC_MARGIN_NUMBER);
     m_textCtrl->SetMarginWidth(0, 35);
     m_textCtrl->StyleSetBackground(wxSTC_STYLE_LINENUMBER, background);
@@ -88,13 +100,6 @@ void ConfigDlg::SetupXmlHighlighting()
     m_textCtrl->SetSelBackground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
     m_textCtrl->SetSelForeground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
     m_textCtrl->SetCaretForeground(foreground);
-
-    // Set font
-    wxFont monoFont(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-    for (int i = 0; i <= wxSTC_STYLE_MAX; ++i) {
-        m_textCtrl->StyleSetFont(i, monoFont);
-    }
-    m_textCtrl->StyleClearAll();
 }
 
 void ConfigDlg::LoadXmlContent()
@@ -104,6 +109,12 @@ void ConfigDlg::LoadXmlContent()
     m_textCtrl->SetReadOnly(false);
     m_textCtrl->SetText(m_originalContent);
     m_textCtrl->SetSavePoint();
+}
+
+void ConfigDlg::SetXmlContent(const wxString& content)
+{
+    m_textCtrl->SetReadOnly(false);
+    m_textCtrl->SetText(content);
 }
 
 bool ConfigDlg::IsModified() const
