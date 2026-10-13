@@ -134,19 +134,25 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
         return false;
     }
 
-    wxDialog* dlg = new wxDialog(caller, wxID_ANY, "", wxDefaultPosition, wxSize(200, 130), wxDEFAULT_DIALOG_STYLE & ~(wxCLOSE_BOX | wxCAPTION));
+        wxDialog* dlg = new wxDialog(caller, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE & ~(wxCLOSE_BOX | wxCAPTION));
     dlg->SetIcon(wxIcon(app_xpm));
     
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
     
-    wxStaticText* text = new wxStaticText(dlg, wxID_ANY, "Be patient...", wxDefaultPosition, wxDefaultSize, wxALIGN_CENTER_HORIZONTAL);
+    // KORREKTUR 1: Keine internen Ausrichtungsflags im Konstruktor (verhindert Windows-Bugs beim Ändern des Texts)
+    wxStaticText* text = new wxStaticText(dlg, wxID_ANY, "Be patient...");
+    
     wxGauge* progress = new wxGauge(dlg, wxID_ANY, 100, wxDefaultPosition, wxSize(240, 15), wxGA_HORIZONTAL);
     
-    sizer->Add(text, 1, wxALL | wxALIGN_CENTER, 20);
-    sizer->Add(progress, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_CENTER, 15);
+    // KORREKTUR 2: wxALIGN_CENTER_HORIZONTAL direkt im Sizer zuweisen. KEIN wxEXPAND!
+    // Dadurch bleibt die Textbox kompakt und der Sizer schiebt sie mathematisch exakt in die Mitte.
+    sizer->Add(text, 0, wxALL | wxALIGN_CENTER_HORIZONTAL, 20);
+    sizer->Add(progress, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxALIGN_CENTER_HORIZONTAL, 15);
 
     dlg->SetSizer(sizer);
-    dlg->Layout();
+    
+    // Passt den Dialog perfekt an die Breite der Fortschrittsleiste an
+    sizer->Fit(dlg); 
     
     dlg->SetTitle("Please wait...");
     dlg->CenterOnParent();
@@ -174,6 +180,7 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
 
         while (!downloadFinished) {
             UpdateDownloadProgress(progress, text, request);
+            dlg->Layout();
             dlg->Update();
             wxYieldIfNeeded();
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -194,6 +201,7 @@ bool NetHelper::Download(wxWindow *caller, const wxString& url, const wxString& 
     wxRemoveFile(targetPath);
 
     text->SetLabel("Trying fallback download...");
+    dlg->Layout();
     progress->Pulse();
     dlg->Update();
     wxYieldIfNeeded();
