@@ -17,6 +17,8 @@ DialogUnzipLlama::DialogUnzipLlama(wxWindow* parent, const wxString &llamaSorceD
 
 void DialogUnzipLlama::LoadScript()
 {
+    TrFu;
+    TrStr(g_ScriptExtraLlamaPath);
     ScriptReplacementsList replacements = {
         { "<! llama_root_dir -->", m_llamaSourceDir }
     };

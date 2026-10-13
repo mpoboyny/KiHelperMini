@@ -82,6 +82,7 @@ bool ProcessRunner::RunSyncInNewWindow(const wxString& scriptPath, int WXUNUSED(
 {
     TrFu;
     wxString command = wxString::Format("cmd /c start /wait \"\" \"%s\"", scriptPath);
+    TrStr(command);
     long exitCode = wxExecute(command, wxEXEC_SYNC);
     return exitCode != -1;
 }

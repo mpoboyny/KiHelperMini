@@ -11,16 +11,26 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
                                  const wxString &headerText,
                                  const wxSize &dialogSize)
     : wxDialog(parent, wxID_ANY, dialogTitle, wxDefaultPosition, dialogSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
-    , m_Header(headerText)
+    , m_ScriptFileName(headerText)
     , m_textCtrl(nullptr)
 {
+    TrFu;
+    TrStr(m_ScriptFileName);
+    
+    int dotPos = m_ScriptFileName.Find('.', true); 
+    if (dotPos != wxNOT_FOUND) {
+        m_ScriptFileExtension = m_ScriptFileName.Mid(dotPos + 1);
+    }
+
+    TrStr(m_ScriptFileExtension);
+
     SetClientSize(dialogSize);
 
     wxBoxSizer* top = new wxBoxSizer(wxVERTICAL);
 
     wxBoxSizer* headerRow = new wxBoxSizer(wxHORIZONTAL);
 
-    wxStaticText* title = new wxStaticText(this, wxID_ANY, m_Header);
+    wxStaticText* title = new wxStaticText(this, wxID_ANY, m_ScriptFileName);
     wxFont titleFont = title->GetFont();
     titleFont.SetWeight(wxFONTWEIGHT_BOLD);
     title->SetFont(titleFont);
@@ -58,6 +68,55 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
     CentreOnParent();
 }
 
+#ifdef _WIN32
+
+void DialogCmdRunner::SetupHighlighting()
+{
+    m_textCtrl->SetLexer(wxSTC_LEX_BASH);
+    wxColour background = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
+    wxColour foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
+
+    m_textCtrl->StyleSetBackground(wxSTC_STYLE_DEFAULT, background);
+    m_textCtrl->StyleSetForeground(wxSTC_STYLE_DEFAULT, foreground);
+
+    wxFont monoFont(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+    for (int i = 0; i <= wxSTC_STYLE_MAX; ++i) {
+        m_textCtrl->StyleSetFont(i, monoFont);
+    }
+    
+    m_textCtrl->StyleClearAll();
+
+    m_textCtrl->StyleSetForeground(wxSTC_SH_COMMENTLINE, wxColour(0, 128, 0));
+    m_textCtrl->StyleSetForeground(wxSTC_SH_NUMBER, wxColour(128, 0, 128));
+    m_textCtrl->StyleSetForeground(wxSTC_SH_WORD, wxColour(0, 0, 180));
+    m_textCtrl->StyleSetBold(wxSTC_SH_WORD, true);
+    m_textCtrl->StyleSetForeground(wxSTC_SH_STRING, wxColour(160, 0, 0));
+    m_textCtrl->StyleSetForeground(wxSTC_SH_CHARACTER, wxColour(160, 0, 0));
+    m_textCtrl->StyleSetForeground(wxSTC_SH_OPERATOR, foreground);
+    m_textCtrl->StyleSetForeground(wxSTC_SH_SCALAR, wxColour(0, 96, 160));
+    m_textCtrl->StyleSetForeground(wxSTC_SH_PARAM, wxColour(128, 64, 0));
+    m_textCtrl->StyleSetForeground(wxSTC_SH_BACKTICKS, wxColour(128, 0, 64));
+
+    m_textCtrl->SetMarginType(0, wxSTC_MARGIN_NUMBER);
+    m_textCtrl->SetMarginWidth(0, 40);
+    m_textCtrl->StyleSetBackground(wxSTC_STYLE_LINENUMBER, background);
+    m_textCtrl->StyleSetForeground(wxSTC_STYLE_LINENUMBER, foreground);
+
+    m_textCtrl->SetReadOnly(false);
+    m_textCtrl->SetWrapMode(wxSTC_WRAP_NONE);
+    m_textCtrl->SetTabWidth(4);
+
+    wxString keywords = "if then else elif fi do done for while case esac in function select "
+                        "until break continue return exit local export readonly declare typeset "
+                        "shift source dot echo set mkdir cd not exist error";
+                        
+    m_textCtrl->SetKeyWords(0, keywords);
+    m_textCtrl->Colourise(0, -1);
+}
+
+
+#else
+
 void DialogCmdRunner::SetupHighlighting()
 {
     m_textCtrl->SetLexer(wxSTC_LEX_BASH);
@@ -88,6 +147,8 @@ void DialogCmdRunner::SetupHighlighting()
     m_textCtrl->SetTabWidth(4);
 }
 
+#endif
+
 void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
 {
     TrFu;
@@ -115,7 +176,10 @@ void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
     tempFile.Close();
 
     wxFileName scriptFn(tempPath);
-    scriptFn.SetExt("sh");
+
+    if (!m_ScriptFileExtension.IsEmpty())
+        scriptFn.SetExt(m_ScriptFileExtension);
+
     wxString scriptPath = scriptFn.GetFullPath();
     if (scriptPath != tempPath && !wxRenameFile(tempPath, scriptPath, true)) {
         wxRemoveFile(tempPath);
@@ -128,7 +192,7 @@ void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
     }
 
     ProcessRunner runner;
-    if (!runner.RunSyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this), m_Header)) {
+    if (!runner.RunSyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this), m_ScriptFileName)) {
         wxRemoveFile(scriptPath);
         ShowGenericMessageBox("Failed to launch the script in a new window.", "Run script", wxOK | wxICON_ERROR, this);
         return;

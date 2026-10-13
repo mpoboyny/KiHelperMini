@@ -7,7 +7,8 @@
 
 class DialogCmdRunner : public wxDialog
 {
-    wxString m_Header;
+    wxString m_ScriptFileName;
+    wxString m_ScriptFileExtension;
 
 protected:
 
