@@ -72,27 +72,21 @@ ConfigDlg::ConfigDlg(wxWindow* parent)
 
 void ConfigDlg::SetupXmlHighlighting()
 {
-    // 1. Lexer und grundlegende Faltungseigenschaften festlegen
     m_textCtrl->SetLexer(wxSTC_LEX_XML);
     m_textCtrl->SetProperty("fold", "1");
     m_textCtrl->SetProperty("fold.html", "1");
     m_textCtrl->SetProperty("fold.compact", "1");
 
-    // 2. Windows-Systemfarben dynamisch auslesen
     wxColour background = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOW);
     wxColour foreground = wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT);
 
-    // 3. Globale Stile definieren
     m_textCtrl->StyleSetBackground(wxSTC_STYLE_DEFAULT, background);
     m_textCtrl->StyleSetForeground(wxSTC_STYLE_DEFAULT, foreground);
 
     wxFont monoFont(10, wxFONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
     m_textCtrl->StyleSetFont(wxSTC_STYLE_DEFAULT, monoFont);
-    
-    // Setzt alle anderen Textstile auf das Standard-Design zurück
     m_textCtrl->StyleClearAll();
 
-    // 4. XML Syntax-Highlighting Farben definieren
     m_textCtrl->StyleSetForeground(wxSTC_H_TAG, wxColour(0, 0, 180));
     m_textCtrl->StyleSetForeground(wxSTC_H_TAGEND, wxColour(0, 0, 180));
     m_textCtrl->StyleSetForeground(wxSTC_H_ATTRIBUTE, wxColour(128, 64, 0));
@@ -104,46 +98,34 @@ void ConfigDlg::SetupXmlHighlighting()
     m_textCtrl->StyleSetForeground(wxSTC_H_XMLEND, wxColour(128, 0, 128));
     m_textCtrl->StyleSetForeground(wxSTC_H_CDATA, wxColour(128, 64, 0));
 
-    // 5. Marge 0: Zeilennummern einrichten
     m_textCtrl->SetMarginType(0, wxSTC_MARGIN_NUMBER);
     m_textCtrl->SetMarginWidth(0, 35);
     m_textCtrl->StyleSetBackground(wxSTC_STYLE_LINENUMBER, background);
     m_textCtrl->StyleSetForeground(wxSTC_STYLE_LINENUMBER, foreground);
 
-    // 6. Marge 1: Faltungs-Symbole einrichten
     m_textCtrl->SetMarginType(1, wxSTC_MARGIN_SYMBOL);
     m_textCtrl->SetMarginMask(1, wxSTC_MASK_FOLDERS);
     m_textCtrl->SetMarginSensitive(1, true);
     m_textCtrl->SetMarginWidth(1, 16);
 
-    // =========================================================================
-    // UMSTELLUNG AUF DREIECKE (ARROW-STYLE) FÜR WINDOWS COLOR-FIX:
-    // =========================================================================
-    // Geschlossener Knoten -> Dreieck nach rechts
-    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_ARROW); 
-    // Geöffneter Knoten -> Dreieck nach unten
-    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_ARROWDOWN); 
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDER, wxSTC_MARK_PLUS);
+    m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDEROPEN, wxSTC_MARK_MINUS); 
     
-    // Für den Pfeil-Stil werden keine Linien (Sub/Tail) benötigt, daher auf leer setzen
     m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDEREND, wxSTC_MARK_EMPTY);
     m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDEROPENMID, wxSTC_MARK_EMPTY);
     m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDERMIDTAIL, wxSTC_MARK_EMPTY);
     m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDERTAIL, wxSTC_MARK_EMPTY);
     m_textCtrl->MarkerDefine(wxSTC_MARKNUM_FOLDERSUB, wxSTC_MARK_EMPTY);
 
-    // 8. Textauswahl- & Cursorfarben
     m_textCtrl->SetSelBackground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
     m_textCtrl->SetSelForeground(true, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT));
     m_textCtrl->SetCaretForeground(foreground);
 
-    // 9. Farbliche Anpassung der Dreiecke an die GUI-Ausrichtung
     m_textCtrl->MarkerEnableHighlight(false);
 
-    // Hintergrundfarbe der Faltungsspalte angleichen (Glatter Look ohne Muster)
     m_textCtrl->SetFoldMarginColour(true, background);
     m_textCtrl->SetFoldMarginHiColour(true, background);
 
-    // Färbt die Dreiecke (25 bis 31) passend ein
     for (int i = wxSTC_MARKNUM_FOLDEREND; i <= wxSTC_MARKNUM_FOLDEROPEN; ++i) {
         m_textCtrl->MarkerSetForeground(i, foreground);             // Pfeilfarbe (Dunkel)
         m_textCtrl->MarkerSetBackground(i, background);             // Pfeil-Hintergrund (Hell)
