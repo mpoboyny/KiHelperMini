@@ -19,4 +19,4 @@
 ### Environment B: Windows
 - **Compiler:** MSVC (Visual Studio via Developer Command Prompt)
 - **Build System:** `nmake` (NMakefile)
-- **Build Command:** `nmake /f NMakefile`
+- **Build Command:** `nmake /f NMakefile clean release`

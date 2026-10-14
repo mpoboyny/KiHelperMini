@@ -83,7 +83,9 @@ bool ProcessRunner::RunSyncInNewWindow(const wxString& scriptPath, int WXUNUSED(
     TrFu;
     wxString command = wxString::Format("cmd /c start /wait \"\" \"%s\"", scriptPath);
     TrStr(command);
-    long exitCode = wxExecute(command, wxEXEC_SYNC);
+    // Hide the transient launcher cmd window so only the one created by
+    // "start /wait" is visible to the user.
+    long exitCode = wxExecute(command, wxEXEC_SYNC | wxEXEC_HIDE_CONSOLE);
     return exitCode != -1;
 }
 
