@@ -3,6 +3,7 @@
 //
 
 #include "prc.hxx"
+#include "ConfigFile.hxx"
 #include "DialogRunOpencode.hxx"
 #include "DialogServerStatus.hxx"
 #include "MainRunServerClientPanel.hxx"
@@ -41,41 +42,39 @@ CMainRunServerClientPanel::CMainRunServerClientPanel(wxWindow* parent, const CMa
 
 void CMainRunServerClientPanel::OnRun(wxCommandEvent& event)
 {
-    if (m_webRadioButton->GetValue())
-    {
+    if (m_webRadioButton->GetValue()) {
         RunWeb();
     }
-    else if (m_openCodeRadioButton->GetValue())
-    {
+    else if (m_openCodeRadioButton->GetValue()) {
         RunOpenCode();
     }
 }
 
 void CMainRunServerClientPanel::RunWeb()
 {
-    if (DialogServerStatus::IsServerRunning())
-    {
+    if (DialogServerStatus::IsServerRunning()) {
         wxString serverUrl;
-        if (!m_serverPanel || !m_serverPanel->GetServerUrl(serverUrl))
-        {
+        if (!m_serverPanel || !m_serverPanel->GetServerUrl(serverUrl)) {
             wxMessageBox("Server parameters must contain a valid --host and --port.", "Server address error", wxOK | wxICON_ERROR, this);
             return;
         }
-
         ProcessRunner runner;
-        if (!runner.RunDefaultBrowserAsync(serverUrl))
-        {
+        if (!runner.RunDefaultBrowserAsync(serverUrl)) {
             wxMessageBox("Could not start the default web browser.", "Browser error", wxOK | wxICON_ERROR, this);
         }
     }
-    else
-    {
+    else {
         wxMessageBox("Llama server is not running.", "Server not running", wxOK | wxICON_ERROR, this);
     }
 }
 
 void CMainRunServerClientPanel::RunOpenCode()
 {
-    DialogRunOpencode dlg(this);
-    dlg.ShowModal();
+    if (DialogServerStatus::IsServerRunning()) {
+        DialogRunOpencode dlg(this, m_serverPanel->GetConfigFile());
+        dlg.ShowModal();
+    }
+    else {
+        wxMessageBox("Llama server is not running.", "Server not running", wxOK | wxICON_ERROR, this);
+    }
 }

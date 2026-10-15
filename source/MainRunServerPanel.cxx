@@ -93,6 +93,7 @@ namespace
 CMainRunServerPanel::CMainRunServerPanel(wxWindow* parent, const ConfigFile &confFile)
     : wxPanel(parent, wxID_ANY)
     , m_parentWindow(parent)
+    , m_ConfFile(confFile)
 {
     TrFu;
 

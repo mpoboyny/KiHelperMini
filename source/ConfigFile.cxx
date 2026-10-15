@@ -2,164 +2,161 @@
 #include "ConfigFile.hxx"
 #include <sstream>
 
-namespace
+static wxString ExpandEnvVars(const wxString& path)
 {
-    wxString ExpandEnvVars(const wxString& path)
-    {
-        wxString res = path;
-        size_t pos = 0;
-        while (true) {
-            size_t start = res.Find('%', pos);
-            if (start == wxString::npos)
-                break;
-            size_t end = res.Find('%', start + 1);
-            if (end == wxString::npos)
-                break;
-            wxString name = res.Mid(start + 1, end - start - 1);
-            wxString value;
-            wxGetEnv(name, &value);
-            if (!value.IsEmpty()) {
-                res = res.Left(start) + value + res.Mid(end + 1);
-                pos = start + value.Len();
-            }
-            else {
-                pos = end + 1;
-            }
+    wxString res = path;
+    size_t pos = 0;
+    while (true) {
+        size_t start = res.Find('%', pos);
+        if (start == wxString::npos)
+            break;
+        size_t end = res.Find('%', start + 1);
+        if (end == wxString::npos)
+            break;
+        wxString name = res.Mid(start + 1, end - start - 1);
+        wxString value;
+        wxGetEnv(name, &value);
+        if (!value.IsEmpty()) {
+            res = res.Left(start) + value + res.Mid(end + 1);
+            pos = start + value.Len();
         }
-        return res;
+        else {
+            pos = end + 1;
+        }
+    }
+    return res;
+}
+
+static wxString ExpandHomePath(const wxString& path)
+{
+    wxString expanded = ExpandEnvVars(path);
+
+    if (expanded == "~")
+        return wxGetHomeDir();
+
+    if (expanded.StartsWith("~/") || expanded.StartsWith("~\\")) {
+        wxString suffix = expanded.Mid(2);
+        while (!suffix.IsEmpty() && (suffix[0] == '/' || suffix[0] == '\\')) {
+            suffix.Remove(0, 1);
+        }
+
+        wxString sep = wxString::Format("%c", wxFILE_SEP_PATH);
+        suffix.Replace("\\", sep);
+        suffix.Replace("/", sep);
+
+        wxString home = wxGetHomeDir();
+        if (home.EndsWith("/") || home.EndsWith("\\")) {
+            return home + suffix;
+        }
+        return home + sep + suffix;
     }
 
-    wxString ExpandHomePath(const wxString& path)
-    {
-        wxString expanded = ExpandEnvVars(path);
+    return expanded;
+}
 
-        if (expanded == "~")
-            return wxGetHomeDir();
-
-        if (expanded.StartsWith("~/") || expanded.StartsWith("~\\")) {
-            wxString suffix = expanded.Mid(2);
-            while (!suffix.IsEmpty() && (suffix[0] == '/' || suffix[0] == '\\')) {
-                suffix.Remove(0, 1);
-            }
-
-            wxString sep = wxString::Format("%c", wxFILE_SEP_PATH);
-            suffix.Replace("\\", sep);
-            suffix.Replace("/", sep);
-
-            wxString home = wxGetHomeDir();
-            if (home.EndsWith("/") || home.EndsWith("\\")) {
-                return home + suffix;
-            }
-            return home + sep + suffix;
-        }
-
-        return expanded;
-    }
-
-    wxXmlNode* GetSystemsNode(wxXmlNode* root)
-    {
-        if (!root)
-            return nullptr;
-
-        if (root->GetName().CmpNoCase("Systems") == 0)
-            return root;
-
-        for (wxXmlNode* child = root->GetChildren(); child; child = child->GetNext()) {
-            if (child->GetName().CmpNoCase("Systems") == 0)
-                return child;
-        }
-
+static wxXmlNode* GetSystemsNode(wxXmlNode* root)
+{
+    if (!root)
         return nullptr;
+
+    if (root->GetName().CmpNoCase("Systems") == 0)
+        return root;
+
+    for (wxXmlNode* child = root->GetChildren(); child; child = child->GetNext()) {
+        if (child->GetName().CmpNoCase("Systems") == 0)
+            return child;
     }
 
-    wxXmlNode* GetSystemNode(wxXmlNode* systemsNode, const wxString& sysName)
-    {
-        if (!systemsNode || sysName.IsEmpty())
-            return nullptr;
+    return nullptr;
+}
 
-        for (wxXmlNode* system = systemsNode->GetChildren(); system; system = system->GetNext()) {
-            if (system->GetType() != wxXML_ELEMENT_NODE)
-                continue;
-            if (system->GetName().CmpNoCase("System") != 0)
-                continue;
-
-            wxString nameAttr = system->GetAttribute("Name", "");
-            if (nameAttr.IsEmpty())
-                nameAttr = system->GetAttribute("name", "");
-
-            if (nameAttr.CmpNoCase(sysName) == 0)
-                return system;
-        }
-
+static wxXmlNode* GetSystemNode(wxXmlNode* systemsNode, const wxString& sysName)
+{
+    if (!systemsNode || sysName.IsEmpty())
         return nullptr;
+
+    for (wxXmlNode* system = systemsNode->GetChildren(); system; system = system->GetNext()) {
+        if (system->GetType() != wxXML_ELEMENT_NODE)
+            continue;
+        if (system->GetName().CmpNoCase("System") != 0)
+            continue;
+
+        wxString nameAttr = system->GetAttribute("Name", "");
+        if (nameAttr.IsEmpty())
+            nameAttr = system->GetAttribute("name", "");
+
+        if (nameAttr.CmpNoCase(sysName) == 0)
+            return system;
     }
 
-    wxXmlNode* GetChildNode(wxXmlNode* parent, const wxString& name)
-    {
-        if (!parent)
-            return nullptr;
+    return nullptr;
+}
 
-        for (wxXmlNode* child = parent->GetChildren(); child; child = child->GetNext()) {
-            if (child->GetType() != wxXML_ELEMENT_NODE)
-                continue;
-            if (child->GetName().CmpNoCase(name) == 0)
-                return child;
-        }
-
+static wxXmlNode* GetChildNode(wxXmlNode* parent, const wxString& name)
+{
+    if (!parent)
         return nullptr;
+
+    for (wxXmlNode* child = parent->GetChildren(); child; child = child->GetNext()) {
+        if (child->GetType() != wxXML_ELEMENT_NODE)
+            continue;
+        if (child->GetName().CmpNoCase(name) == 0)
+            return child;
     }
 
-    ConfigFile::ChatParameterList GetParametersFromContainer(wxXmlNode* paramsContainerNode)
-    {
-        ConfigFile::ChatParameterList res;
-        if (!paramsContainerNode)
-            return res;
+    return nullptr;
+}
 
-        for (wxXmlNode* param = paramsContainerNode->GetChildren(); param; param = param->GetNext()) {
-            if (param->GetType() != wxXML_ELEMENT_NODE)
-                continue;
-            if (param->GetName().CmpNoCase("Parameter") != 0)
-                continue;
-
-            wxString name = param->GetAttribute("Name", "");
-            if (name.IsEmpty())
-                name = param->GetAttribute("name", "");
-
-            wxString value = param->GetAttribute("Value", "");
-            if (value.IsEmpty())
-                value = param->GetAttribute("value", "");
-
-            if (!name.IsEmpty())
-                res.push_back({name, value});
-        }
-
+static ConfigFile::ChatParameterList GetParametersFromContainer(wxXmlNode* paramsContainerNode)
+{
+    ConfigFile::ChatParameterList res;
+    if (!paramsContainerNode)
         return res;
+
+    for (wxXmlNode* param = paramsContainerNode->GetChildren(); param; param = param->GetNext()) {
+        if (param->GetType() != wxXML_ELEMENT_NODE)
+            continue;
+        if (param->GetName().CmpNoCase("Parameter") != 0)
+            continue;
+
+        wxString name = param->GetAttribute("Name", "");
+        if (name.IsEmpty())
+            name = param->GetAttribute("name", "");
+
+        wxString value = param->GetAttribute("Value", "");
+        if (value.IsEmpty())
+            value = param->GetAttribute("value", "");
+
+        if (!name.IsEmpty())
+            res.push_back({name, value});
     }
 
-    wxString GetDefPathFromContainer(wxXmlNode* paramsContainerNode, const wxString& fallback)
-    {
-        wxString res = fallback;
-        if (!paramsContainerNode)
-            return res;
+    return res;
+}
 
-        for (wxXmlNode* defBin = paramsContainerNode->GetChildren(); defBin; defBin = defBin->GetNext()) {
-            if (defBin->GetType() != wxXML_ELEMENT_NODE)
-                continue;
-            if (defBin->GetName().CmpNoCase("DefBin") != 0)
-                continue;
-
-            wxString path = defBin->GetAttribute("Path", "");
-            if (path.IsEmpty())
-                path = defBin->GetAttribute("path", "");
-
-            if (!path.IsEmpty()) {
-                res = ExpandHomePath(path);
-                break;
-            }
-        }
-
+static wxString GetDefPathFromContainer(wxXmlNode* paramsContainerNode, const wxString& fallback)
+{
+    wxString res = fallback;
+    if (!paramsContainerNode)
         return res;
+
+    for (wxXmlNode* defBin = paramsContainerNode->GetChildren(); defBin; defBin = defBin->GetNext()) {
+        if (defBin->GetType() != wxXML_ELEMENT_NODE)
+            continue;
+        if (defBin->GetName().CmpNoCase("DefBin") != 0)
+            continue;
+
+        wxString path = defBin->GetAttribute("Path", "");
+        if (path.IsEmpty())
+            path = defBin->GetAttribute("path", "");
+
+        if (!path.IsEmpty()) {
+            res = ExpandHomePath(path);
+            break;
+        }
     }
+
+    return res;
 }
 
 // Public
@@ -361,6 +358,48 @@ wxString ConfigFile::GetLLamaBinPath() const
 
     // Not found
     return wxString();
+}
+
+wxString ConfigFile::GetOpenCodeDefProjectFolder() const
+{
+    wxString res;
+    if (HaveError(res))
+        return m_lastErrorMsg;
+    if (m_xmlDoc == nullptr)
+        return wxString();
+
+    wxString sysName = GetCurrentSysName();
+    wxXmlNode* root = m_xmlDoc->GetRoot();
+    if (!root)
+        return wxString();
+
+    wxXmlNode* systemsNode = GetSystemsNode(root);
+    if (!systemsNode)
+        return wxString();
+
+    wxXmlNode* system = GetSystemNode(systemsNode, sysName);
+    if (!system)
+        return wxString();
+
+    wxXmlNode* openCode = GetChildNode(system, "OpenCode");
+    wxXmlNode* defProjectFolder = GetChildNode(openCode, "DefProjectFolder");
+    if (!defProjectFolder)
+        return wxString();
+
+    wxString path = defProjectFolder->GetAttribute("Path", "");
+    if (path.IsEmpty())
+        path = defProjectFolder->GetAttribute("path", "");
+    if (path.IsEmpty())
+        return wxString();
+
+    wxFileName fn(ExpandHomePath(path));
+    if (!fn.IsAbsolute()) {
+        wxFileName cfg(g_ConfFile);
+        wxFileName full(cfg.GetPath(), path);
+        fn = full;
+    }
+
+    return fn.GetFullPath();
 }
 
 ConfigFile::ChatParameterList ConfigFile::GetChatParameters() const

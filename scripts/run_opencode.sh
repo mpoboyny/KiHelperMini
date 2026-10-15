@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "Running OpenCode via script on linux..."
+OPENCODE_PRJ_DIR=<!-- opencode_prj_dir -->

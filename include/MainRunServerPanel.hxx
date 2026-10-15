@@ -19,6 +19,7 @@ class CMainRunServerPanel : public wxPanel
     wxButton *m_buttServerCopyScript;
     wxWindow *m_parentWindow;
     wxString m_Modell;
+    const ConfigFile &m_ConfFile;
 
     void OnSelectFile(wxCommandEvent& event);
     void OnRunServer(wxCommandEvent& event);
@@ -29,6 +30,7 @@ class CMainRunServerPanel : public wxPanel
 public:
     CMainRunServerPanel(wxWindow* parent, const ConfigFile &confFile);
     bool GetServerUrl(wxString& url) const;
+    const ConfigFile &GetConfigFile() const { return m_ConfFile; }
 };
 
 #endif // MAINRUNSERVERPANEL_HXX

@@ -10,6 +10,8 @@
 - **Language Standard:** C++17 (`-std=c++17` on GCC / `/std:c++17` on MSVC)
 - **Linkage & Scope:** Do not create anonymous namespaces. Always use static functions if helper functions with internal linkage are needed.
 - **GUI Framework:** wxWidgets 3.3.1 (Do not use deprecated pre-3.0 APIs)
+- **Code format:** Place the opening brace of namespaces, classes, functions, structs, and enums in a new line, but keep it on the same line for control structures within functions.
+
 
 ### Environment A: Linux
 - **Compiler:** `g++` (GCC)

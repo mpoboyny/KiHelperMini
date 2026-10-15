@@ -46,6 +46,7 @@ public:
     operator wxString() const;
 
     wxString GetLLamaBinPath() const;
+    wxString GetOpenCodeDefProjectFolder() const;
     ModelList GetModels() const;
     wxString GetCurrentSysName() const;
     ChatParameterList GetChatParameters() const;
