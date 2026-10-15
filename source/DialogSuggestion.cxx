@@ -1012,6 +1012,10 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
         ctxSize = std::min(ctxSize, 4096);
     ctxSize = std::max(ctxSize, 2048);
 
+    const int openCodeAgentChatOutputLimit = std::min(4096, std::max(256, ctxSize / 2));
+    const int openCodeAutocompleteOutputLimit = std::min(512, std::max(256, ctxSize / 2));
+    const int openCodeEmbeddingOutputLimit = std::min(1024, std::max(256, ctxSize / 2));
+
     const bool useFlashAttn = (ctxSize >= 8192);
 
     // 4. Batch-Größen berechnen
@@ -1033,6 +1037,10 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     AddInfo(wxString::Format("Model context size (train): %d", nCtxTrain));
     AddInfo(wxString::Format("Model layers: %d", nLayer));
     AddInfo(wxString::Format("Model embedding size: %d", nEmbd));
+    AddInfo(wxString::Format("Client limit output: Agent/Chat: %d, Autocomplete: %d, Embedding: %d",
+                             openCodeAgentChatOutputLimit,
+                             openCodeAutocompleteOutputLimit,
+                             openCodeEmbeddingOutputLimit));
     if (hasGpu && !hasGpuVram)
         AddWarning("GPU offload was estimated from the selected GPU name only. VRAM size is not available.");
     if (useNativeDriver && hasGpu)
