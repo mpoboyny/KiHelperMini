@@ -19,6 +19,8 @@ class DialogOpencodeJson : public DialogCmdRunner
 public:
     DialogOpencodeJson(wxWindow* parent, const ConfigFile &confFile);
     ~DialogOpencodeJson() = default;
+
+    wxString GetJsonContent() const;
 };
 
 #endif // DIALOGOPENCODEJSON_HXX

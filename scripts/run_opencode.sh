@@ -14,3 +14,6 @@ else
 fi
 
 # If you click 'Do it', opencode.json in OPENCODE_PRJ_DIR will be overwriten and opencode will running. 
+
+cd "$OPENCODE_PRJ_DIR" || { echo "Failed to change directory to $OPENCODE_PRJ_DIR"; exit 1; }
+opencode 

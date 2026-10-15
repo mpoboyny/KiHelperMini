@@ -29,7 +29,7 @@ protected:
     virtual void LoadScript() = 0;
     void AddCustomButton(wxButton* button);
     
-    void OnDialogDoIt(wxCommandEvent& event);
+    virtual void OnDialogDoIt(wxCommandEvent& event);
 };
 
 #endif // DIALOGCMDRUNNER_HXX

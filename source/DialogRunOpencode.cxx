@@ -48,3 +48,36 @@ void DialogRunOpencode::OnShowOpenCodeConfig(wxCommandEvent& event)
     DialogOpencodeJson dialog(this, m_ConfFile);
     dialog.ShowModal();
 }
+
+void DialogRunOpencode::OnDialogDoIt(wxCommandEvent& event)
+{
+    const wxString projectFolder = m_ConfFile.GetOpenCodeDefProjectFolder();
+    if (projectFolder.IsEmpty()) {
+        ShowGenericMessageBox("No OpenCode project folder is configured.", "Run OpenCode", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    if (!wxFileName::DirExists(projectFolder) &&
+        !wxFileName::Mkdir(projectFolder, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL)) {
+        ShowGenericMessageBox("Failed to create the OpenCode project folder:\n" + projectFolder,
+                              "Run OpenCode", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    DialogOpencodeJson jsonDialog(this, m_ConfFile);
+    wxFileName jsonFile;
+    jsonFile.AssignDir(projectFolder);
+    jsonFile.SetFullName("opencode.json");
+
+    wxFile file(jsonFile.GetFullPath(), wxFile::write);
+    if (!file.IsOpened()) {
+        ShowGenericMessageBox("Failed to save OpenCode configuration:\n" + jsonFile.GetFullPath(),
+                              "Run OpenCode", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    file.Write(jsonDialog.GetJsonContent(), wxConvUTF8);
+    file.Close();
+
+    DialogCmdRunner::OnDialogDoIt(event);
+}

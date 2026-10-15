@@ -84,3 +84,8 @@ void DialogOpencodeJson::LoadScript()
     m_textCtrl->SetSavePoint();
     m_textCtrl->SetReadOnly(true);
 }
+
+wxString DialogOpencodeJson::GetJsonContent() const
+{
+    return m_textCtrl ? m_textCtrl->GetText() : wxString();
+}
