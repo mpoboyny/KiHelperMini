@@ -14,6 +14,7 @@ DialogRunOpencode::DialogRunOpencode(wxWindow* parent, const ConfigFile &confFil
     TrFu;
     SetupHighlighting();
     LoadScript();
+    AddCustomButtons();
 }
 
 void DialogRunOpencode::SetupReplacements(ScriptReplacementsList &replacements)
@@ -32,4 +33,16 @@ void DialogRunOpencode::LoadScript()
     m_textCtrl->SetText(content);
     m_textCtrl->SetReadOnly(false);
     m_textCtrl->SetSavePoint();
+}
+
+void DialogRunOpencode::AddCustomButtons()
+{
+    wxButton* showConfigBtn = new wxButton(this, wxID_ANY, "Show opencode.json ...");
+    showConfigBtn->Bind(wxEVT_BUTTON, &DialogRunOpencode::OnShowOpenCodeConfig, this);
+    AddCustomButton(showConfigBtn);
+}
+
+void DialogRunOpencode::OnShowOpenCodeConfig(wxCommandEvent& event)
+{
+    ShowGenericMessageBox("No Impl", "Show opencode.json", wxOK | wxICON_INFORMATION, this);
 }

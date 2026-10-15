@@ -18,6 +18,7 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
     , m_ScriptFileName(headerText)
     , m_RunScriptSync(runScriptSync)
     , m_textCtrl(nullptr)
+    , m_buttonRow(nullptr)
 {
     TrFu;
     TrStr(m_ScriptFileName);
@@ -51,15 +52,15 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
     m_textCtrl = new wxStyledTextCtrl(this, wxID_ANY);
     top->Add(m_textCtrl, 1, wxEXPAND | wxLEFT | wxRIGHT | wxTOP, 10);
 
-    wxBoxSizer* buttonRow = new wxBoxSizer(wxHORIZONTAL);
-    buttonRow->AddStretchSpacer(1);
+    m_buttonRow = new wxBoxSizer(wxHORIZONTAL);
+    m_buttonRow->AddStretchSpacer(1);
 
     wxButton* closeBtn = new wxButton(this, wxID_CANCEL, "Close");
-    buttonRow->Add(closeBtn, 0, wxALL, 10);
+    m_buttonRow->Add(closeBtn, 0, wxALL, 10);
     wxButton* doItBtn = new wxButton(this, wxID_OK, "Do it");
-    buttonRow->Add(doItBtn, 0, wxALL, 10);
+    m_buttonRow->Add(doItBtn, 0, wxALL, 10);
     Bind(wxEVT_BUTTON, &DialogCmdRunner::OnDialogDoIt, this, wxID_OK);
-    top->Add(buttonRow, 0, wxEXPAND);
+    top->Add(m_buttonRow, 0, wxEXPAND);
 
     SetSizer(top);
     SetMinSize(dialogSize);
@@ -153,6 +154,12 @@ void DialogCmdRunner::SetupHighlighting()
 }
 
 #endif
+
+void DialogCmdRunner::AddCustomButton(wxButton* button)
+{
+    m_buttonRow->Insert(0, button, 0, wxALL, 10);
+    GetSizer()->Layout();
+}
 
 void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
 {

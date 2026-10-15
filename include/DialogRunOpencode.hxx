@@ -14,6 +14,8 @@ class DialogRunOpencode : public DialogCmdRunner
     
     void SetupReplacements(ScriptReplacementsList &replacements);
     void LoadScript() override;
+    void AddCustomButtons();
+    void OnShowOpenCodeConfig(wxCommandEvent& event);
 
 public:
     DialogRunOpencode(wxWindow* parent, const ConfigFile &confFile);

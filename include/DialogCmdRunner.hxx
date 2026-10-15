@@ -15,6 +15,7 @@ class DialogCmdRunner : public wxDialog
 protected:
 
     wxStyledTextCtrl* m_textCtrl;
+    wxBoxSizer* m_buttonRow;
     
     DialogCmdRunner(wxWindow* parent,
                     const wxString& dialogTitle,
@@ -25,6 +26,7 @@ protected:
 
     void SetupHighlighting();
     virtual void LoadScript() = 0;
+    void AddCustomButton(wxButton* button);
     
     void OnDialogDoIt(wxCommandEvent& event);
 };
