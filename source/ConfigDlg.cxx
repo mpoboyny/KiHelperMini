@@ -156,6 +156,18 @@ void ConfigDlg::LoadXmlContent()
     for (int line = 0; line < m_textCtrl->GetLineCount(); ++line) {
         if (m_textCtrl->GetLine(line).Trim(false).StartsWith("<System ") &&
             (m_textCtrl->GetFoldLevel(line) & wxSTC_FOLDLEVELHEADERFLAG)) {
+            int endLine = line + 1;
+            while (endLine < m_textCtrl->GetLineCount() &&
+                   !m_textCtrl->GetLine(endLine).Trim(false).StartsWith("</System>")) {
+                ++endLine;
+            }
+
+            for (int childLine = endLine - 1; childLine > line; --childLine) {
+                if (m_textCtrl->GetFoldLevel(childLine) & wxSTC_FOLDLEVELHEADERFLAG) {
+                    m_textCtrl->ToggleFold(childLine);
+                }
+            }
+
             m_textCtrl->ToggleFold(line);
         }
     }
