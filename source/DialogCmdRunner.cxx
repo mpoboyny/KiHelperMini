@@ -6,12 +6,17 @@
 #include "DialogCmdRunner.hxx"
 #include "ProcessRunner.hxx"
 
+#include <chrono>
+#include <thread>
+
 DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
                                  const wxString &dialogTitle,
                                  const wxString &headerText,
-                                 const wxSize &dialogSize)
+                                 const wxSize &dialogSize,
+                                 bool runScriptSync)
     : wxDialog(parent, wxID_ANY, dialogTitle, wxDefaultPosition, dialogSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
     , m_ScriptFileName(headerText)
+    , m_RunScriptSync(runScriptSync)
     , m_textCtrl(nullptr)
 {
     TrFu;
@@ -192,13 +197,24 @@ void DialogCmdRunner::OnDialogDoIt(wxCommandEvent& event)
     }
 
     ProcessRunner runner;
-    if (!runner.RunSyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this), m_ScriptFileName)) {
+    bool scriptStarted;
+    if (m_RunScriptSync) {
+        scriptStarted = runner.RunSyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this), m_ScriptFileName);
+    }
+    else {
+        scriptStarted = runner.RunServerAsyncInNewWindow(scriptPath, wxDisplay::GetFromWindow(this), m_ScriptFileName);
+    }
+
+    if (!scriptStarted) {
         wxRemoveFile(scriptPath);
         ShowGenericMessageBox("Failed to launch the script in a new window.", "Run script", wxOK | wxICON_ERROR, this);
         return;
     }
 
-    wxRemoveFile(scriptPath);
+    std::thread([scriptPath]() {
+        std::this_thread::sleep_for(std::chrono::seconds(5));
+        wxRemoveFile(scriptPath);
+    }).detach();
 
     if (IsModal()) {
         EndModal(wxID_OK);

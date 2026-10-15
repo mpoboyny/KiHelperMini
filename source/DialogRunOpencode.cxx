@@ -8,7 +8,7 @@
 #include "DialogRunOpencode.hxx"
 
 DialogRunOpencode::DialogRunOpencode(wxWindow* parent, const ConfigFile &confFile)
-    : DialogCmdRunner(parent, "Run OpenCode", wxFileName(g_ScriptRunOpenCodePath).GetFullName(), wxSize(800, 600))
+    : DialogCmdRunner(parent, "Run OpenCode", wxFileName(g_ScriptRunOpenCodePath).GetFullName(), wxSize(1000, 900), false)
     , m_ConfFile(confFile)
 {
     TrFu;
