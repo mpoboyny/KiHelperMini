@@ -324,6 +324,22 @@ const wxString g_ScriptRunOpenCodePath = []() -> wxString {
     return scriptPath;
 }();
 
+const wxString g_ScriptOpenCodeJsonPath = []() -> wxString {
+    const wxString fileName = "opencode.json";
+
+    if (g_ScriptDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+
+    wxString filePath = g_ScriptDir + fileName;
+    wxFileName fileFn(filePath);
+    if (!fileFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return filePath;
+}();
+
 const wxString g_IniDir = []() -> wxString {
     wxFileName iniFn;
     iniFn.AssignDir(g_BinDir);

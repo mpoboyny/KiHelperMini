@@ -47,6 +47,7 @@ public:
 
     wxString GetLLamaBinPath() const;
     wxString GetOpenCodeDefProjectFolder() const;
+    wxString GetOpenCodeDefOutputLimit() const;
     ModelList GetModels() const;
     wxString GetCurrentSysName() const;
     ChatParameterList GetChatParameters() const;

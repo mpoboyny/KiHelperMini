@@ -402,6 +402,38 @@ wxString ConfigFile::GetOpenCodeDefProjectFolder() const
     return fn.GetFullPath();
 }
 
+wxString ConfigFile::GetOpenCodeDefOutputLimit() const
+{
+    wxString res;
+    if (HaveError(res))
+        return m_lastErrorMsg;
+    if (m_xmlDoc == nullptr)
+        return wxString();
+
+    wxString sysName = GetCurrentSysName();
+    wxXmlNode* root = m_xmlDoc->GetRoot();
+    if (!root)
+        return wxString();
+
+    wxXmlNode* systemsNode = GetSystemsNode(root);
+    if (!systemsNode)
+        return wxString();
+
+    wxXmlNode* system = GetSystemNode(systemsNode, sysName);
+    if (!system)
+        return wxString();
+
+    wxXmlNode* openCode = GetChildNode(system, "OpenCode");
+    wxXmlNode* defOutputLimit = GetChildNode(openCode, "DefOutputLimit");
+    if (!defOutputLimit)
+        return wxString();
+
+    wxString value = defOutputLimit->GetAttribute("Value", "");
+    if (value.IsEmpty())
+        value = defOutputLimit->GetAttribute("value", "");
+    return value;
+}
+
 ConfigFile::ChatParameterList ConfigFile::GetChatParameters() const
 {
     TrFu;

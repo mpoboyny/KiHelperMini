@@ -13,6 +13,7 @@
             </LLamaCpp>
             <OpenCode>
                 <DefProjectFolder Path="~/Dokumente/KiHelper-Mini/OpenCodeProject/" />
+                <DefOutputLimit Value="4096" />
             </OpenCode>
             <LlamaChatParameters>
                 <DefBin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
@@ -75,6 +76,7 @@
             </LLamaCpp>
             <OpenCode>
                 <DefProjectFolder Path="%USERPROFILE%/KiHelper-Mini/OpenCodeProject/" />
+                <DefOutputLimit Value="4096" />
             </OpenCode>
             <LlamaChatParameters>
                 <DefBin Path="%USERPROFILE%/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
