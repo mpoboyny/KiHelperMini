@@ -3,6 +3,7 @@
 //
 
 #include "prc.hxx"
+#include "DialogRunOpencode.hxx"
 #include "DialogServerStatus.hxx"
 #include "MainRunServerClientPanel.hxx"
 #include "MainRunServerPanel.hxx"
@@ -75,5 +76,6 @@ void CMainRunServerClientPanel::RunWeb()
 
 void CMainRunServerClientPanel::RunOpenCode()
 {
-    TrFu;
+    DialogRunOpencode dlg(this);
+    dlg.ShowModal();
 }

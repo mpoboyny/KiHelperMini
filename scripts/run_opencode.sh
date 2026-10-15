@@ -1,4 +1,3 @@
 #!/bin/bash
 
-export OPENCODE_CONFIG="<!-- opencode_json -->"
-opencode
+echo "Running OpenCode via script on linux..."

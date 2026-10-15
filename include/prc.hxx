@@ -121,6 +121,7 @@ extern const wxString          g_ScriptBuildCmakePath;
 extern const wxString          g_ScriptRunCmakePath;
 extern const wxString          g_ScriptRunLlamaPath;
 extern const wxString          g_ScriptRunLlamaPathServ;
+extern const wxString          g_ScriptRunOpenCodePath;
 
 extern const wxString          g_IniDir;
 extern const wxString          g_IniCpuFileName;

@@ -304,6 +304,26 @@ const wxString g_ScriptRunLlamaPathServ = []() -> wxString {
     return scriptPath;
 }();
 
+const wxString g_ScriptRunOpenCodePath = []() -> wxString {
+#if defined(__gnu_linux__)
+    const wxString scriptFileName = "run_opencode.sh";
+#elif defined(_WIN32)
+    const wxString scriptFileName = "run_opencode.bat";
+#endif
+
+    if (g_ScriptDir.IsEmpty()) {
+        return wxEmptyString;
+    }
+
+    wxString scriptPath = g_ScriptDir + scriptFileName;
+    wxFileName scriptFn(scriptPath);
+    if (!scriptFn.FileExists()) {
+        return wxEmptyString;
+    }
+
+    return scriptPath;
+}();
+
 const wxString g_IniDir = []() -> wxString {
     wxFileName iniFn;
     iniFn.AssignDir(g_BinDir);

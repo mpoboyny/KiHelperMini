@@ -1,0 +1,3 @@
+@echo off
+
+echo Running OpenCode via script on mswindows...

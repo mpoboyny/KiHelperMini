@@ -8,7 +8,10 @@
             <LLamaCpp>
                 <Bin Path="%USERPROFILE%/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/"/>
             </LLamaCpp>
-             <LlamaChatParameters>
+            <OpenCode>
+                <DefProjectFolder Path="%USERPROFILE%/KiHelper-Mini/OpenCodeProject/" />
+            </OpenCode>
+            <LlamaChatParameters>
                 <DefBin Path="%USERPROFILE%/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
                 
                 <!-- Temperature: Controls randomness. Higher values (e.g., 1.0) make output more creative, lower values (e.g., 0.2) make it more deterministic. -->
@@ -67,6 +70,9 @@
             <LLamaCpp>
                 <Bin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/" />
             </LLamaCpp>
+            <OpenCode>
+                <DefProjectFolder Path="~/Dokumente/KiHelper-Mini/OpenCodeProject/" />
+            </OpenCode>
             <LlamaChatParameters>
                 <DefBin Path="~/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-cli" />
                 
