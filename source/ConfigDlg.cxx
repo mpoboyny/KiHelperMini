@@ -151,7 +151,15 @@ void ConfigDlg::LoadXmlContent()
     m_originalContent = conf;
     m_textCtrl->SetReadOnly(false);
     m_textCtrl->SetText(m_originalContent);
-    m_textCtrl->SetSavePoint();
+    m_textCtrl->Colourise(0, -1);
+
+    for (int line = 0; line < m_textCtrl->GetLineCount(); ++line) {
+        if (m_textCtrl->GetLine(line).Trim(false).StartsWith("<System ") &&
+            (m_textCtrl->GetFoldLevel(line) & wxSTC_FOLDLEVELHEADERFLAG)) {
+            m_textCtrl->ToggleFold(line);
+        }
+    }
+    m_textCtrl->SetSavePoint();   
 }
 
 void ConfigDlg::SetXmlContent(const wxString& content)
