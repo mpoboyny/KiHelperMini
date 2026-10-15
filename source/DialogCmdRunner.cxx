@@ -13,7 +13,8 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
                                  const wxString &dialogTitle,
                                  const wxString &headerText,
                                  const wxSize &dialogSize,
-                                 bool runScriptSync)
+                                 bool runScriptSync,
+                                 bool showDoItButton)
     : wxDialog(parent, wxID_ANY, dialogTitle, wxDefaultPosition, dialogSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
     , m_ScriptFileName(headerText)
     , m_RunScriptSync(runScriptSync)
@@ -57,9 +58,11 @@ DialogCmdRunner::DialogCmdRunner(wxWindow *parent,
 
     wxButton* closeBtn = new wxButton(this, wxID_CANCEL, "Close");
     m_buttonRow->Add(closeBtn, 0, wxALL, 10);
-    wxButton* doItBtn = new wxButton(this, wxID_OK, "Do it");
-    m_buttonRow->Add(doItBtn, 0, wxALL, 10);
-    Bind(wxEVT_BUTTON, &DialogCmdRunner::OnDialogDoIt, this, wxID_OK);
+    if (showDoItButton) {
+        wxButton* doItBtn = new wxButton(this, wxID_OK, "Do it");
+        m_buttonRow->Add(doItBtn, 0, wxALL, 10);
+        Bind(wxEVT_BUTTON, &DialogCmdRunner::OnDialogDoIt, this, wxID_OK);
+    }
     top->Add(m_buttonRow, 0, wxEXPAND);
 
     SetSizer(top);

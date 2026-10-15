@@ -6,6 +6,7 @@
 #include "ScriptHandler.hxx"
 #include "ConfigFile.hxx"
 #include "DialogRunOpencode.hxx"
+#include "DialogOpencodeJson.hxx"
 
 DialogRunOpencode::DialogRunOpencode(wxWindow* parent, const ConfigFile &confFile)
     : DialogCmdRunner(parent, "Run OpenCode", wxFileName(g_ScriptRunOpenCodePath).GetFullName(), wxSize(1000, 900), false)
@@ -44,5 +45,6 @@ void DialogRunOpencode::AddCustomButtons()
 
 void DialogRunOpencode::OnShowOpenCodeConfig(wxCommandEvent& event)
 {
-    ShowGenericMessageBox("No Impl", "Show opencode.json", wxOK | wxICON_INFORMATION, this);
+    DialogOpencodeJson dialog(this, m_ConfFile);
+    dialog.ShowModal();
 }

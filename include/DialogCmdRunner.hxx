@@ -21,7 +21,8 @@ protected:
                     const wxString& dialogTitle,
                     const wxString& headerText,
                     const wxSize& dialogSize,
-                    bool runScriptSync = true);
+                    bool runScriptSync = true,
+                    bool showDoItButton = true);
     ~DialogCmdRunner() override = default;
 
     void SetupHighlighting();
