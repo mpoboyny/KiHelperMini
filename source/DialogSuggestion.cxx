@@ -963,6 +963,8 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     const bool useAgent = m_agentCheck && m_agentCheck->GetValue();
     const bool useEmbedding = m_embeddingCheck && m_embeddingCheck->GetValue();
     const bool useAutocomplete = m_autocompleteCheck && m_autocompleteCheck->GetValue();
+    const bool optimizeContextSize = m_optimizeContextSizeRadio && m_optimizeContextSizeRadio->GetValue();
+    const int selectedContextSize = m_optimizeContextSizeText ? ParseLastInteger(m_optimizeContextSizeText->GetValue()) : 0;
     const int nCtxTrain = std::max(0, llama_model_n_ctx_train(currentModel));
     const int nLayer = std::max(0, llama_model_n_layer(currentModel));
     const int nEmbd = std::max(0, llama_model_n_embd(currentModel));
@@ -976,7 +978,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
 
     // 1. GPU-Offloading Heuristik (Zuerst berechnen, damit 'gpuLayers' danach für die Threads bekannt ist)
     int gpuLayers = 0;
-    if (hasGpu && nLayer > 0)
+    if (hasGpu && useNativeDriver && nLayer > 0)
     {
         double modelSizeGiB = static_cast<double>(modelSize) / (1024.0 * 1024.0 * 1024.0);
         int estimatedVramGB = ParseLastInteger(gpuText);
@@ -1012,19 +1014,48 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     }
 
     // 3. Kontext-Größe festlegen
-    int ctxSize = 4096;
-    if (useAutocomplete)
+    int ctxSize = selectedContextSize;
+    if (!optimizeContextSize || ctxSize <= 0)
+    {
         ctxSize = 4096;
-    else if (useEmbedding)
-        ctxSize = 8192;
-    else if (useAgent)
-        ctxSize = 16384;
-    else if (useChat)
-        ctxSize = 8192;
+        if (useAutocomplete)
+            ctxSize = 4096;
+        else if (useEmbedding)
+            ctxSize = 8192;
+        else if (useAgent)
+            ctxSize = 16384;
+        else if (useChat)
+            ctxSize = 8192;
+    }
     if (nCtxTrain > 0)
         ctxSize = std::min(ctxSize, nCtxTrain);
     if (isRecurrent)
         ctxSize = std::min(ctxSize, 4096);
+
+    // Use a conservative generic estimate for an F16 key/value cache.
+    // This prevents suggestions that reserve more RAM than the selected system has.
+    const uint64_t estimatedKvCacheBytesPerToken = static_cast<uint64_t>(nLayer) *
+                                                   static_cast<uint64_t>(nEmbd) *
+                                                   4ULL;
+    if (optimizeContextSize && estimatedKvCacheBytesPerToken > 0 && ramGB > 0)
+    {
+        const uint64_t gib = 1024ULL * 1024ULL * 1024ULL;
+        const uint64_t modelBytes = modelSize;
+        const uint64_t reservedSystemBytes = 4ULL * gib;
+        const uint64_t availableRamBytes = static_cast<uint64_t>(ramGB) * gib;
+        const uint64_t kvCacheBudgetBytes = availableRamBytes > modelBytes + reservedSystemBytes ?
+                                                availableRamBytes - modelBytes - reservedSystemBytes :
+                                                0;
+        const uint64_t maxContextByRam = kvCacheBudgetBytes / estimatedKvCacheBytesPerToken;
+        if (maxContextByRam > 0 && static_cast<uint64_t>(ctxSize) > maxContextByRam)
+        {
+            const int requestedContextSize = ctxSize;
+            ctxSize = static_cast<int>(std::min<uint64_t>(maxContextByRam, static_cast<uint64_t>(INT_MAX)));
+            AddWarning(wxString::Format("Requested context size %d was reduced to %d to keep a conservative RAM reserve.",
+                                        requestedContextSize,
+                                        ctxSize));
+        }
+    }
     ctxSize = std::max(ctxSize, 2048);
 
     const int openCodeAgentChatOutputLimit = std::min(4096, std::max(256, ctxSize / 2));
@@ -1060,6 +1091,8 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
         AddWarning("GPU offload was estimated from the selected GPU name only. VRAM size is not available.");
     if (useNativeDriver && hasGpu)
         AddInfo("Native GPU driver mode enabled: Using CUDA/ROCm for accelerated inference.");
+    else if (hasGpu && !useNativeDriver)
+        AddInfo("Native GPU driver mode is disabled: GPU layer offload was not suggested.");
     if (isRecurrent)
         AddWarning("Recurrent model detected. Context suggestion was kept conservative.");
     if (isDiffusion)
