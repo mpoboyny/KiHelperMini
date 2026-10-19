@@ -553,10 +553,10 @@ INI::GpuInfo DialogSuggestion::GetGpuInfoText()
 #endif
 
 /*static*/
-const wxSize DialogSuggestion::s_defSize = wxSize(860, 980);
+const wxSize DialogSuggestion::s_defSize = wxSize(1440, 1024);
 
 DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
-    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_CheckStep(0), m_modelCmb(nullptr), m_cpuCmb(nullptr), m_ramCmb(nullptr), m_gpuCmb(nullptr), m_nativeDriverCheck(nullptr), m_chatCheck(nullptr), m_agentCheck(nullptr), m_embeddingCheck(nullptr), m_autocompleteCheck(nullptr), m_cliRunParamsCheck(nullptr), m_serverRunParamsCheck(nullptr), m_presetServerIniCheck(nullptr), m_resultText(nullptr), m_setRunParamsAsDefaultBtn(nullptr), m_llamaCliText(nullptr), m_llamaServerText(nullptr)
+    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_CheckStep(0), m_modelCmb(nullptr), m_cpuCmb(nullptr), m_ramCmb(nullptr), m_gpuCmb(nullptr), m_nativeDriverCheck(nullptr), m_chatCheck(nullptr), m_agentCheck(nullptr), m_embeddingCheck(nullptr), m_autocompleteCheck(nullptr), m_optimizePerformanceRadio(nullptr), m_optimizeContextSizeRadio(nullptr), m_optimizeContextSizeText(nullptr), m_cliRunParamsCheck(nullptr), m_serverRunParamsCheck(nullptr), m_resultText(nullptr), m_setRunParamsAsDefaultBtn(nullptr), m_llamaCliText(nullptr), m_llamaServerText(nullptr)
 {
     TrFu;
     SetIcon(wxIcon(app_xpm));
@@ -703,6 +703,23 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     usageRow->Add(m_agentCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
     usageRow->Add(m_embeddingCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
     usageRow->Add(m_autocompleteCheck, 0, wxALIGN_CENTER_VERTICAL);
+    usageRow->AddStretchSpacer(1);
+    m_optimizePerformanceRadio = new wxRadioButton(this, wxID_ANY, "Optimize for performence", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
+    m_optimizeContextSizeRadio = new wxRadioButton(this, wxID_ANY, "Optimize for context size");
+    wxArrayString contextSizeChoices;
+    contextSizeChoices.Add("8192");
+    contextSizeChoices.Add("16384");
+    contextSizeChoices.Add("32768");
+    contextSizeChoices.Add("65536");
+    contextSizeChoices.Add("131072");
+    contextSizeChoices.Add("262144");
+    m_optimizeContextSizeText = new wxComboBox(this, wxID_ANY, "16384", wxDefaultPosition, wxSize(120, -1), contextSizeChoices, wxCB_READONLY);
+    m_optimizePerformanceRadio->SetValue(true);
+    m_optimizeContextSizeText->SetSelection(wxNOT_FOUND);
+    m_optimizeContextSizeText->Enable(false);
+    usageRow->Add(m_optimizePerformanceRadio, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 16);
+    usageRow->Add(m_optimizeContextSizeRadio, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 16);
+    usageRow->Add(m_optimizeContextSizeText, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 8);
 
     usageBox->Add(usageRow, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(usageBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
@@ -711,15 +728,12 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
 
     m_cliRunParamsCheck = new wxCheckBox(this, wxID_ANY, "cli run parameters");
     m_serverRunParamsCheck = new wxCheckBox(this, wxID_ANY, "server run parameters");
-    m_presetServerIniCheck = new wxCheckBox(this, wxID_ANY, "preset server INI file");
 
     m_serverRunParamsCheck->SetValue(true);
-    m_presetServerIniCheck->SetValue(false);
 
     wxBoxSizer *outputFormatRow = new wxBoxSizer(wxHORIZONTAL);
     outputFormatRow->Add(m_cliRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
     outputFormatRow->Add(m_serverRunParamsCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
-    outputFormatRow->Add(m_presetServerIniCheck, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 16);
     outputFormatRow->AddStretchSpacer(1);
     m_setRunParamsAsDefaultBtn = new wxButton(this, wxID_ANY, "Set run parameters as default...");
     m_setRunParamsAsDefaultBtn->Enable(false);
@@ -769,6 +783,8 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     Bind(wxEVT_CLOSE_WINDOW, &DialogSuggestion::OnCloseWindow, this);
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnSelectLlamaCliFile, this, selectLlamaCliFileBtn->GetId());
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnSelectLlamaServerFile, this, selectLlamaServerFileBtn->GetId());
+    m_optimizeContextSizeRadio->Bind(wxEVT_RADIOBUTTON, &DialogSuggestion::OnOptimizeContextSizeRadio, this);
+    m_optimizePerformanceRadio->Bind(wxEVT_RADIOBUTTON, &DialogSuggestion::OnOptimizeContextSizeRadio, this);
 
     SetSizer(mainSizer);
     mainSizer->SetSizeHints(this);
@@ -847,7 +863,6 @@ void DialogSuggestion::AddSettingsSummary()
 
     const bool outCli = m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue();
     const bool outServer = m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue();
-    const bool outPreset = m_presetServerIniCheck && m_presetServerIniCheck->GetValue();
 
     auto boolText = [](bool value) -> const char *
     { return value ? "true" : "false"; };
@@ -859,8 +874,8 @@ void DialogSuggestion::AddSettingsSummary()
     AddInfo("GPU: " + (gpuText.IsEmpty() ? wxString("Unknown") : gpuText));
     AddInfo(wxString::Format("Usage: chat=%s, agent=%s, embedding=%s, autocomplete=%s",
                              boolText(useChat), boolText(useAgent), boolText(useEmbedding), boolText(useAutocomplete)));
-    AddInfo(wxString::Format("Output: cli=%s, server=%s, preset_ini=%s",
-                             boolText(outCli), boolText(outServer), boolText(outPreset)));
+    AddInfo(wxString::Format("Output: cli=%s, server=%s",
+                             boolText(outCli), boolText(outServer)));
 }
 
 bool DialogSuggestion::LoadLlamaHelp(wxTextCtrl *textCtrl, const wxString &executableName, wxString &helpText)
@@ -1161,23 +1176,6 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
         lines.Add(GetFullExecutablePath(m_llamaServerText->GetValue()) + serverParams);
         addStyledOutputBlock(lines);
     }
-    if (m_presetServerIniCheck && m_presetServerIniCheck->GetValue())
-    {
-        wxArrayString lines;
-        lines.Add("preset server INI file:");
-        if (!modelPath.IsEmpty())
-            lines.Add("model=" + modelPath);
-        lines.Add(wxString::Format("ctx_size=%d", ctxSize));
-        lines.Add(wxString::Format("threads=%d", threads));
-        lines.Add(wxString::Format("batch_size=%d", batchSize));
-        lines.Add(wxString::Format("ubatch_size=%d", ubatchSize));
-        lines.Add(wxString::Format("parallel=%d", parallel));
-        lines.Add(wxString::Format("n_gpu_layers=%d", gpuLayers));
-        lines.Add(wxString::Format("flash_attn=%s", useFlashAttn ? "true" : "false"));
-        lines.Add(wxString::Format("embedding=%s", useEmbedding ? "true" : "false"));
-        lines.Add("jinja=true");
-        addStyledOutputBlock(lines);
-    }
     return true;
 }
 
@@ -1403,6 +1401,21 @@ void DialogSuggestion::OnSelectLlamaCliFile(wxCommandEvent &event)
 void DialogSuggestion::OnSelectLlamaServerFile(wxCommandEvent &event)
 {
     SelectLlamaFile(m_llamaServerText, "llama-server");
+}
+
+void DialogSuggestion::OnOptimizeContextSizeRadio(wxCommandEvent &event)
+{
+    const bool optimizeContextSize = m_optimizeContextSizeRadio && m_optimizeContextSizeRadio->GetValue();
+    m_optimizeContextSizeText->Enable(optimizeContextSize);
+    if (optimizeContextSize)
+    {
+        if (m_optimizeContextSizeText->GetValue().IsEmpty())
+            m_optimizeContextSizeText->SetValue("16384");
+    }
+    else
+    {
+        m_optimizeContextSizeText->SetSelection(wxNOT_FOUND);
+    }
 }
 
 void DialogSuggestion::SelectLlamaFile(wxTextCtrl *textCtrl, const wxString &executableName)

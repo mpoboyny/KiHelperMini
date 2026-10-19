@@ -31,9 +31,11 @@ class DialogSuggestion : public wxDialog
     wxCheckBox* m_agentCheck;
     wxCheckBox* m_embeddingCheck;
     wxCheckBox* m_autocompleteCheck;
+    wxRadioButton* m_optimizePerformanceRadio;
+    wxRadioButton* m_optimizeContextSizeRadio;
+    wxComboBox* m_optimizeContextSizeText;
     wxCheckBox* m_cliRunParamsCheck;
     wxCheckBox* m_serverRunParamsCheck;
-    wxCheckBox* m_presetServerIniCheck;
     wxRichTextCtrl* m_resultText;
     wxFont m_resultTextFont;
     wxButton* m_copyBtn;
@@ -72,6 +74,7 @@ class DialogSuggestion : public wxDialog
     void OnSetRunParamsAsDefaultBtn(wxCommandEvent& event);
     void OnSelectLlamaCliFile(wxCommandEvent& event);
     void OnSelectLlamaServerFile(wxCommandEvent& event);
+    void OnOptimizeContextSizeRadio(wxCommandEvent& event);
     void SelectLlamaFile(wxTextCtrl* textCtrl, const wxString& executableName);
 
     bool LoadModelInfo(const ConfigFile& confFile);
