@@ -860,6 +860,8 @@ void DialogSuggestion::AddSettingsSummary()
     const bool useAgent = m_agentCheck && m_agentCheck->GetValue();
     const bool useEmbedding = m_embeddingCheck && m_embeddingCheck->GetValue();
     const bool useAutocomplete = m_autocompleteCheck && m_autocompleteCheck->GetValue();
+    const bool optimizeContextSize = m_optimizeContextSizeRadio && m_optimizeContextSizeRadio->GetValue();
+    const wxString contextSizeText = m_optimizeContextSizeText ? TrimValue(m_optimizeContextSizeText->GetValue()) : wxString();
 
     const bool outCli = m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue();
     const bool outServer = m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue();
@@ -874,6 +876,8 @@ void DialogSuggestion::AddSettingsSummary()
     AddInfo("GPU: " + (gpuText.IsEmpty() ? wxString("Unknown") : gpuText));
     AddInfo(wxString::Format("Usage: chat=%s, agent=%s, embedding=%s, autocomplete=%s",
                              boolText(useChat), boolText(useAgent), boolText(useEmbedding), boolText(useAutocomplete)));
+        AddInfo("Optimization: " + wxString(optimizeContextSize ? "context size" : "performance") +
+            (optimizeContextSize && !contextSizeText.IsEmpty() ? "=" + contextSizeText : wxString()));
     AddInfo(wxString::Format("Output: cli=%s, server=%s",
                              boolText(outCli), boolText(outServer)));
 }
@@ -1029,15 +1033,19 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     }
     if (nCtxTrain > 0)
         ctxSize = std::min(ctxSize, nCtxTrain);
-    if (isRecurrent)
+    if (isRecurrent && (nCtxTrain <= 0 || nCtxTrain <= 4096))
         ctxSize = std::min(ctxSize, 4096);
 
     // Use a conservative generic estimate for an F16 key/value cache.
     // This prevents suggestions that reserve more RAM than the selected system has.
+    int parallel = useAgent ? 2 : 1;
+    if (useAutocomplete || ctxSize >= 32768)
+        parallel = 1;
+
     const uint64_t estimatedKvCacheBytesPerToken = static_cast<uint64_t>(nLayer) *
                                                    static_cast<uint64_t>(nEmbd) *
-                                                   4ULL;
-    if (optimizeContextSize && estimatedKvCacheBytesPerToken > 0 && ramGB > 0)
+                                                   4ULL * static_cast<uint64_t>(parallel);
+    if (estimatedKvCacheBytesPerToken > 0 && ramGB > 0)
     {
         const uint64_t gib = 1024ULL * 1024ULL * 1024ULL;
         const uint64_t modelBytes = modelSize;
@@ -1074,8 +1082,11 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
         batchSize = 512;
     if (useAutocomplete)
         batchSize = std::min(batchSize, 256);
+    else if (ctxSize >= 65536)
+        batchSize = std::min(batchSize, 512);
+    else if (ctxSize >= 32768 || parallel > 1)
+        batchSize = std::min(batchSize, 1024);
     int ubatchSize = std::min(batchSize, ramGB >= 32 ? 512 : 256);
-    int parallel = useAgent ? 2 : 1;
 
     AddInfo("Model description: " + GetModelDescription(currentModel));
     AddInfo("Model size: " + FormatGiB(modelSize));
@@ -1094,7 +1105,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     else if (hasGpu && !useNativeDriver)
         AddInfo("Native GPU driver mode is disabled: GPU layer offload was not suggested.");
     if (isRecurrent)
-        AddWarning("Recurrent model detected. Context suggestion was kept conservative.");
+        AddWarning("Recurrent or hybrid model detected. Verify long-context stability with the selected llama.cpp version.");
     if (isDiffusion)
         AddWarning("Diffusion model detected. Generated suggestions may need manual adjustment.");
     if (useChat && !hasChatTemplate)
