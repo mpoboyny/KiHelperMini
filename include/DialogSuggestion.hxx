@@ -40,12 +40,14 @@ class DialogSuggestion : public wxDialog
     wxFont m_resultTextFont;
     wxButton* m_copyBtn;
     wxButton* m_setRunParamsAsDefaultBtn;
+    wxButton* m_presetBtn;
     wxTextCtrl* m_llamaCliText;
     wxTextCtrl* m_llamaServerText;
     wxString m_llamaCliHelp;
     wxString m_llamaServerHelp;
     SuggestedParameterList m_cliSuggestedParameters;
     SuggestedParameterList m_serverSuggestedParameters;
+    wxString m_lastPresetIni;
 
     static int ParseLastInteger(const wxString& text);
     static bool LooksUnknownValue(const wxString& text);
@@ -72,6 +74,8 @@ class DialogSuggestion : public wxDialog
     bool CreateSuggestion(const llama_model* currentModel);
     void OnCopyToClipboard(wxCommandEvent& event);
     void OnSetRunParamsAsDefaultBtn(wxCommandEvent& event);
+    void OnPresetBtn(wxCommandEvent& event);
+    
     void OnSelectLlamaCliFile(wxCommandEvent& event);
     void OnSelectLlamaServerFile(wxCommandEvent& event);
     void OnOptimizeContextSizeRadio(wxCommandEvent& event);

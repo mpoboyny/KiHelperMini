@@ -4,6 +4,7 @@
 
 #include "prc.hxx"
 #include "DialogSuggestion.hxx"
+#include "DialogPresetIni.hxx"
 #include "ConfigDlg.hxx"
 #include "ConfigFile.hxx"
 #include "IniFile.hxx"
@@ -117,7 +118,19 @@ wxString DialogSuggestion::GetFullExecutablePath(const wxString &path)
 
 bool DialogSuggestion::IsParameterSupported(const wxString &helpText, const wxString &parameter)
 {
-    return !parameter.IsEmpty() && helpText.Contains(parameter);
+    if (parameter.IsEmpty())
+        return false;
+
+    size_t position = helpText.find(parameter);
+    while (position != wxString::npos)
+    {
+        const size_t end = position + parameter.Length();
+        if (end == helpText.Length() ||
+            (!wxIsalnum(helpText[end]) && helpText[end] != '-' && helpText[end] != '_'))
+            return true;
+        position = helpText.find(parameter, end);
+    }
+    return false;
 }
 
 #ifdef _WIN32
@@ -556,7 +569,7 @@ INI::GpuInfo DialogSuggestion::GetGpuInfoText()
 const wxSize DialogSuggestion::s_defSize = wxSize(1440, 1024);
 
 DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
-    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_CheckStep(0), m_modelCmb(nullptr), m_cpuCmb(nullptr), m_ramCmb(nullptr), m_gpuCmb(nullptr), m_nativeDriverCheck(nullptr), m_chatCheck(nullptr), m_agentCheck(nullptr), m_embeddingCheck(nullptr), m_autocompleteCheck(nullptr), m_optimizePerformanceRadio(nullptr), m_optimizeContextSizeRadio(nullptr), m_optimizeContextSizeText(nullptr), m_cliRunParamsCheck(nullptr), m_serverRunParamsCheck(nullptr), m_resultText(nullptr), m_setRunParamsAsDefaultBtn(nullptr), m_llamaCliText(nullptr), m_llamaServerText(nullptr)
+    : wxDialog(parent, wxID_ANY, "Parameter suggestion", wxDefaultPosition, s_defSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER), m_CheckStep(0), m_modelCmb(nullptr), m_cpuCmb(nullptr), m_ramCmb(nullptr), m_gpuCmb(nullptr), m_nativeDriverCheck(nullptr), m_chatCheck(nullptr), m_agentCheck(nullptr), m_embeddingCheck(nullptr), m_autocompleteCheck(nullptr), m_optimizePerformanceRadio(nullptr), m_optimizeContextSizeRadio(nullptr), m_optimizeContextSizeText(nullptr), m_cliRunParamsCheck(nullptr), m_serverRunParamsCheck(nullptr), m_resultText(nullptr), m_setRunParamsAsDefaultBtn(nullptr), m_presetBtn(nullptr), m_llamaCliText(nullptr), m_llamaServerText(nullptr)
 {
     TrFu;
     SetIcon(wxIcon(app_xpm));
@@ -738,6 +751,9 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     m_setRunParamsAsDefaultBtn = new wxButton(this, wxID_ANY, "Set run parameters as default...");
     m_setRunParamsAsDefaultBtn->Enable(false);
     outputFormatRow->Add(m_setRunParamsAsDefaultBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 16);
+    m_presetBtn = new wxButton(this, wxID_ANY, "Show preset.ini ...");
+    m_presetBtn->Enable(false);
+    outputFormatRow->Add(m_presetBtn, 0, wxALIGN_CENTER_VERTICAL | wxLEFT, 8);
 
     outputFormatBox->Add(outputFormatRow, 0, wxALL | wxEXPAND, 10);
     mainSizer->Add(outputFormatBox, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 12);
@@ -778,6 +794,7 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
 
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnCopyToClipboard, this, m_copyBtn->GetId());
     m_setRunParamsAsDefaultBtn->Bind(wxEVT_BUTTON, &DialogSuggestion::OnSetRunParamsAsDefaultBtn, this);
+    m_presetBtn->Bind(wxEVT_BUTTON, &DialogSuggestion::OnPresetBtn, this);
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnDoItBtn, this, doItBtn->GetId());
     Bind(wxEVT_BUTTON, &DialogSuggestion::OnCloseBtn, this, wxID_CANCEL);
     Bind(wxEVT_CLOSE_WINDOW, &DialogSuggestion::OnCloseWindow, this);
@@ -949,6 +966,8 @@ bool DialogSuggestion::LoadModel(const wxString &modelPath, llama_model *&curren
 
 bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
 {
+    m_lastPresetIni.clear();
+
     if (!currentModel)
     {
         AddError("No model loaded.");
@@ -1095,10 +1114,9 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     const bool minimizeResourceUsage = optimizeContextSize && ctxSize < maxPossibleContextSize;
     if (minimizeResourceUsage)
     {
-        threads = useEmbedding ? 2 : 1;
         if (gpuLayers > 0)
             gpuLayers = std::max(1, gpuLayers / 2);
-        AddInfo("The selected context size is below the maximum possible context size. Thread and GPU layer usage were reduced while retaining partial GPU acceleration.");
+        AddInfo("The selected context size is below the maximum possible context size. GPU layer usage was reduced while retaining partial GPU acceleration.");
     }
 
     const int openCodeAgentChatOutputLimit = std::min(4096, std::max(256, ctxSize / 2));
@@ -1254,6 +1272,37 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
         lines.Add("server run parameters:");
         lines.Add(GetFullExecutablePath(m_llamaServerText->GetValue()) + serverParams);
         addStyledOutputBlock(lines);
+
+        if (modelPath.IsEmpty() || !IsParameterSupported(m_llamaServerHelp, "--model"))
+        {
+            AddWarning("preset.ini was not created because llama-server does not support --model.");
+        }
+        else
+        {
+            wxFileName modelFile(modelPath);
+            wxString modelName = modelFile.GetName();
+            if (modelName.IsEmpty())
+                modelName = "model";
+
+            m_lastPresetIni << "[" << modelName << "]\n";
+            m_lastPresetIni << "model = " << modelPath << "\n";
+            for (const auto &parameter : m_serverSuggestedParameters)
+            {
+                if (parameter.Name == "--host" || parameter.Name == "--port")
+                    continue;
+                if (!IsParameterSupported(m_llamaServerHelp, parameter.Name))
+                {
+                    AddWarning("preset.ini does not support " + parameter.Name + "; it was omitted.");
+                    continue;
+                }
+
+                wxString name = parameter.Name;
+                if (name.StartsWith("--"))
+                    name = name.Mid(2);
+                m_lastPresetIni << name << " = " << (parameter.Value.IsEmpty() ? "true" : parameter.Value) << "\n";
+            }
+            AddInfo("preset.ini was created.");
+        }
     }
     return true;
 }
@@ -1273,6 +1322,8 @@ void DialogSuggestion::OnDoItBtn(wxCommandEvent &event)
         const bool hasRunParameters = (m_cliRunParamsCheck && m_cliRunParamsCheck->GetValue()) ||
                                       (m_serverRunParamsCheck && m_serverRunParamsCheck->GetValue());
         m_setRunParamsAsDefaultBtn->Enable(hasRunParameters);
+        if (m_presetBtn)
+            m_presetBtn->Enable(hasRunParameters);
     }
     llama_model *currentModel = nullptr;
 
@@ -1470,6 +1521,18 @@ void DialogSuggestion::OnSetRunParamsAsDefaultBtn(wxCommandEvent &event)
                             }
                             dialog->Destroy();
                         });
+}
+
+void DialogSuggestion::OnPresetBtn(wxCommandEvent& event)
+{
+    if (m_lastPresetIni.IsEmpty())
+    {
+        ShowGenericMessageBox("preset.ini was not created", g_APP_NAME, wxOK | wxICON_WARNING, this);
+        return;
+    }
+
+    DialogPresetIni dialog(this, m_lastPresetIni);
+    dialog.ShowModal();
 }
 
 void DialogSuggestion::OnSelectLlamaCliFile(wxCommandEvent &event)
