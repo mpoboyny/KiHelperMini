@@ -66,7 +66,15 @@ ModelInfoDialog::ModelInfoDialog(wxWindow* parent, const std::map<std::string, s
     });
     m_grid->Bind(wxEVT_GRID_CELL_LEFT_DCLICK, &ModelInfoDialog::OnCellDoubleClicked, this);
     sizer->Add(m_grid, 1, wxEXPAND | wxALL, 10);
-    sizer->Add(CreateButtonSizer(wxOK), 0, wxALIGN_RIGHT | wxRIGHT | wxBOTTOM, 10);
+    wxBoxSizer* bottomSizer = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* helpText = new wxStaticText(this, wxID_ANY, "Use double click on green rows to show whole data");
+    wxFont helpFont = helpText->GetFont();
+    helpFont.SetWeight(wxFONTWEIGHT_BOLD);
+    helpText->SetFont(helpFont);
+    bottomSizer->AddStretchSpacer(1);
+    bottomSizer->Add(helpText, 0, wxALIGN_CENTER_VERTICAL | wxRIGHT, 10);
+    bottomSizer->Add(CreateButtonSizer(wxOK), 0, wxALIGN_CENTER_VERTICAL);
+    sizer->Add(bottomSizer, 0, wxEXPAND | wxLEFT | wxRIGHT | wxBOTTOM, 10);
     SetSizer(sizer);
     SetSize(wxSize(900, 800));
     SetMinSize(wxSize(600, 400));
