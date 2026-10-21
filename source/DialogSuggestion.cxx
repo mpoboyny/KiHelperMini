@@ -968,6 +968,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     const bool useEmbedding = m_embeddingCheck && m_embeddingCheck->GetValue();
     const bool useAutocomplete = m_autocompleteCheck && m_autocompleteCheck->GetValue();
     const bool optimizePerformance = m_optimizePerformanceRadio && m_optimizePerformanceRadio->GetValue();
+    const bool optimizeContextSize = m_optimizeContextSizeRadio && m_optimizeContextSizeRadio->GetValue();
     const int selectedContextSize = m_optimizeContextSizeText ? ParseLastInteger(m_optimizeContextSizeText->GetValue()) : 0;
     const int nCtxTrain = std::max(0, llama_model_n_ctx_train(currentModel));
     const int nLayer = std::max(0, llama_model_n_layer(currentModel));
@@ -1054,6 +1055,26 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
             ctxSize = static_cast<int>(std::min<uint64_t>(maxContextByRam, static_cast<uint64_t>(INT_MAX)));
         }
     }
+
+    int maxPossibleContextSize = INT_MAX;
+    if (nCtxTrain > 0)
+        maxPossibleContextSize = std::min(maxPossibleContextSize, nCtxTrain);
+    if (isRecurrent && (nCtxTrain <= 0 || nCtxTrain <= 4096))
+        maxPossibleContextSize = std::min(maxPossibleContextSize, 4096);
+    if (nLayer > 0 && nEmbd > 0 && ramGB > 0)
+    {
+        const uint64_t gib = 1024ULL * 1024ULL * 1024ULL;
+        const uint64_t availableRamBytes = static_cast<uint64_t>(ramGB) * gib;
+        const uint64_t reservedSystemBytes = 4ULL * gib;
+        const uint64_t kvCacheBudgetBytes = availableRamBytes > modelSize + reservedSystemBytes ?
+                                                availableRamBytes - modelSize - reservedSystemBytes :
+                                                0;
+        const uint64_t maxContextByRam = kvCacheBudgetBytes /
+                                         (static_cast<uint64_t>(nLayer) * static_cast<uint64_t>(nEmbd) * 4ULL);
+        maxPossibleContextSize = static_cast<int>(std::min<uint64_t>(
+            static_cast<uint64_t>(maxPossibleContextSize),
+            std::min<uint64_t>(maxContextByRam, static_cast<uint64_t>(INT_MAX))));
+    }
     if (ctxSize <= 0)
     {
         AddError("The selected system does not have enough available RAM for the model and context cache.");
@@ -1070,6 +1091,14 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
                                     "Run parameters were optimized for the maximum possible context size of %d.",
                                     requestedContextSize,
                                     ctxSize));
+    }
+    const bool minimizeResourceUsage = optimizeContextSize && ctxSize < maxPossibleContextSize;
+    if (minimizeResourceUsage)
+    {
+        threads = useEmbedding ? 2 : 1;
+        if (gpuLayers > 0)
+            gpuLayers = std::max(1, gpuLayers / 2);
+        AddInfo("The selected context size is below the maximum possible context size. Thread and GPU layer usage were reduced while retaining partial GPU acceleration.");
     }
 
     const int openCodeAgentChatOutputLimit = std::min(4096, std::max(256, ctxSize / 2));
@@ -1106,7 +1135,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
                              openCodeEmbeddingOutputLimit));
     if (hasGpu && !hasGpuVram)
         AddWarning("GPU offload was estimated from the selected GPU name only. VRAM size is not available.");
-    if (useNativeDriver && hasGpu)
+    if (useNativeDriver && hasGpu && gpuLayers > 0)
         AddInfo("Native GPU driver mode enabled: Using CUDA/ROCm for accelerated inference.");
     else if (hasGpu && !useNativeDriver)
         AddInfo("Native GPU driver mode is disabled: GPU layer offload was not suggested.");
