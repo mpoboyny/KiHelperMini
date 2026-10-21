@@ -705,7 +705,7 @@ DialogSuggestion::DialogSuggestion(wxWindow *parent, const ConfigFile &confFile)
     usageRow->Add(m_autocompleteCheck, 0, wxALIGN_CENTER_VERTICAL);
     usageRow->AddStretchSpacer(1);
     m_optimizePerformanceRadio = new wxRadioButton(this, wxID_ANY, "Optimize for performence", wxDefaultPosition, wxDefaultSize, wxRB_GROUP);
-    m_optimizeContextSizeRadio = new wxRadioButton(this, wxID_ANY, "Optimize for context size");
+    m_optimizeContextSizeRadio = new wxRadioButton(this, wxID_ANY, "Optimize for context size (if possible)");
     wxArrayString contextSizeChoices;
     contextSizeChoices.Add("8192");
     contextSizeChoices.Add("16384");
@@ -967,7 +967,7 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     const bool useAgent = m_agentCheck && m_agentCheck->GetValue();
     const bool useEmbedding = m_embeddingCheck && m_embeddingCheck->GetValue();
     const bool useAutocomplete = m_autocompleteCheck && m_autocompleteCheck->GetValue();
-    const bool optimizeContextSize = m_optimizeContextSizeRadio && m_optimizeContextSizeRadio->GetValue();
+    const bool optimizePerformance = m_optimizePerformanceRadio && m_optimizePerformanceRadio->GetValue();
     const int selectedContextSize = m_optimizeContextSizeText ? ParseLastInteger(m_optimizeContextSizeText->GetValue()) : 0;
     const int nCtxTrain = std::max(0, llama_model_n_ctx_train(currentModel));
     const int nLayer = std::max(0, llama_model_n_layer(currentModel));
@@ -1018,18 +1018,12 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
     }
 
     // 3. Kontext-Größe festlegen
-    int ctxSize = selectedContextSize;
-    if (!optimizeContextSize || ctxSize <= 0)
+    const int requestedContextSize = selectedContextSize;
+    int ctxSize = optimizePerformance ? INT_MAX : requestedContextSize;
+    if (!optimizePerformance && ctxSize <= 0)
     {
-        ctxSize = 4096;
-        if (useAutocomplete)
-            ctxSize = 4096;
-        else if (useEmbedding)
-            ctxSize = 8192;
-        else if (useAgent)
-            ctxSize = 16384;
-        else if (useChat)
-            ctxSize = 8192;
+        AddError("No context size was selected.");
+        return false;
     }
     if (nCtxTrain > 0)
         ctxSize = std::min(ctxSize, nCtxTrain);
@@ -1055,16 +1049,28 @@ bool DialogSuggestion::CreateSuggestion(const llama_model *currentModel)
                                                 availableRamBytes - modelBytes - reservedSystemBytes :
                                                 0;
         const uint64_t maxContextByRam = kvCacheBudgetBytes / estimatedKvCacheBytesPerToken;
-        if (maxContextByRam > 0 && static_cast<uint64_t>(ctxSize) > maxContextByRam)
+        if (static_cast<uint64_t>(ctxSize) > maxContextByRam)
         {
-            const int requestedContextSize = ctxSize;
             ctxSize = static_cast<int>(std::min<uint64_t>(maxContextByRam, static_cast<uint64_t>(INT_MAX)));
-            AddWarning(wxString::Format("Requested context size %d was reduced to %d to keep a conservative RAM reserve.",
-                                        requestedContextSize,
-                                        ctxSize));
         }
     }
-    ctxSize = std::max(ctxSize, 2048);
+    if (ctxSize <= 0)
+    {
+        AddError("The selected system does not have enough available RAM for the model and context cache.");
+        return false;
+    }
+    if (optimizePerformance && ctxSize == INT_MAX)
+    {
+        AddError("Could not determine the maximum possible context size for the selected system.");
+        return false;
+    }
+    if (!optimizePerformance && ctxSize < requestedContextSize)
+    {
+        AddWarning(wxString::Format("The requested context size %d cannot be optimized for the selected system. "
+                                    "Run parameters were optimized for the maximum possible context size of %d.",
+                                    requestedContextSize,
+                                    ctxSize));
+    }
 
     const int openCodeAgentChatOutputLimit = std::min(4096, std::max(256, ctxSize / 2));
     const int openCodeAutocompleteOutputLimit = std::min(512, std::max(256, ctxSize / 2));
