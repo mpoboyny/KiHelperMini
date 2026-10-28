@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # --- Netzwerk- und Systempfade ---
-SERVER_BIND="127.0.0.1"
-HOST="127.0.0.1"
+SERVER_BIND="0.0.0.0"    
+HOST_LOCAL="127.0.0.1"
 PORT="8080"
-MODEL_ID="Qwen35-9B-Q4_K_M"
 LLAMA_SERVER="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server"
-INI_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M//preset.ini"
-LOG_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M/server.log"
+INI_PATH="/home/tato/Dokumente/KiHelper-Mini/Qwen3.5-9B-Q4_K_M/preset.ini"
+LOG_PATH="/home/tato/Dokumente/KiHelper-Mini/Qwen3.5-9B-Q4_K_M/server.log"
 
 # 1. Radikale Prüfung und Beendigung ALLER Instanzen (Haupt- und Kind-Prozesse)
 if pgrep -x "llama-server" > /dev/null; then
@@ -29,45 +28,41 @@ fi
 
 echo "🚀 Starte llama-server im Router-Modus mit integriertem Hardware-Tuning..."
 echo "Server:   $LLAMA_SERVER"
-echo "IP/Host:  $HOST"
+echo "IP/Host:  $SERVER_BIND (Lauscht global)"
 echo "PORT:     $PORT"
 echo "Ini:      $INI_PATH"
 echo "Log:      $LOG_PATH"
 echo
 
 # 2. Server starten
-taskset -c 0-11 "$LLAMA_SERVER" \
+"$LLAMA_SERVER" \
   --host "$SERVER_BIND" \
   --port "$PORT" \
   --models-preset "$INI_PATH" \
   > "$LOG_PATH" 2>&1 &
 
-# 3. Warten, bis das Modell im Router aktiv registriert ist
-echo "⏳ Warte auf Server-Initialisierung und Modell-Registrierung..."
-MODEL_REGISTERED=0
+SERVER_PID=$!
+
+# 3. Warten, bis der HTTP-Server im Router-Modus antwortet
+echo "⏳ Warte auf Server-Schnittstelle (Router-Modus)..."
+SERVER_READY=0
 for i in {1..15}; do
-    if curl -s "http://${HOST}:${PORT}/v1/models" | grep -Eq "\"id\"[[:space:]]*:[[:space:]]*\"${MODEL_ID}\""; then
-        echo "📡 Router hat die INI-Datei erfolgreich unter http://${HOST}:${PORT} eingelesen!"
-        MODEL_REGISTERED=1
+    # Ein simpler Ping auf die API reicht im On-Demand-Modus aus
+    if curl -s -o /dev/null -w "%{http_code}" "http://${HOST_LOCAL}:${PORT}/v1/models" | grep -Eq "200|404|401"; then
+        echo "📡 Router-Schnittstelle ist erfolgreich unter http://${SERVER_BIND}:${PORT} aktiv!"
+        echo "🌐 Modelle werden bei der ersten Anfrage automatisch in den VRAM geladen."
+        SERVER_READY=1
         break
     fi
     sleep 1
 done
 
-if [[ "$MODEL_REGISTERED" -ne 1 ]]; then
-    echo "❌ Modell ${MODEL_ID} wurde nicht registriert. Prüfe ${LOG_PATH}."
+if [[ "$SERVER_READY" -eq 0 ]]; then
+    echo "❌ Server konnte nicht rechtzeitig initialisiert werden."
+    echo "Prüfe das Log unter: $LOG_PATH"
+    kill "$SERVER_PID" 2>/dev/null
     exit 1
 fi
 
-echo "🧠 Erzwinge sofortiges Laden des Modells (Pre-Loading / Warm-up)..."
-
-# 4. Das Buildin Modell via Netzwerk-IP in den VRAM laden
-echo " -> Lade Buildin modell..."
-if ! curl --fail --silent --show-error -o /dev/null -X POST "http://${HOST}:${PORT}/v1/chat/completions" \
-  -H "Content-Type: application/json" \
-    -d "{\"model\": \"${MODEL_ID}\", \"messages\": [{\"role\": \"user\", \"content\": \"warmup\"}], \"max_tokens\": 1}"; then
-        echo "❌ Modell-Warm-up fehlgeschlagen. Prüfe ${LOG_PATH}."
-        exit 1
-fi
-
-echo "✅ Modell ist vollständig geladen und mit maximaler Performance einsatzbereit!"
+echo "✅ Server läuft erfolgreich im Hintergrund (PID: $SERVER_PID)."
+exit 0
