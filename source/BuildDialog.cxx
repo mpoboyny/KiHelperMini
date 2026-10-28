@@ -318,8 +318,13 @@ void BuildDialog::OnCheckGcc(wxCommandEvent &event)
 
 void BuildDialog::OnBuildCMake(wxCommandEvent& event)
 {
-    // defBinOuDir
+    TrFu;
+#ifdef _WIN32
+    TrStr("Selected Visual Studio: " << m_vsComboBox->GetValue());
+    DialogRunCmake dlg(this, m_llamaSource->GetValue().Trim(), m_defBinOuDir, m_withCudaRadio->GetValue(), m_vsComboBox->GetValue());
+#else
     DialogRunCmake dlg(this, m_llamaSource->GetValue().Trim(), m_defBinOuDir, m_withCudaRadio->GetValue());
+#endif
     dlg.ShowModal();
 }
 

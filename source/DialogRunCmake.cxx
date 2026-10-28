@@ -6,8 +6,29 @@
 #include "ScriptHandler.hxx"
 #include "DialogRunCmake.hxx"
 
+const wxString DialogRunCmake::s_ScriptRunCmakeFileName = []() -> wxString {
+#if defined(__gnu_linux__)
+    return "run_cmake.sh";
+#elif defined(_WIN32)
+    return "run_cmake.bat";
+#endif
+}();
+
+#ifdef _WIN32
+DialogRunCmake::DialogRunCmake(wxWindow* parent, const wxString& llamaSorceDir, const wxString& defOutDir, bool isCudaEnabled, const wxString& devEnvPath)
+    : DialogCmdRunner(parent, "Run CMake", s_ScriptRunCmakeFileName, wxSize(800, 600))
+    , m_llamaSourceDir(llamaSorceDir)
+    , m_defOutDir(defOutDir)
+    , m_isCudaEnabled(isCudaEnabled)
+    , m_devEnvPath(devEnvPath)
+{
+    TrFu;
+    SetupHighlighting();
+    LoadScript();
+}
+#else
 DialogRunCmake::DialogRunCmake(wxWindow *parent, const wxString &llamaSorceDir, const wxString& defOutDir, bool isCudaEnabled)
-    : DialogCmdRunner(parent, "Run CMake", "run_cmake.sh", wxSize(800, 600))
+    : DialogCmdRunner(parent, "Run CMake", s_ScriptRunCmakeFileName, wxSize(800, 600))
     , m_llamaSourceDir(llamaSorceDir)
     , m_defOutDir(defOutDir)
     , m_isCudaEnabled(isCudaEnabled)
@@ -16,6 +37,7 @@ DialogRunCmake::DialogRunCmake(wxWindow *parent, const wxString &llamaSorceDir, 
     SetupHighlighting();
     LoadScript();
 }
+#endif
 
 void DialogRunCmake::SetupReplacements(ScriptReplacementsList &replacements)
 {
@@ -32,12 +54,20 @@ void DialogRunCmake::SetupReplacements(ScriptReplacementsList &replacements)
     llamaBinFn.AppendDir(wxString((m_isCudaEnabled ? "withCuda" : "noCuda")));
     wxString llamaBin = llamaBinFn.GetPathWithSep();
 
-
+#ifdef _WIN32
+    replacements = {
+        { "<!-- llama_src_dir -->", llamaSrc },
+        { "<!-- llama_cuda_flag -->", llamaCudaFlag },
+        { "<!-- llama_out_dir -->", llamaBin },
+        { "<!-- vs_dev_cmd_path -->", m_devEnvPath }
+    };
+#else
     replacements = {
         { "<!-- llama_src_dir -->", llamaSrc },
         { "<!-- llama_cuda_flag -->", llamaCudaFlag },
         { "<!-- llama_out_dir -->", llamaBin }
     };
+#endif
 }
 
 void DialogRunCmake::LoadScript()

@@ -10,15 +10,8 @@ else
     LLAMA_BUILD_DIR="build_noCuda"
 fi
 
-# Navigate to the source directory, exit immediately if the directory does not exist
 cd "$LLAMA_SRC_DIR" || exit 1
 
-# Trick CMake's version detection: Create a dummy .git structure 
-# to suppress hardcoded Git warnings when building from a static ZIP/folder.
-mkdir -p .git
-touch .git/index
-
-# Create a dedicated build directory and enter it (Out-of-Source Build)
 mkdir -p "$LLAMA_BUILD_DIR"
 cd "$LLAMA_BUILD_DIR" || exit 1
 
