@@ -69,10 +69,10 @@
         </System>
         <System Name="Windows">
             <Models>
-                <!-- Good for programming tasks -->
-                <Model File="%USERPROFILE%/LocalKiModels/Qwen2.5-Coder-7B-Instruct-Q4_K_M.gguf" />
+                <!-- Small model -->
+                <Model File="%USERPROFILE%/LocalKiModels/Qwen_Qwen3.5-0.8B-Q4_K_M.gguf" Current="true" />
                 <!-- Allaround model -->
-                <Model File="%USERPROFILE%/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" Current="true" />
+                <Model File="%USERPROFILE%/LocalKiModels/Qwen3.5-9B-Q4_K_M.gguf" />
             </Models>
             <LLamaCpp>
                 <Bin Path="%USERPROFILE%/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/"/>

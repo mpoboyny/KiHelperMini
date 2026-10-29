@@ -9,6 +9,8 @@
 
 class DialogRunCmake : public DialogCmdRunner
 {
+    static const wxString s_ScriptRunCmakeFileName;
+    
     wxString m_llamaSourceDir;
     wxString m_defOutDir;
     bool m_isCudaEnabled;
@@ -18,8 +20,6 @@ class DialogRunCmake : public DialogCmdRunner
 
     void SetupReplacements(ScriptReplacementsList &replacements);
     void LoadScript() override;
-
-    static const wxString s_ScriptRunCmakeFileName;
 
 public:
 #ifdef _WIN32

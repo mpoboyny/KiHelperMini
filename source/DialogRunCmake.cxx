@@ -7,10 +7,10 @@
 #include "DialogRunCmake.hxx"
 
 const wxString DialogRunCmake::s_ScriptRunCmakeFileName = []() -> wxString {
-#if defined(__gnu_linux__)
-    return "run_cmake.sh";
-#elif defined(_WIN32)
+#if defined(_WIN32)
     return "run_cmake.bat";
+#else
+    return "run_cmake.sh";
 #endif
 }();
 
