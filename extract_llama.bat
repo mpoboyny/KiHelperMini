@@ -8,6 +8,6 @@ if not exist %PATH_7z% (
 
 mkdir "llama.cpp" 2>nul
 
-%PATH_7z% x llama.cpp-0.3.0.zip -ollama.cpp -y
+%PATH_7z% x llama.cpp-master.zip -ollama.cpp -y
 
 echo Extraction complete: llama.cpp
