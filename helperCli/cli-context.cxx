@@ -39,15 +39,15 @@ static bool should_stop() {
 
 static constexpr size_t FILE_GLOB_MAX_RESULTS = 100;
 
-const char * LLAMA_ASCII_LOGO = R"(
-▄▄ ▄▄
-██ ██
-██ ██  ▀▀█▄ ███▄███▄  ▀▀█▄    ▄████ ████▄ ████▄
-██ ██ ▄█▀██ ██ ██ ██ ▄█▀██    ██    ██ ██ ██ ██
-██ ██ ▀█▄██ ██ ██ ██ ▀█▄██ ██ ▀████ ████▀ ████▀
-                                    ██    ██
-                                    ▀▀    ▀▀
-)";
+const char * LLAMA_ASCII_LOGO =
+    "\n"
+    "▄▄ ▄▄\n"
+    "██ ██\n"
+    "██ ██  ▀▀█▄ ███▄███▄  ▀▀█▄    ▄████ ████▄ ████▄ \x1b[32mKiHelperMini\x1b[0m\n"
+    "██ ██ ▄█▀██ ██ ██ ██ ▄█▀██    ██    ██ ██ ██ ██\n"
+    "██ ██ ▀█▄██ ██ ██ ██ ▀█▄██ ██ ▀████ ████▀ ████▀\n"
+    "                                    ██    ██\n"
+    "                                    ▀▀    ▀▀\n";
 
 // number of values an arg consumes on the command line
 static int arg_num_values(const common_arg & opt) {
