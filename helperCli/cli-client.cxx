@@ -1,3 +1,5 @@
+#include "pre.hxx"
+
 #include "cli-client.hxx"
 
 #include "http.h"

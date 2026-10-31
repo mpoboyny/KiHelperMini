@@ -1,3 +1,5 @@
+#include "pre.hxx"
+
 #include "cli-context.hxx"
 #include "cli-ui.hxx"
 

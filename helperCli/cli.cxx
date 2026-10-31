@@ -1,3 +1,5 @@
+#include "pre.hxx"
+
 #include "arg.h"
 #include "common.h"
 #include "log.h"

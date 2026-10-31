@@ -8,6 +8,7 @@ LLAMA_INC_PATH = $(LLAMA_BASE)\llama.cpp-master\include
 GGML_INC_PATH = $(LLAMA_BASE)\llama.cpp-master\ggml\include
 COMMON_INC_PATH = $(LLAMA_BASE)\llama.cpp-master\common
 HTTPLIB_INC_PATH = $(LLAMA_BASE)\llama.cpp-master\vendor
+KIHELPER_INC_PATH = ../include
 LLAMA_BIN_PATH = $(LLAMA_BASE)\release-shared_x64_ms
 LLAMA_LIB_PATH = $(LLAMA_BASE)\msbuild\src
 GGML_BASE_LIB_PATH = $(LLAMA_BASE)\msbuild\ggml\src
@@ -15,7 +16,7 @@ COMMON_LIB_PATH = $(LLAMA_BASE)\msbuild\common
 SERVER_LIB_PATH = $(LLAMA_BASE)\msbuild\tools\server
 HTTPLIB_LIB_PATH = $(LLAMA_BASE)\msbuild\vendor\cpp-httplib
 
-CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /DUNICODE /D_UNICODE /D_CRT_SECURE_NO_WARNINGS /DLLAMA_SHARED /DGGML_SHARED /I"$(LLAMA_INC_PATH)" /I"$(GGML_INC_PATH)" /I"$(COMMON_INC_PATH)" /I"$(HTTPLIB_INC_PATH)"
+CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /D_MPTRACE_ /DUNICODE /D_UNICODE /DMP_UNICODE /D_CRT_SECURE_NO_WARNINGS /DLLAMA_SHARED /DGGML_SHARED /I"$(LLAMA_INC_PATH)" /I"$(GGML_INC_PATH)" /I"$(COMMON_INC_PATH)" /I"$(HTTPLIB_INC_PATH)" /I"$(KIHELPER_INC_PATH)"
 
 LDFLAGS = /nologo /SUBSYSTEM:CONSOLE /MACHINE:X64 /LIBPATH:$(LLAMA_LIB_PATH) /LIBPATH:$(GGML_BASE_LIB_PATH) /LIBPATH:$(COMMON_LIB_PATH) /LIBPATH:$(SERVER_LIB_PATH) /LIBPATH:$(HTTPLIB_LIB_PATH)
 
@@ -38,9 +39,11 @@ BIN_DIR = $(BIN_DIR_ROOT)\$(BUILD_TYPE)
 
 TARGET = $(BIN_DIR)\helperCli.exe
 
-OBJ_FILES = $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\main.obj
+PCH_FILE = $(OBJ_DIR)\pre.pch
 
-$(TARGET): $(OBJ_FILES)
+OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\main.obj
+
+$(TARGET): $(OBJ_FILES) $(PCH_FILE)
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
 	@echo Linking $@...
 	$(LINK) $(LDFLAGS) /OUT:$@ $(OBJ_FILES) $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS)
@@ -58,10 +61,18 @@ $(TARGET): $(OBJ_FILES)
 
 release: $(TARGET)
 
+# Rule for precompiled header creation
+$(OBJ_DIR)\pre.obj $(PCH_FILE): pre.cxx pre.hxx
+	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+	@$(CXX) $(CXXFLAGS) /Yc"pre.hxx" /Fp"$(PCH_FILE)" /c /Fo"$(OBJ_DIR)\pre.obj" pre.cxx
+
+# The regular sources use the precompiled header
+$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\main.obj: $(PCH_FILE)
+
 # Inference rule for source files in this directory
 {.}.cxx{$(OBJ_DIR)}.obj:
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
-	@$(CXX) $(CXXFLAGS) /c /Fo$@ $<
+	@$(CXX) $(CXXFLAGS) /Yu"pre.hxx" /Fp"$(PCH_FILE)" /c /Fo$@ $<
 
 clean:
 	@if exist obj rmdir /S /Q obj
