@@ -8,8 +8,8 @@ WX_INCLUDE = /I"./wxWidgets/3.3.1/include" /I"$(WX_LIBDIR_PATH)/mswu"
 WX_LIBDIR = $(WX_LIBDIR_PATH)
 
 LLAMA_BASE = ./llama.cpp
-LLAMA_INC_PATH = $(LLAMA_BASE)\llama.cpp-0.3.0\include
-GGML_INC_PATH = $(LLAMA_BASE)\llama.cpp-0.3.0\ggml\include
+LLAMA_INC_PATH = $(LLAMA_BASE)\llama.cpp-master\include
+GGML_INC_PATH = $(LLAMA_BASE)\llama.cpp-master\ggml\include
 LLAMA_BIN_PATH = $(LLAMA_BASE)\release-shared_x64_ms
 LLAMA_LIB_PATH = $(LLAMA_BASE)\msbuild\src
 GGML_BASE_LIB_PATH = $(LLAMA_BASE)\msbuild\ggml\src
