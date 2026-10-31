@@ -41,7 +41,7 @@ TARGET = $(BIN_DIR)\helperCli.exe
 
 PCH_FILE = $(OBJ_DIR)\pre.pch
 
-OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\main.obj
+OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\config-handler.obj $(OBJ_DIR)\main.obj
 
 $(TARGET): $(OBJ_FILES) $(PCH_FILE)
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
@@ -67,7 +67,7 @@ $(OBJ_DIR)\pre.obj $(PCH_FILE): pre.cxx pre.hxx
 	@$(CXX) $(CXXFLAGS) /Yc"pre.hxx" /Fp"$(PCH_FILE)" /c /Fo"$(OBJ_DIR)\pre.obj" pre.cxx
 
 # The regular sources use the precompiled header
-$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\main.obj: $(PCH_FILE)
+$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\config-handler.obj $(OBJ_DIR)\main.obj: $(PCH_FILE)
 
 # Inference rule for source files in this directory
 {.}.cxx{$(OBJ_DIR)}.obj:

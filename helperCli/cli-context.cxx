@@ -2,6 +2,7 @@
 
 #include "cli-context.hxx"
 #include "cli-ui.hxx"
+#include "config-handler.hxx"
 
 #include "arg.h"
 #include "base64.hpp"
@@ -445,6 +446,7 @@ int cli_context::run() {
     banner += "  /regen              regenerate the last response\n";
     banner += "  /clear              clear the chat history\n";
     banner += "  /read <file>        add a text file\n";
+    banner += "  /config             Not implemented yet\n";
     banner += "  /glob <pattern>     add text files using globbing pattern\n";
     if (has_vision) {
         banner += "  /image <file>       add an image file\n";
@@ -558,6 +560,11 @@ int cli_context::run() {
             std::string fname = string_strip(buffer.substr(6));
             add_text_file(fname);
             write_output_file(string_format("User: Added text file: %s\n", fname.c_str()));
+            continue;
+        } else if (string_starts_with(buffer, "/config ")) {
+            std::string fname = string_strip(buffer.substr(8));
+            ConfigHandler cfg;
+            cfg.process(fname);
             continue;
         } else if (string_starts_with(buffer, "/glob ")) {
             std::error_code ec;
