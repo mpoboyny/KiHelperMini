@@ -70,6 +70,57 @@ static wxArrayString FindVisualStudioInstalls()
 
     return seen;
 }
+
+static void AddCudaInstallPath(const wxString& installPath, wxArrayString& found)
+{
+    wxString path = installPath;
+    path.Trim().Trim(false);
+    while (path.length() > 3 && (path.Last() == '\\' || path.Last() == '/')) {
+        path.RemoveLast();
+    }
+    if (path.IsEmpty() || !wxFileName(path + "\\bin", "nvcc.exe").FileExists()) {
+        return;
+    }
+    for (const wxString& existing : found) {
+        if (existing.CmpNoCase(path) == 0) {
+            return;
+        }
+    }
+    found.Add(path);
+}
+
+static wxArrayString FindCudaInstalls()
+{
+    wxArrayString found;
+    wxString path;
+    if (wxGetEnv("CUDA_PATH", &path)) {
+        AddCudaInstallPath(path, found);
+    }
+
+    wxEnvVariableHashMap env;
+    if (wxGetEnvMap(&env)) {
+        for (const auto& entry : env) {
+            if (entry.first.Upper().StartsWith("CUDA_PATH_V")) {
+                AddCudaInstallPath(entry.second, found);
+            }
+        }
+    }
+
+    wxString programFiles;
+    if (wxGetEnv("ProgramFiles", &programFiles)) {
+        wxString root = programFiles + "\\NVIDIA GPU Computing Toolkit\\CUDA";
+        if (wxDirExists(root)) {
+            wxDir dir(root);
+            wxString version;
+            bool more = dir.GetFirst(&version, "v*", wxDIR_DIRS);
+            while (more) {
+                AddCudaInstallPath(root + "\\" + version, found);
+                more = dir.GetNext(&version);
+            }
+        }
+    }
+    return found;
+}
 #endif
 
 BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
@@ -118,7 +169,7 @@ BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
     wxBoxSizer* gppRow = new wxBoxSizer(wxHORIZONTAL);
     wxStaticText* gppLabel = new wxStaticText(this, wxID_ANY, "Visual Studio :");
     gppRow->Add(gppLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
-    m_vsComboBox = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(300, -1), 0, nullptr, wxCB_READONLY);
+    m_vsComboBox = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(300, -1), 0, nullptr);
     m_vsComboBox->SetName("vs_info");
     gppRow->Add(m_vsComboBox, 1, wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 10);
     m_checkGccButton = new wxButton(this, ID_CHECK_GCC, "Check");
@@ -156,7 +207,30 @@ BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
     m_noCudaRadio = new wxRadioButton(this, wxID_ANY, "No CUDA");
     cudaRow->Add(m_noCudaRadio, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
     toolsBoxBuild->Add(cudaRow, 0, wxEXPAND);
+#ifdef _WIN32
+    wxBoxSizer* cudaPathRow = new wxBoxSizer(wxHORIZONTAL);
+    wxStaticText* cudaLabel = new wxStaticText(this, wxID_ANY, "CUDA path:");
+    cudaPathRow->Add(cudaLabel, 0, wxALL | wxALIGN_CENTER_VERTICAL, 10);
+    m_cudaComboBox = new wxComboBox(this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxSize(300, -1), 0, nullptr);
+    m_cudaComboBox->SetName("cuda_path");
+    cudaPathRow->Add(m_cudaComboBox, 1, wxALL | wxALIGN_CENTER_VERTICAL | wxEXPAND, 10);
+    m_checkCudaButton = new wxButton(this, wxID_ANY, "Check");
+    cudaPathRow->Add(m_checkCudaButton, 0, wxALL, 10);
+    toolsBoxBuild->Add(cudaPathRow, 0, wxEXPAND);
 
+    wxArrayString cudaPaths = FindCudaInstalls();
+    for (const wxString& cudaPath : cudaPaths) {
+        m_cudaComboBox->Append(cudaPath);
+    }
+    if (m_cudaComboBox->GetCount() > 0) {
+        m_cudaComboBox->SetSelection(0);
+    }
+    m_cudaComboBox->Enable(m_withCudaRadio->GetValue());
+    m_checkCudaButton->Enable(m_withCudaRadio->GetValue());
+    m_withCudaRadio->Bind(wxEVT_RADIOBUTTON, &BuildDialog::OnCudaRadio, this);
+    m_noCudaRadio->Bind(wxEVT_RADIOBUTTON, &BuildDialog::OnCudaRadio, this);
+    m_checkCudaButton->Bind(wxEVT_BUTTON, &BuildDialog::OnCheckCuda, this);
+#endif
     wxBoxSizer* buildRow = new wxBoxSizer(wxHORIZONTAL);
     m_buildCmakeButton = new wxButton(this, ID_BUILD_CMAKE, "Run CMake");
     buildRow->Add(m_buildCmakeButton, 0, wxALL, 10);
@@ -167,6 +241,11 @@ BuildDialog::BuildDialog(wxWindow* parent, wxString defBinOuDir)
     top->Add(toolsBoxBuild, 0, wxLEFT | wxRIGHT | wxBOTTOM | wxEXPAND, 6);
 
     SetSizer(top);
+#ifdef _WIN32
+    wxSize minSize = top->GetMinSize();
+    wxSize clientSize = GetClientSize();
+    SetClientSize(wxMax(clientSize.x, minSize.x), wxMax(clientSize.y, minSize.y));
+#endif
     CentreOnParent();
 
     Bind(wxEVT_BUTTON, &BuildDialog::OnCheckCMake, this, ID_CHECK_CMAKE);
@@ -279,6 +358,48 @@ void BuildDialog::OnCheckCMake(wxCommandEvent& event)
 }
 
 #ifdef _WIN32
+void BuildDialog::OnCudaRadio(wxCommandEvent& event)
+{
+    bool enabled = m_withCudaRadio->GetValue();
+    m_cudaComboBox->Enable(enabled);
+    m_checkCudaButton->Enable(enabled);
+}
+
+void BuildDialog::OnCheckCuda(wxCommandEvent& event)
+{
+    wxString cudaPath = m_cudaComboBox->GetValue().Trim().Trim(false);
+    if (cudaPath.IsEmpty()) {
+        ShowGenericMessageBox("Please enter a CUDA toolkit path first.", "Check CUDA", wxOK | wxICON_INFORMATION, this);
+        return;
+    }
+
+    wxFileName nvcc(cudaPath + "\\bin", "nvcc.exe");
+    if (!nvcc.FileExists()) {
+        ShowGenericMessageBox("Not a CUDA toolkit path; CUDA compiler not found:\n" + nvcc.GetFullPath(), "Check CUDA", wxOK | wxICON_ERROR, this);
+        return;
+    }
+    wxArrayString output;
+    wxArrayString errors;
+    long exitCode = wxExecute(wxString::Format("\"%s\" --version", nvcc.GetFullPath()), output, errors, wxEXEC_SYNC | wxEXEC_HIDE_CONSOLE);
+    if (exitCode != 0) {
+        ShowGenericMessageBox("Failed to run CUDA compiler:\n" + nvcc.GetFullPath(), "Check CUDA", wxOK | wxICON_ERROR, this);
+        return;
+    }
+
+    wxString version;
+    for (const wxString& line : output) {
+        if (!version.IsEmpty()) {
+            version += "\n";
+        }
+        version += line;
+    }
+    if (!version.Lower().Contains("cuda compilation tools")) {
+        ShowGenericMessageBox("The compiler did not report a valid CUDA version:\n" + nvcc.GetFullPath(), "Check CUDA", wxOK | wxICON_ERROR, this);
+        return;
+    }
+    ShowGenericMessageBox(version, "CUDA version", wxOK | wxICON_INFORMATION, this);
+}
+
 void BuildDialog::OnCheckGcc(wxCommandEvent &event)
 {
     wxString vsBat = m_vsComboBox->GetValue();

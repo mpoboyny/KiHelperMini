@@ -29,8 +29,8 @@
             "name": "Win32",
 			"includePath": [
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/llama.cpp/llama.cpp-0.3.0/include",
-                "${workspaceFolder}/llama.cpp/llama.cpp-0.3.0/ggml/include",
+                "${workspaceFolder}/llama.cpp/llama.cpp-master/include",
+                "${workspaceFolder}/llama.cpp/llama.cpp-master/ggml/include",
 				"${workspaceFolder}/wxWidgets/3.3.1/include",
                 "${workspaceFolder}/wxWidgets/3.3.1/build-win-release-x64u/lib/vc_x64_dll/mswu"
 			],

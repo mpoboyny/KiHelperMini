@@ -18,6 +18,10 @@ private:
     wxString CMakePath();
     void OnCheckCMake(wxCommandEvent& event);
     void OnCheckGcc(wxCommandEvent& event);
+#ifdef _WIN32
+    void OnCheckCuda(wxCommandEvent& event);
+    void OnCudaRadio(wxCommandEvent& event);
+#endif
     void OnBuildCMake(wxCommandEvent& event);
     void OnBuildGcc(wxCommandEvent& event);
     void OnOpenLlamaSource(wxCommandEvent& event);
@@ -36,6 +40,10 @@ private:
     wxTextCtrl* m_cmakePathText;
     wxTextCtrl* m_gppInfoText;
     wxComboBox* m_vsComboBox{nullptr};
+#ifdef _WIN32
+    wxComboBox* m_cudaComboBox;
+    wxButton* m_checkCudaButton;
+#endif
     wxString m_defBinOuDir;
     wxWindow* m_parent{nullptr};
     wxEventLoopBase* m_eventLoop{nullptr};

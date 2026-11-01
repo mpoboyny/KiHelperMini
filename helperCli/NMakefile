@@ -16,7 +16,7 @@ COMMON_LIB_PATH = $(LLAMA_BASE)\msbuild\common
 SERVER_LIB_PATH = $(LLAMA_BASE)\msbuild\tools\server
 HTTPLIB_LIB_PATH = $(LLAMA_BASE)\msbuild\vendor\cpp-httplib
 
-CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /D_MPTRACE_ /DUNICODE /D_UNICODE /DMP_UNICODE /D_CRT_SECURE_NO_WARNINGS /DLLAMA_SHARED /DGGML_SHARED /I"$(LLAMA_INC_PATH)" /I"$(GGML_INC_PATH)" /I"$(COMMON_INC_PATH)" /I"$(HTTPLIB_INC_PATH)" /I"$(KIHELPER_INC_PATH)"
+CXXFLAGS = /nologo /EHsc /std:c++17 /MD /O2 /DNDEBUG /D_MPTRACE_ /DUNICODE /D_UNICODE /DMP_UNICODE /D_CRT_SECURE_NO_WARNINGS /DLLAMA_SHARED /DGGML_SHARED /I"include" /I"$(LLAMA_INC_PATH)" /I"$(GGML_INC_PATH)" /I"$(COMMON_INC_PATH)" /I"$(HTTPLIB_INC_PATH)" /I"$(KIHELPER_INC_PATH)"
 
 LDFLAGS = /nologo /SUBSYSTEM:CONSOLE /MACHINE:X64 /LIBPATH:$(LLAMA_LIB_PATH) /LIBPATH:$(GGML_BASE_LIB_PATH) /LIBPATH:$(COMMON_LIB_PATH) /LIBPATH:$(SERVER_LIB_PATH) /LIBPATH:$(HTTPLIB_LIB_PATH)
 
@@ -42,8 +42,9 @@ TARGET = $(BIN_DIR)\helperCli.exe
 PCH_FILE = $(OBJ_DIR)\pre.pch
 
 OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\config-handler.obj $(OBJ_DIR)\main.obj
+HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\config-handler.hxx
 
-$(TARGET): $(OBJ_FILES) $(PCH_FILE)
+$(TARGET): $(OBJ_FILES) $(PCH_FILE) scripts\helperCliRunner.bat
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
 	@echo Linking $@...
 	$(LINK) $(LDFLAGS) /OUT:$@ $(OBJ_FILES) $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS)
@@ -52,25 +53,25 @@ $(TARGET): $(OBJ_FILES) $(PCH_FILE)
 	@copy /Y "$(LLAMA_BIN_PATH)\ggml.dll" "$(BIN_DIR)\"
 	@copy /Y "$(LLAMA_BIN_PATH)\ggml-base.dll" "$(BIN_DIR)\"
 	@copy /Y "$(LLAMA_BIN_PATH)\ggml-cpu.dll" "$(BIN_DIR)\"
-	@copy /Y "$(LLAMA_BIN_PATH)\ggml-cuda.dll" "$(BIN_DIR)\"
+	@if exist "$(LLAMA_BIN_PATH)\ggml-cuda.dll" copy /Y "$(LLAMA_BIN_PATH)\ggml-cuda.dll" "$(BIN_DIR)\"
 	@copy /Y "$(LLAMA_BIN_PATH)\llama-common.dll" "$(BIN_DIR)\"
 	@copy /Y "$(LLAMA_BIN_PATH)\llama-server-impl.dll" "$(BIN_DIR)\"
 	@copy /Y "$(LLAMA_BIN_PATH)\mtmd.dll" "$(BIN_DIR)\"
 	@echo Copying runner script...
-	@copy /Y "helperCliRunner.bat" "$(BIN_DIR)\"
+	@copy /Y "scripts\helperCliRunner.bat" "$(BIN_DIR)\"
 
 release: $(TARGET)
 
 # Rule for precompiled header creation
-$(OBJ_DIR)\pre.obj $(PCH_FILE): pre.cxx pre.hxx
+$(OBJ_DIR)\pre.obj $(PCH_FILE): source\pre.cxx include\pre.hxx $(KIHELPER_INC_PATH)\str.hxx $(KIHELPER_INC_PATH)\trace.hxx
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
-	@$(CXX) $(CXXFLAGS) /Yc"pre.hxx" /Fp"$(PCH_FILE)" /c /Fo"$(OBJ_DIR)\pre.obj" pre.cxx
+	@$(CXX) $(CXXFLAGS) /Yc"pre.hxx" /Fp"$(PCH_FILE)" /c /Fo"$(OBJ_DIR)\pre.obj" source\pre.cxx
 
 # The regular sources use the precompiled header
-$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\config-handler.obj $(OBJ_DIR)\main.obj: $(PCH_FILE)
+$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\config-handler.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
 
-# Inference rule for source files in this directory
-{.}.cxx{$(OBJ_DIR)}.obj:
+# Inference rule for source files in the source directory
+{source}.cxx{$(OBJ_DIR)}.obj:
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 	@$(CXX) $(CXXFLAGS) /Yu"pre.hxx" /Fp"$(PCH_FILE)" /c /Fo$@ $<
 
