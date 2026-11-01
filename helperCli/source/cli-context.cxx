@@ -13,10 +13,13 @@
 
 #include <algorithm>
 #include <cctype>
+#include <cerrno>
 #include <filesystem>
 #include <fstream>
 #include <map>
 #include <set>
+#include <fcntl.h>
+#include <unistd.h>
 
 using json = common_json;
 
@@ -41,6 +44,60 @@ static bool should_stop() {
 }
 
 static constexpr size_t FILE_GLOB_MAX_RESULTS = 100;
+static constexpr size_t FILE_TOOL_MAX_CALLS = 4;
+
+static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files)
+{
+    json args = json::parse_no_throw(arguments);
+    if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
+        (args.contains("content") && !args.at("content").is_string())) {
+        return "Error: expected a filename and optional text content.";
+    }
+    std::string path = args.at("path").get<std::string>();
+    std::string content = args.value("content", std::string());
+    if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
+        path.find('\0') != std::string::npos) {
+        return "Error: only a filename in the current directory is allowed.";
+    }
+    if (created_files.count(path)) {
+        return "File already created during this request: " + path + ". No additional action was taken.";
+    }
+    if (content.find("</parameter>") != std::string::npos &&
+        content.find("</function>") != std::string::npos &&
+        (content.find("<tool_call>") != std::string::npos || content.find("</tool_call>") != std::string::npos)) {
+        return "Error: file content contains malformed tool-call markup. No file was created; retry with the intended content only.";
+    }
+
+    ui::show_message("Create file in current directory: " + path + "\nContent:\n" + content);
+    ui::user_turn user_turn;
+    std::string answer = string_strip(user_turn.read_input(false, "Create this file? [y/N] "));
+    if (should_stop() || (answer != "y" && answer != "Y" && answer != "yes" && answer != "YES")) {
+        return "File creation cancelled by user.";
+    }
+
+    int fd = open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0666);
+    if (fd < 0) {
+        return std::string("Error creating file: ") + std::strerror(errno);
+    }
+    size_t written = 0;
+    while (written < content.size()) {
+        ssize_t count = write(fd, content.data() + written, content.size() - written);
+        if (count < 0 && errno == EINTR) {
+            continue;
+        }
+        if (count <= 0) {
+            int error = errno;
+            close(fd);
+            return std::string("Error writing file; a partial file may remain: ") + std::strerror(error);
+        }
+        written += static_cast<size_t>(count);
+    }
+    if (close(fd) != 0) {
+        return std::string("Error closing file; the file may be incomplete: ") + std::strerror(errno);
+    }
+    created_files.insert(path);
+    return "Created file: " + path;
+}
 
 const char * LLAMA_ASCII_LOGO =
     "\n"
@@ -350,7 +407,7 @@ void cli_context::write_output_file(const std::string & content) {
     }
 }
 
-bool cli_context::generate_completion(generated_content & content_out, cli_timings & timings, bool disable_thinking) {
+bool cli_context::generate_completion(generated_content & content_out, cli_timings & timings, bool disable_thinking, bool allow_file_creation) {
     json body = {
         {"messages",          impl->messages},
         {"stream",            true},
@@ -359,6 +416,24 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
     };
     if (disable_thinking) {
         body["chat_template_kwargs"] = {{"enable_thinking", false}};
+    }
+    if (allow_file_creation) {
+        body["parallel_tool_calls"] = false;
+        body["tools"] = json::array({{
+            {"type", "function"},
+            {"function", {
+                {"name", "create_file"},
+                {"description", "Create a new file in the current directory after user confirmation. Never overwrites an existing file."},
+                {"parameters", {
+                    {"type", "object"},
+                    {"properties", {
+                        {"path", {{"type", "string"}, {"description", "Filename in the current directory"}}},
+                        {"content", {{"type", "string"}, {"description", "File text; use an empty string for an empty file"}}}
+                    }},
+                    {"required", json::array({"path", "content"})}
+                }}
+            }}
+        }});
     }
     if (!client.model.empty()) {
         body["model"] = client.model;
@@ -391,6 +466,39 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
             return;
         }
         const auto & delta = choice.at("delta");
+        if (delta.contains("tool_calls") && delta.at("tool_calls").is_array()) {
+            if (!allow_file_creation) {
+                stream_error = true;
+                return;
+            }
+            for (const auto & call : delta.at("tool_calls")) {
+                if (!call.is_object() || !call.contains("index") || !call.at("index").is_number_integer()) {
+                    stream_error = true;
+                    continue;
+                }
+                int index = call.at("index").get<int>();
+                if (index < 0 || static_cast<size_t>(index) >= FILE_TOOL_MAX_CALLS) {
+                    stream_error = true;
+                    continue;
+                }
+                if (content_out.tool_calls.size() <= static_cast<size_t>(index)) {
+                    content_out.tool_calls.resize(static_cast<size_t>(index) + 1);
+                }
+                auto & target = content_out.tool_calls[static_cast<size_t>(index)];
+                if (call.contains("id") && call.at("id").is_string()) {
+                    target.id += call.at("id").get<std::string>();
+                }
+                if (call.contains("function") && call.at("function").is_object()) {
+                    const auto & function = call.at("function");
+                    if (function.contains("name") && function.at("name").is_string()) {
+                        target.name += function.at("name").get<std::string>();
+                    }
+                    if (function.contains("arguments") && function.at("arguments").is_string()) {
+                        target.arguments += function.at("arguments").get<std::string>();
+                    }
+                }
+            }
+        }
         if (delta.contains("reasoning_content") && delta.at("reasoning_content").is_string()) {
             const std::string text = delta.at("reasoning_content").get<std::string>();
             if (!text.empty()) {
@@ -407,13 +515,17 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
         }
     });
 
+    bool interrupted = should_stop();
     cli_context::interrupted().store(false);
 
     if (!err.empty()) {
         ui::show_error(format_error_message(err));
         return false;
     }
-    return !stream_error;
+    if (stream_error) {
+        ui::show_error("Invalid or failed completion stream.");
+    }
+    return !stream_error && !interrupted;
 }
 
 int cli_context::run() {
@@ -445,12 +557,12 @@ int cli_context::run() {
     }
     banner += "\n";
     banner += "available commands:\n";
-    banner += "  /exit or Ctrl+C     stop or exit\n";
-    banner += "  /regen              regenerate the last response\n";
-    banner += "  /clear              clear the chat history\n";
-    banner += "  /read <file>        add a text file\n";
+    banner += "  /exit or Ctrl+C      stop or exit\n";
+    banner += "  /regen               regenerate the last response\n";
+    banner += "  /clear               clear the chat history\n";
+    banner += "  /read <file>         add a text file\n";
     banner += "  /run or /# <command> run a command\n";
-    banner += "  /glob <pattern>     add text files using globbing pattern\n";
+    banner += "  /glob <pattern>      add text files using globbing pattern\n";
     if (has_vision) {
         banner += "  /image <file>       add an image file\n";
     }
@@ -689,31 +801,71 @@ int cli_context::run() {
         }
 
         cli_timings timings;
-        generated_content content;
-        generate_completion(content, timings, disable_thinking);
+        std::set<std::string> created_files;
+        for (size_t tool_round = 0; tool_round <= FILE_TOOL_MAX_CALLS; ++tool_round) {
+            generated_content content;
+            if (!generate_completion(content, timings, disable_thinking,
+                    !disable_thinking && tool_round < FILE_TOOL_MAX_CALLS)) {
+                break;
+            }
 
-        json assistant_msg = {
-            {"role",    "assistant"},
-            {"content", content.content}
-        };
-        if (!content.reasoning.empty()) {
-            assistant_msg["reasoning_content"] = content.reasoning;
-        }
-        impl->messages.push_back(std::move(assistant_msg));
-
-        if (output_file) {
-            std::string out_content = "Assistant:\n";
+            json assistant_msg = {
+                {"role",    "assistant"},
+                {"content", content.content}
+            };
             if (!content.reasoning.empty()) {
-                out_content += "[Start thinking]\n\n";
-                out_content += content.reasoning;
-                out_content += "[End thinking]\n\n";
+                assistant_msg["reasoning_content"] = content.reasoning;
             }
-            out_content += content.content;
-            if (!out_content.empty() && out_content.back() != '\n') {
+            if (!content.tool_calls.empty()) {
+                assistant_msg["tool_calls"] = json::array();
+                for (const auto & call : content.tool_calls) {
+                    assistant_msg["tool_calls"].push_back({
+                        {"id", call.id},
+                        {"type", "function"},
+                        {"function", {{"name", call.name}, {"arguments", call.arguments}}}
+                    });
+                }
+            }
+            impl->messages.push_back(std::move(assistant_msg));
+
+            if (output_file) {
+                std::string out_content = "Assistant:\n";
+                if (!content.reasoning.empty()) {
+                    out_content += "[Start thinking]\n\n";
+                    out_content += content.reasoning;
+                    out_content += "[End thinking]\n\n";
+                }
+                out_content += content.content;
+                if (!out_content.empty() && out_content.back() != '\n') {
+                    out_content += "\n";
+                }
                 out_content += "\n";
+                write_output_file(out_content);
             }
-            out_content += "\n";
-            write_output_file(out_content);
+
+            if (content.tool_calls.empty()) {
+                break;
+            }
+            for (const auto & call : content.tool_calls) {
+                std::string result;
+                if (tool_round >= FILE_TOOL_MAX_CALLS || call.id.empty()) {
+                    result = "Error: invalid tool call or tool call limit reached.";
+                } else if (call.name == "create_file") {
+                    result = create_file_from_tool(call.arguments, created_files);
+                } else {
+                    result = "Error: unknown tool.";
+                }
+                ui::show_message(result);
+                impl->messages.push_back({
+                    {"role", "tool"},
+                    {"tool_call_id", call.id},
+                    {"content", result}
+                });
+            }
+            if (should_stop()) {
+                cli_context::interrupted().store(false);
+                break;
+            }
         }
 
         if (params.show_timings) {

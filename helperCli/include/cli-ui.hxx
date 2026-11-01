@@ -196,6 +196,9 @@ namespace ui {
         ~assistant_turn() {
             console::set_display(DISPLAY_TYPE_RESET);
             add_newline_if_needed();
+            if (is_inside_reasoning) {
+                console::log("[End thinking]\n\n");
+            }
         }
         void push(assistant_display_mode m, const std::string & buffer) {
             if (m != mode) {

@@ -10,6 +10,7 @@
 #include <optional>
 #include <string>
 #include <fstream>
+#include <vector>
 
 struct cli_timings {
     double prompt_per_second    = 0.0;
@@ -52,11 +53,17 @@ struct cli_context {
     static std::atomic<bool> & interrupted();
 
 private:
+    struct generated_tool_call {
+        std::string id;
+        std::string name;
+        std::string arguments;
+    };
     struct generated_content {
         std::string reasoning;
         std::string content;
+        std::vector<generated_tool_call> tool_calls;
     };
-    bool generate_completion(generated_content & content_out, cli_timings & timings, bool disable_thinking);
+    bool generate_completion(generated_content & content_out, cli_timings & timings, bool disable_thinking, bool allow_file_creation);
     void fetch_server_props();
     void add_system_prompt();
     void push_user_message(const std::string & text);
