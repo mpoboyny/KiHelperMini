@@ -7,8 +7,8 @@ INC_DIR      := $(BASE_DIR)/include
 OBJ_DIR_ROOT := $(BASE_DIR)/obj
 BIN_DIR_ROOT := $(BASE_DIR)/bin
 LLAMA_BASE   := $(BASE_DIR)/llama.cpp
-LLAMA_INC    := $(LLAMA_BASE)/llama.cpp-0.3.0/include
-GGML_INC     := $(LLAMA_BASE)/llama.cpp-0.3.0/ggml/include
+LLAMA_INC    := $(LLAMA_BASE)/include
+GGML_INC     := $(LLAMA_BASE)/ggml/include
 
 # --- Konfiguration ---
 TARGET_NAME := KiHelperMini
@@ -69,8 +69,8 @@ release: BIN_DIR  := $(BIN_DIR_ROOT)/release
 release: OBJ_DIR  := $(OBJ_DIR_ROOT)/release
 release: WX_CONF_PATH := $(WX_BASE_DIR)/build-gtk-release-shared_x64/wx-config
 release: CXXFLAGS := $(CURRENT_CXXFLAGS) -O3 -D_MPTRACE_
-release: LLAMA_LIB_DIR := $(LLAMA_BASE)/release-shared_x64-ncuda/lib
-release: LDFLAGS  := -Wl,-rpath,'$$ORIGIN' -L$(LLAMA_LIB_DIR) $(LLAMA_LIBS) $(SYS_LIBS)
+release: LLAMA_LIB_DIR := $(LLAMA_BASE)/release-shared_x64-cuda/lib
+release: LDFLAGS  := -L$(LLAMA_LIB_DIR) $(LLAMA_LIBS) $(SYS_LIBS)
 release: $(PCH_GCH)
 	@$(MAKE) _build BIN_DIR="$(BIN_DIR)" OBJ_DIR="$(OBJ_DIR)" WX_CONF_PATH="$(WX_CONF_PATH)" CXXFLAGS="$(CXXFLAGS)" LDFLAGS="$(LDFLAGS)"
 	@echo "Copying required shared libraries..."
@@ -121,7 +121,7 @@ _build:
 .inner_link: $(OBJECTS)
 	$(eval OUT_NAME := $(if $(findstring debug,$(BIN_DIR)),$(TARGET_NAME)_debug,$(TARGET_NAME)))
 	@echo "Linking $(OUT_NAME)..."
-	$(CXX) $(OBJECTS) $(shell $(WX_CONF_PATH) --libs std,net,xml,stc,richtext) $(LDFLAGS) -o $(BIN_DIR)/$(OUT_NAME)
+	$(CXX) $(OBJECTS) $(shell $(WX_CONF_PATH) --libs std,net,xml,stc,richtext) $(LDFLAGS) -Wl,-rpath,'$$ORIGIN' -o $(BIN_DIR)/$(OUT_NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx
 	@mkdir -p $(dir $@)

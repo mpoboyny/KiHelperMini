@@ -33,10 +33,10 @@ else
     CUDA_SUFFIX="ncuda"
 fi
 
-# 1. Find the real source directory
-SRC_DIR=$(find "$BASE_DIR" -maxdepth 2 -name "CMakeLists.txt" -exec dirname {} \;)
+# 1. Use the root CMake project directory
+SRC_DIR="$BASE_DIR"
 
-if [ -z "$SRC_DIR" ]; then
+if [ ! -f "$SRC_DIR/CMakeLists.txt" ]; then
     echo "Error: Could not find CMakeLists.txt in $BASE_DIR."
     exit 1
 fi

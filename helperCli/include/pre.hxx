@@ -1,5 +1,6 @@
 #pragma once
 
+#ifdef _WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
@@ -8,6 +9,7 @@
 #endif
 #include <winsock2.h>
 #include <windows.h>
+#endif
 
 // http.h must be included before `using namespace frameMP` below:
 // its unqualified bind() must find the Winsock one, not std::bind
