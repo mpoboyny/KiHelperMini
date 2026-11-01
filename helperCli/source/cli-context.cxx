@@ -717,6 +717,7 @@ int cli_context::run() {
             RunHandler run;
             std::string result = run.Handle(fname);
             ui::show_message("Command output:\n" + result);
+            ui::show_message(run.Status());
             size_t line_count = std::count(result.begin(), result.end(), '\n');
             if (!result.empty() && result.back() != '\n') {
                 ++line_count;
@@ -729,9 +730,22 @@ int cli_context::run() {
                 cur_msg += "User question: " + question + "\n";
             }
             cur_msg += "The following is the captured output (stdout and stderr) of the command: " + fname + "\n";
+            cur_msg += run.Status() + "\n";
             cur_msg += "Output line count: " + std::to_string(line_count) + ". Lines are not necessarily files.\n";
             cur_msg += "Answer the user's question directly using the command and output. Do not invent errors or other facts.\n";
             cur_msg += result;
+            if (question.empty() && result.empty() && run.Succeeded()) {
+                push_user_message(cur_msg);
+                write_output_file(string_format("User:\n%s\n\n", cur_msg.c_str()));
+                cur_msg.clear();
+                impl->messages.push_back({{"role", "assistant"}, {"content", "Command completed successfully with no output."}});
+                ui::show_message("Command completed successfully with no output.");
+                write_output_file("Assistant:\nCommand completed successfully with no output.\n\n");
+                if (params.single_turn) {
+                    break;
+                }
+                continue;
+            }
             disable_thinking = true;
         } else if (string_starts_with(buffer, "/glob ")) {
             std::error_code ec;
