@@ -13,12 +13,12 @@
 static const std::array<std::string_view, 9> cmds = {
     "/audio ",
     "/clear",
-    "/config ",
     "/exit",
     "/glob ",
     "/image ",
     "/read ",
     "/regen",
+    "/run ",
     "/video ",
 };
 

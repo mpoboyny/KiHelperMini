@@ -2,7 +2,7 @@
 
 #include "cli-context.hxx"
 #include "cli-ui.hxx"
-#include "config-handler.hxx"
+#include "RunHandler.hxx"
 
 #include "arg.h"
 #include "base64.hpp"
@@ -350,13 +350,16 @@ void cli_context::write_output_file(const std::string & content) {
     }
 }
 
-bool cli_context::generate_completion(generated_content & content_out, cli_timings & timings) {
+bool cli_context::generate_completion(generated_content & content_out, cli_timings & timings, bool disable_thinking) {
     json body = {
         {"messages",          impl->messages},
         {"stream",            true},
         // in order to get timings even when we cancel mid-way
         {"timings_per_token", true},
     };
+    if (disable_thinking) {
+        body["chat_template_kwargs"] = {{"enable_thinking", false}};
+    }
     if (!client.model.empty()) {
         body["model"] = client.model;
     }
@@ -446,7 +449,7 @@ int cli_context::run() {
     banner += "  /regen              regenerate the last response\n";
     banner += "  /clear              clear the chat history\n";
     banner += "  /read <file>        add a text file\n";
-    banner += "  /config             Not implemented yet\n";
+    banner += "  /run <command>      run a command (optionally preceded by a question)\n";
     banner += "  /glob <pattern>     add text files using globbing pattern\n";
     if (has_vision) {
         banner += "  /image <file>       add an image file\n";
@@ -522,6 +525,13 @@ int cli_context::run() {
         }
 
         bool add_user_msg = true;
+        bool disable_thinking = false;
+        size_t run_pos = buffer.find("/run");
+        while (run_pos != std::string::npos &&
+            ((run_pos > 0 && !std::isspace(static_cast<unsigned char>(buffer[run_pos - 1]))) ||
+             (run_pos + 4 < buffer.size() && !std::isspace(static_cast<unsigned char>(buffer[run_pos + 4]))))) {
+            run_pos = buffer.find("/run", run_pos + 4);
+        }
 
         // process commands
         if (string_starts_with(buffer, "/exit")) {
@@ -561,11 +571,23 @@ int cli_context::run() {
             add_text_file(fname);
             write_output_file(string_format("User: Added text file: %s\n", fname.c_str()));
             continue;
-        } else if (string_starts_with(buffer, "/config ")) {
-            std::string fname = string_strip(buffer.substr(8));
-            ConfigHandler cfg;
-            cfg.process(fname);
-            continue;
+        } 
+        else if (run_pos != std::string::npos && (run_pos == 0 || buffer.front() != '/')) {
+            std::string fname = string_strip(buffer.substr(run_pos + 4));
+            std::string question = string_strip(buffer.substr(0, run_pos));
+            RunHandler run;
+            std::string result = run.Handle(fname);
+            ui::show_message("Command output:\n" + result);
+            if (!cur_msg.empty() && cur_msg.back() != '\n') {
+                cur_msg += '\n';
+            }
+            if (!question.empty()) {
+                cur_msg += "User question: " + question + "\n";
+            }
+            cur_msg += "The following is the captured output (stdout and stderr) of the command: " + fname + "\n";
+            cur_msg += "Do not assume it is an error. Respond based on the question, command and output.\n";
+            cur_msg += result;
+            disable_thinking = true;
         } else if (string_starts_with(buffer, "/glob ")) {
             std::error_code ec;
             size_t count = 0;
@@ -635,7 +657,7 @@ int cli_context::run() {
 
         cli_timings timings;
         generated_content content;
-        generate_completion(content, timings);
+        generate_completion(content, timings, disable_thinking);
 
         json assistant_msg = {
             {"role",    "assistant"},

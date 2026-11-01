@@ -41,8 +41,8 @@ TARGET = $(BIN_DIR)\helperCli.exe
 
 PCH_FILE = $(OBJ_DIR)\pre.pch
 
-OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\config-handler.obj $(OBJ_DIR)\main.obj
-HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\config-handler.hxx
+OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\main.obj
+HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\RunHandler.hxx
 
 $(TARGET): $(OBJ_FILES) $(PCH_FILE) scripts\helperCliRunner.bat
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
@@ -68,7 +68,7 @@ $(OBJ_DIR)\pre.obj $(PCH_FILE): source\pre.cxx include\pre.hxx $(KIHELPER_INC_PA
 	@$(CXX) $(CXXFLAGS) /Yc"pre.hxx" /Fp"$(PCH_FILE)" /c /Fo"$(OBJ_DIR)\pre.obj" source\pre.cxx
 
 # The regular sources use the precompiled header
-$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\config-handler.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
+$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
 
 # Inference rule for source files in the source directory
 {source}.cxx{$(OBJ_DIR)}.obj:

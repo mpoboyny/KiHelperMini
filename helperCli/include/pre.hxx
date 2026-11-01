@@ -26,9 +26,9 @@
 #endif
 
 // frameMP
-#ifndef _MPTRACE_
-#define _MPTRACE_
-#endif
+// #ifndef _MPTRACE_
+// #define _MPTRACE_
+// #endif
 
 #include "str.hxx"
 #include "trace.hxx"
