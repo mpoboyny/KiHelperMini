@@ -449,7 +449,7 @@ int cli_context::run() {
     banner += "  /regen              regenerate the last response\n";
     banner += "  /clear              clear the chat history\n";
     banner += "  /read <file>        add a text file\n";
-    banner += "  /run <command>      run a command (optionally preceded by a question)\n";
+    banner += "  /run or /# <command> run a command\n";
     banner += "  /glob <pattern>     add text files using globbing pattern\n";
     if (has_vision) {
         banner += "  /image <file>       add an image file\n";
@@ -526,11 +526,17 @@ int cli_context::run() {
 
         bool add_user_msg = true;
         bool disable_thinking = false;
-        size_t run_pos = buffer.find("/run");
-        while (run_pos != std::string::npos &&
-            ((run_pos > 0 && !std::isspace(static_cast<unsigned char>(buffer[run_pos - 1]))) ||
-             (run_pos + 4 < buffer.size() && !std::isspace(static_cast<unsigned char>(buffer[run_pos + 4]))))) {
-            run_pos = buffer.find("/run", run_pos + 4);
+        size_t run_pos = buffer.find('/');
+        size_t run_length = 0;
+        while (run_pos != std::string::npos) {
+            run_length = buffer.compare(run_pos, 4, "/run") == 0 ? 4 :
+                (buffer.compare(run_pos, 2, "/#") == 0 ? 2 : 0);
+            if (run_length != 0 &&
+                (run_pos == 0 || std::isspace(static_cast<unsigned char>(buffer[run_pos - 1]))) &&
+                (run_pos + run_length == buffer.size() || std::isspace(static_cast<unsigned char>(buffer[run_pos + run_length])))) {
+                break;
+            }
+            run_pos = buffer.find('/', run_pos + 1);
         }
 
         // process commands
@@ -573,11 +579,37 @@ int cli_context::run() {
             continue;
         } 
         else if (run_pos != std::string::npos && (run_pos == 0 || buffer.front() != '/')) {
-            std::string fname = string_strip(buffer.substr(run_pos + 4));
+            std::string fname = string_strip(buffer.substr(run_pos + run_length));
             std::string question = string_strip(buffer.substr(0, run_pos));
+            if (!fname.empty() && fname.front() == '"') {
+                std::string command;
+                size_t end = 1;
+                while (end < fname.size() && fname[end] != '"') {
+                    if (fname[end] == '\\' && end + 1 < fname.size() &&
+                        (fname[end + 1] == '"' || fname[end + 1] == '\\')) {
+                        ++end;
+                    }
+                    command += fname[end++];
+                }
+                if (end == fname.size()) {
+                    ui::show_error("Missing closing quote in command.");
+                    continue;
+                }
+                std::string suffix = string_strip(fname.substr(end + 1));
+                if (!question.empty() && !suffix.empty()) {
+                    question += ' ';
+                }
+                question += suffix;
+                fname = command;
+            }
             RunHandler run;
             std::string result = run.Handle(fname);
             ui::show_message("Command output:\n" + result);
+            size_t line_count = std::count(result.begin(), result.end(), '\n');
+            if (!result.empty() && result.back() != '\n') {
+                ++line_count;
+            }
+            ui::show_message("Command output lines: " + std::to_string(line_count));
             if (!cur_msg.empty() && cur_msg.back() != '\n') {
                 cur_msg += '\n';
             }
@@ -585,7 +617,8 @@ int cli_context::run() {
                 cur_msg += "User question: " + question + "\n";
             }
             cur_msg += "The following is the captured output (stdout and stderr) of the command: " + fname + "\n";
-            cur_msg += "Do not assume it is an error. Respond based on the question, command and output.\n";
+            cur_msg += "Output line count: " + std::to_string(line_count) + ". Lines are not necessarily files.\n";
+            cur_msg += "Answer the user's question directly using the command and output. Do not invent errors or other facts.\n";
             cur_msg += result;
             disable_thinking = true;
         } else if (string_starts_with(buffer, "/glob ")) {
