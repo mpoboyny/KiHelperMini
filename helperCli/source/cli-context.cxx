@@ -19,6 +19,7 @@
 #include <map>
 #include <set>
 #include <fcntl.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 using json = common_json;
@@ -45,6 +46,109 @@ static bool should_stop() {
 
 static constexpr size_t FILE_GLOB_MAX_RESULTS = 100;
 static constexpr size_t FILE_TOOL_MAX_CALLS = 4;
+
+static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files)
+{
+    json args = json::parse_no_throw(arguments);
+    if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
+        !args.contains("content") || !args.at("content").is_string()) {
+        return "Error: expected a filename and replacement text.";
+    }
+    std::string path = args.at("path").get<std::string>();
+    std::string content = args.at("content").get<std::string>();
+    if (path.compare(0, 2, "./") == 0) {
+        path.erase(0, 2);
+    }
+    if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
+        path.find('\0') != std::string::npos) {
+        return "Error: only a filename in the current directory is allowed.";
+    }
+    auto loaded = loaded_files.find(path);
+    if (loaded == loaded_files.end()) {
+        return "Error: load the file with /read before editing it.";
+    }
+    if (content.find("</parameter>") != std::string::npos &&
+        content.find("</function>") != std::string::npos &&
+        (content.find("<tool_call>") != std::string::npos || content.find("</tool_call>") != std::string::npos)) {
+        return "Error: replacement contains malformed tool-call markup. No file was changed.";
+    }
+
+    int fd = open(path.c_str(), O_RDONLY | O_NOFOLLOW | O_NONBLOCK);
+    if (fd < 0) {
+        return std::string("Error opening file: ") + std::strerror(errno);
+    }
+    struct stat original;
+    if (fstat(fd, &original) != 0 || !S_ISREG(original.st_mode)) {
+        close(fd);
+        return "Error: the file must be a regular file, not a symbolic link.";
+    }
+    std::string current;
+    char buffer[4096];
+    ssize_t count;
+    while ((count = read(fd, buffer, sizeof(buffer))) > 0) {
+        current.append(buffer, static_cast<size_t>(count));
+    }
+    if (count < 0 || current != loaded->second) {
+        close(fd);
+        return "Error: file could not be read or changed since /read; load it again before editing.";
+    }
+    if (content == current) {
+        close(fd);
+        return "File is unchanged: " + path;
+    }
+    ui::show_message("Edit file in current directory: " + path + "\nCurrent content:\n" + current + "\nProposed content:\n" + content);
+    ui::user_turn user_turn;
+    std::string answer = string_strip(user_turn.read_input(false, "Replace this file's content? [y/N] "));
+    if (should_stop() || (answer != "y" && answer != "Y" && answer != "yes" && answer != "YES")) {
+        close(fd);
+        return "File edit cancelled by user.";
+    }
+
+    char temp_path[] = ".kihelper-edit-XXXXXX";
+    int temp_fd = mkstemp(temp_path);
+    if (temp_fd < 0) {
+        close(fd);
+        return std::string("Error creating temporary file: ") + std::strerror(errno);
+    }
+    bool ok = fchmod(temp_fd, original.st_mode & 0777) == 0;
+    size_t written = 0;
+    while (ok && written < content.size()) {
+        ssize_t n = write(temp_fd, content.data() + written, content.size() - written);
+        if (n < 0 && errno == EINTR) {
+            continue;
+        }
+        if (n <= 0) {
+            ok = false;
+        } else {
+            written += static_cast<size_t>(n);
+        }
+    }
+    if (ok && fsync(temp_fd) != 0) {
+        ok = false;
+    }
+    if (close(temp_fd) != 0) {
+        ok = false;
+    }
+    struct stat after, named;
+    if (!ok || fstat(fd, &after) != 0 || lstat(path.c_str(), &named) != 0 ||
+        after.st_dev != original.st_dev || after.st_ino != original.st_ino ||
+        named.st_dev != original.st_dev || named.st_ino != original.st_ino ||
+        after.st_size != original.st_size || after.st_mtim.tv_sec != original.st_mtim.tv_sec ||
+        after.st_mtim.tv_nsec != original.st_mtim.tv_nsec || after.st_ctim.tv_sec != original.st_ctim.tv_sec ||
+        after.st_ctim.tv_nsec != original.st_ctim.tv_nsec) {
+        close(fd);
+        unlink(temp_path);
+        return "Error: file changed during confirmation or the replacement could not be prepared; no edit was applied.";
+    }
+    close(fd);
+    if (rename(temp_path, path.c_str()) != 0) {
+        int error = errno;
+        unlink(temp_path);
+        return std::string("Error replacing file: ") + std::strerror(error);
+    }
+    loaded->second = content;
+    return "Updated file: " + path;
+}
 
 static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files)
 {
@@ -434,6 +538,21 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
                 }}
             }}
         }});
+        body["tools"].push_back({
+            {"type", "function"},
+            {"function", {
+                {"name", "edit_file"},
+                {"description", "Replace the complete content of an existing file loaded with /read, after user confirmation. Only filenames in the current directory are allowed."},
+                {"parameters", {
+                    {"type", "object"},
+                    {"properties", {
+                        {"path", {{"type", "string"}, {"description", "Filename previously loaded with /read"}}},
+                        {"content", {{"type", "string"}, {"description", "Complete replacement file content, preserving unchanged parts"}}}
+                    }},
+                    {"required", json::array({"path", "content"})}
+                }}
+            }}
+        });
     }
     if (!client.model.empty()) {
         body["model"] = client.model;
@@ -578,6 +697,7 @@ int cli_context::run() {
 
     // interactive loop
     std::string cur_msg;
+    std::map<std::string, std::string> loaded_files;
 
     auto add_text_file = [&](const std::string & fname) -> bool {
         std::ifstream file(fname, std::ios::binary);
@@ -586,6 +706,17 @@ int cli_context::run() {
             return false;
         }
         std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        if (file.bad()) {
+            ui::show_error(string_format("failed to read file: '%s'", fname.c_str()));
+            return false;
+        }
+        std::string name = fname;
+        if (name.compare(0, 2, "./") == 0) {
+            name.erase(0, 2);
+        }
+        if (!name.empty() && name != "." && name != ".." && name.find('/') == std::string::npos) {
+            loaded_files[name] = content;
+        }
         cur_msg += "--- File: ";
         cur_msg += fname;
         cur_msg += " ---\n";
@@ -668,6 +799,7 @@ int cli_context::run() {
             add_system_prompt();
 
             impl->pending_media = json::array();
+            loaded_files.clear();
             ui::show_message("Chat history cleared.");
             continue;
         } else if (
@@ -734,13 +866,16 @@ int cli_context::run() {
             cur_msg += "Output line count: " + std::to_string(line_count) + ". Lines are not necessarily files.\n";
             cur_msg += "Answer the user's question directly using the command and output. Do not invent errors or other facts.\n";
             cur_msg += result;
-            if (question.empty() && result.empty() && run.Succeeded()) {
+            if (question.empty()) {
                 push_user_message(cur_msg);
                 write_output_file(string_format("User:\n%s\n\n", cur_msg.c_str()));
                 cur_msg.clear();
-                impl->messages.push_back({{"role", "assistant"}, {"content", "Command completed successfully with no output."}});
-                ui::show_message("Command completed successfully with no output.");
-                write_output_file("Assistant:\nCommand completed successfully with no output.\n\n");
+                std::string summary = "Command finished. " + run.Status();
+                impl->messages.push_back({{"role", "assistant"}, {"content", summary}});
+                if (result.empty() && run.Succeeded()) {
+                    ui::show_message("Command completed successfully with no output.");
+                }
+                write_output_file("Assistant:\n" + summary + "\n\n");
                 if (params.single_turn) {
                     break;
                 }
@@ -866,6 +1001,8 @@ int cli_context::run() {
                     result = "Error: invalid tool call or tool call limit reached.";
                 } else if (call.name == "create_file") {
                     result = create_file_from_tool(call.arguments, created_files);
+                } else if (call.name == "edit_file") {
+                    result = edit_file_from_tool(call.arguments, loaded_files);
                 } else {
                     result = "Error: unknown tool.";
                 }
