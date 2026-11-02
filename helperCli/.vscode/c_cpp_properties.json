@@ -1,0 +1,39 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/../llama.cpp/include",
+                "${workspaceFolder}/../llama.cpp/ggml/include",
+                "${workspaceFolder}/../llama.cpp/common",
+                "${workspaceFolder}/../llama.cpp/vendor",
+                "${workspaceFolder}/../include",
+                "/usr/include",
+                "/usr/local/include"
+            ],
+            "defines": [
+                "wxDEBUG_LEVEL=0",
+                "LINUX_OS"
+            ],
+            "forcedInclude": [
+                "${workspaceFolder}/include/pre.hxx"
+            ],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-gcc-x64"
+        },
+        {
+            "name": "Win32",
+			"includePath": [
+                "${workspaceFolder}/include",
+                "${workspaceFolder}/llama.cpp/llama.cpp-master/include",
+                "${workspaceFolder}/llama.cpp/llama.cpp-master/ggml/include"
+			],
+            "cStandard": "c17",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

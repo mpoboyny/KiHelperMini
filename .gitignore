@@ -9,3 +9,4 @@ run.log
 source/DialogSuggestion.cxx_min
 KiHelperMini_DebianTrxie_x64.7z
 testFiles/Qwen_Qwen3.5-9B-Q4_K_M/server.log
+googletest/

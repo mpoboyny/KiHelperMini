@@ -85,12 +85,22 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
     std::string current;
     char buffer[4096];
     ssize_t count;
-    while ((count = read(fd, buffer, sizeof(buffer))) > 0) {
+    while ((count = read(fd, buffer, sizeof(buffer))) != 0) {
+        if (count < 0) {
+            if (errno == EINTR) {
+                continue;
+            }
+            int error = errno;
+            close(fd);
+            return std::string("Error reading file: ") + std::strerror(error);
+        }
         current.append(buffer, static_cast<size_t>(count));
     }
-    if (count < 0 || current != loaded->second) {
+    if (current != loaded->second) {
         close(fd);
-        return "Error: file could not be read or changed since /read; load it again before editing.";
+        loaded->second = current;
+        return "File changed since /read. No edit was applied. The current content has been reloaded below; "
+            "review it and call edit_file again with the complete updated content.\n--- File: " + path + " ---\n" + current;
     }
     if (content == current) {
         close(fd);
@@ -150,7 +160,8 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
     return "Updated file: " + path;
 }
 
-static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files)
+static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files,
+                                         const std::map<std::string, std::string> & loaded_files)
 {
     json args = json::parse_no_throw(arguments);
     if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
@@ -172,6 +183,16 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
         return "Error: file content contains malformed tool-call markup. No file was created; retry with the intended content only.";
     }
 
+    struct stat existing;
+    if (lstat(path.c_str(), &existing) == 0) {
+        return loaded_files.count(path)
+            ? "Error: file already exists; use edit_file instead: " + path
+            : "Error: file already exists; load it with /read before editing: " + path;
+    }
+    if (errno != ENOENT) {
+        return std::string("Error checking file: ") + std::strerror(errno);
+    }
+
     ui::show_message("Create file in current directory: " + path + "\nContent:\n" + content);
     ui::user_turn user_turn;
     std::string answer = string_strip(user_turn.read_input(false, "Create this file? [y/N] "));
@@ -181,6 +202,11 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
 
     int fd = open(path.c_str(), O_WRONLY | O_CREAT | O_EXCL, 0666);
     if (fd < 0) {
+        if (errno == EEXIST) {
+            return loaded_files.count(path)
+                ? "Error: file already exists; use edit_file instead: " + path
+                : "Error: file already exists; load it with /read before editing: " + path;
+        }
         return std::string("Error creating file: ") + std::strerror(errno);
     }
     size_t written = 0;
@@ -1000,7 +1026,7 @@ int cli_context::run() {
                 if (tool_round >= FILE_TOOL_MAX_CALLS || call.id.empty()) {
                     result = "Error: invalid tool call or tool call limit reached.";
                 } else if (call.name == "create_file") {
-                    result = create_file_from_tool(call.arguments, created_files);
+                    result = create_file_from_tool(call.arguments, created_files, loaded_files);
                 } else if (call.name == "edit_file") {
                     result = edit_file_from_tool(call.arguments, loaded_files);
                 } else {
