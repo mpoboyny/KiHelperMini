@@ -9,6 +9,7 @@
                 "${workspaceFolder}/../llama.cpp/common",
                 "${workspaceFolder}/../llama.cpp/vendor",
                 "${workspaceFolder}/../include",
+                "${workspaceFolder}/../googletest/googletest/include",
                 "/usr/include",
                 "/usr/local/include"
             ],

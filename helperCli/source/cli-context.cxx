@@ -747,6 +747,10 @@ int cli_context::run() {
         cur_msg += fname;
         cur_msg += " ---\n";
         cur_msg += content;
+        if (cur_msg.back() != '\n') {
+            cur_msg += '\n';
+        }
+        cur_msg += "--- End of file ---\n";
         ui::show_message(string_format("Loaded text from '%s'", fname.c_str()));
         return true;
     };
