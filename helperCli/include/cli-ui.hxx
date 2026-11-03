@@ -6,8 +6,22 @@
 #include <array>
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
+#include <cstdio>
+#include <cwchar>
+#include <cwctype>
 #include <filesystem>
 #include <string_view>
+
+#if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+#endif
 
 // TODO?: Make this reusable, enums, docs
 static const std::array<std::string_view, 10> cmds = {
@@ -129,6 +143,404 @@ static std::vector<std::pair<std::string, size_t>> auto_completion_callback(std:
     return matches;
 }
 
+//
+// Dedicated input path for the /run and /# command.
+//
+// Unlike the generic console reader (Enter submits, Tab completes), this one:
+//   - shows a #C3C3C3 background on the line while it is a /run or /# command
+//   - treats Tab as end of the command (submits the whole line)
+//   - keeps Enter as a normal submit
+// The reader only works in the console's advanced (character) input mode; in
+// simple_io mode it is not used and the normal path applies.
+//
+#if defined(_WIN32)
+static char32_t run_input_getchar32() {
+    HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
+    wchar_t high_surrogate = 0;
+    for (;;) {
+        INPUT_RECORD record;
+        DWORD count = 0;
+        if (!ReadConsoleInputW(hConsole, &record, 1, &count) || count == 0) {
+            return WEOF;
+        }
+        if (record.EventType == KEY_EVENT && record.Event.KeyEvent.bKeyDown) {
+            const wchar_t wc = record.Event.KeyEvent.uChar.UnicodeChar;
+            if (wc == 0) {
+                switch (record.Event.KeyEvent.wVirtualKeyCode) {
+                    case VK_TAB:    return '\t';
+                    case VK_RETURN: return '\r';
+                    case VK_BACK:   return 0x08;
+                    case VK_LEFT:   return 0xE000;
+                    case VK_RIGHT:  return 0xE001;
+                    case VK_UP:     return 0xE002;
+                    case VK_DOWN:   return 0xE003;
+                    case VK_HOME:   return 0xE004;
+                    case VK_END:    return 0xE005;
+                    case VK_DELETE: return 0xE008;
+                    default:        continue;
+                }
+            }
+            if (wc >= 0xD800 && wc <= 0xDBFF) {
+                high_surrogate = wc;
+                continue;
+            }
+            if (wc >= 0xDC00 && wc <= 0xDFFF) {
+                if (high_surrogate != 0) {
+                    return ((high_surrogate - 0xD800) << 10) + (wc - 0xDC00) + 0x10000;
+                }
+            }
+            high_surrogate = 0;
+            return static_cast<char32_t>(wc);
+        }
+    }
+}
+#else
+static char32_t run_input_getchar32() {
+    wint_t wc = getwchar();
+    if (wc == WEOF) {
+        return WEOF;
+    }
+    return static_cast<char32_t>(wc);
+}
+#endif
+
+static char32_t decode_run_utf8(const std::string & input, size_t pos, size_t & advance) {
+    unsigned char c = static_cast<unsigned char>(input[pos]);
+    if ((c & 0x80u) == 0u) {
+        advance = 1;
+        return c;
+    }
+    if ((c & 0xE0u) == 0xC0u && pos + 1 < input.size()) {
+        unsigned char c1 = static_cast<unsigned char>(input[pos + 1]);
+        if ((c1 & 0xC0u) != 0x80u) {
+            advance = 1;
+            return 0xFFFD;
+        }
+        advance = 2;
+        return ((c & 0x1Fu) << 6) | (c1 & 0x3Fu);
+    }
+    if ((c & 0xF0u) == 0xE0u && pos + 2 < input.size()) {
+        unsigned char c1 = static_cast<unsigned char>(input[pos + 1]);
+        unsigned char c2 = static_cast<unsigned char>(input[pos + 2]);
+        if ((c1 & 0xC0u) != 0x80u || (c2 & 0xC0u) != 0x80u) {
+            advance = 1;
+            return 0xFFFD;
+        }
+        advance = 3;
+        return ((c & 0x0Fu) << 12) | ((c1 & 0x3Fu) << 6) | (c2 & 0x3Fu);
+    }
+    if ((c & 0xF8u) == 0xF0u && pos + 3 < input.size()) {
+        unsigned char c1 = static_cast<unsigned char>(input[pos + 1]);
+        unsigned char c2 = static_cast<unsigned char>(input[pos + 2]);
+        unsigned char c3 = static_cast<unsigned char>(input[pos + 3]);
+        if ((c1 & 0xC0u) != 0x80u || (c2 & 0xC0u) != 0x80u || (c3 & 0xC0u) != 0x80u) {
+            advance = 1;
+            return 0xFFFD;
+        }
+        advance = 4;
+        return ((c & 0x07u) << 18) | ((c1 & 0x3Fu) << 12) | ((c2 & 0x3Fu) << 6) | (c3 & 0x3Fu);
+    }
+    advance = 1;
+    return 0xFFFD;
+}
+
+static size_t run_prev_utf8(const std::string & line, size_t pos) {
+    if (pos == 0) return 0;
+    pos--;
+    while (pos > 0 && (static_cast<unsigned char>(line[pos]) & 0xC0) == 0x80) {
+        pos--;
+    }
+    return pos;
+}
+
+static size_t run_next_utf8(const std::string & line, size_t pos) {
+    if (pos >= line.size()) return line.size();
+    pos++;
+    while (pos < line.size() && (static_cast<unsigned char>(line[pos]) & 0xC0) == 0x80) {
+        pos++;
+    }
+    return pos;
+}
+
+static int run_char_width(char32_t cp) {
+#if defined(_WIN32)
+    (void)cp;
+    return 1;
+#else
+    int w = wcwidth(static_cast<wint_t>(cp));
+    return w > 0 ? w : 1;
+#endif
+}
+
+static int run_line_width(const std::string & line) {
+    int width = 0;
+    size_t p = 0;
+    while (p < line.size()) {
+        size_t adv = 0;
+        char32_t cp = decode_run_utf8(line, p, adv);
+        width += run_char_width(cp);
+        p += adv;
+    }
+    return width;
+}
+
+static int run_cursor_col(const std::string & line, size_t cursor) {
+    int width = 0;
+    size_t p = 0;
+    while (p < cursor) {
+        size_t adv = 0;
+        char32_t cp = decode_run_utf8(line, p, adv);
+        width += run_char_width(cp);
+        p += adv;
+    }
+    return width;
+}
+
+static void run_move_cursor(int delta) {
+    if (delta == 0) {
+        return;
+    }
+#if defined(_WIN32)
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (hConsole == NULL) {
+        return;
+    }
+    CONSOLE_SCREEN_BUFFER_INFO bufferInfo;
+    if (!GetConsoleScreenBufferInfo(hConsole, &bufferInfo)) {
+        return;
+    }
+    COORD pos = bufferInfo.dwCursorPosition;
+    int width = bufferInfo.dwSize.X;
+    int newX = pos.X + delta;
+    int newY = pos.Y;
+    while (newX >= width) {
+        newX -= width;
+        newY++;
+    }
+    while (newX < 0) {
+        newX += width;
+        newY--;
+    }
+    pos.X = newX;
+    pos.Y = newY;
+    SetConsoleCursorPosition(hConsole, pos);
+#else
+    if (delta < 0) {
+        for (int i = 0; i < -delta; i++) fputc('\b', stdout);
+    } else {
+        for (int i = 0; i < delta; i++) fputc('\033[C', stdout);
+    }
+#endif
+}
+
+static void run_append_utf8(char32_t ch, std::string & out) {
+    if (ch <= 0x7F) {
+        out.push_back(static_cast<char>(ch));
+    } else if (ch <= 0x7FF) {
+        out.push_back(static_cast<char>(0xC0 | ((ch >> 6) & 0x1F)));
+        out.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+    } else if (ch <= 0xFFFF) {
+        out.push_back(static_cast<char>(0xE0 | ((ch >> 12) & 0x0F)));
+        out.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
+        out.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+    } else {
+        out.push_back(static_cast<char>(0xF0 | ((ch >> 18) & 0x07)));
+        out.push_back(static_cast<char>(0x80 | ((ch >> 12) & 0x1F)));
+        out.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
+        out.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
+    }
+}
+
+// True while the line is a /run or /# command (the background + Tab-submit
+// behavior only apply to these two commands, not to other /commands).
+static bool run_is_run_mode(const std::string & line) {
+    return line.compare(0, 4, "/run") == 0 || line.compare(0, 2, "/#") == 0;
+}
+
+static void run_put(const char * text) {
+    fputs(text, stdout);
+}
+
+// Reads one line with the dedicated /run behavior. Returns a string that ends
+// with '\n' (matching console::readline), or an empty string on EOF. The
+// #C3C3C3 background is only drawn when color is actually enabled (the reader
+// is otherwise used for its Tab/Enter behavior).
+static std::string read_run_input_raw(bool color_enabled) {
+    const char * bg_on  = "\x1b[30;48;2;195;195;195m";
+    const char * bg_off = "\x1b[0m";
+
+    std::string line;
+    size_t cursor = 0; // byte position of the cursor
+    bool eof       = false;
+
+    int prev_cursor_col = 0; // cursor offset (cols) from the line start at the last draw
+    int prev_line_width = 0; // width of the line at the last draw
+
+    auto redraw = [&]() {
+        // Return the cursor to the start of the line content (just after the
+        // "> " prompt) without disturbing the prompt itself.
+        if (prev_cursor_col > 0) {
+            run_move_cursor(-prev_cursor_col);
+        }
+        const bool show_bg = color_enabled && run_is_run_mode(line) && !line.empty();
+        if (color_enabled) {
+            run_put(show_bg ? bg_on : bg_off);
+        }
+        const int new_width = run_line_width(line);
+        fputs(line.c_str(), stdout);
+        // Clear stale characters left over from a longer previous line, keeping
+        // them on the same background so the block stays uniform.
+        if (prev_line_width > new_width) {
+            for (int i = 0; i < prev_line_width - new_width; i++) {
+                fputc(' ', stdout);
+            }
+        }
+        if (color_enabled) {
+            run_put(bg_off); // restore the base color
+        }
+        // Position the cursor at its column (never to the right of the line).
+        const int target = run_cursor_col(line, cursor);
+        const int drawn_width = std::max(new_width, prev_line_width);
+        run_move_cursor(target - drawn_width);
+        prev_cursor_col = target;
+        prev_line_width = new_width;
+        fflush(stdout);
+    };
+
+    if (color_enabled) {
+        run_put(bg_off); // clear any color inherited from the console
+    }
+    run_put("\n> ");
+    redraw();
+
+    for (;;) {
+        char32_t cp = run_input_getchar32();
+
+        if (cp == WEOF) {
+            eof = true;
+            break;
+        }
+
+        // Submit on Tab (end of command), Enter, or Ctrl+D (EOF)
+        if (cp == '\t' || cp == '\r' || cp == '\n' || cp == 0x04) {
+            // Tab: end of the /run or /# command; otherwise keep completion
+            if (cp == '\t' && !run_is_run_mode(line)) {
+                auto candidates = auto_completion_callback(line, cursor);
+                if (!candidates.empty()) {
+                    if (candidates.size() > 1 || candidates[0].first != line) {
+                        line = candidates[0].first;
+                        cursor = std::min(candidates[0].second, line.size());
+                    }
+                    redraw();
+                    continue;
+                }
+            }
+            if (cp == 0x04) {
+                eof = true;
+            }
+            // Note: the newline is printed by the caller so that the console
+            // cursor is not advanced before the reader returns.
+            break;
+        }
+
+        // Backspace
+        if (cp == 0x08 || cp == 0x7F) {
+            if (cursor > 0) {
+                size_t prev = run_prev_utf8(line, cursor);
+                line.erase(prev, cursor - prev);
+                cursor = prev;
+                redraw();
+            }
+            continue;
+        }
+
+        // Escape sequences (arrows, Home, End, Delete)
+        if (cp == 0x1B) {
+            char32_t code = run_input_getchar32();
+            if (code == '[') {
+                std::string params;
+                for (;;) {
+                    code = run_input_getchar32();
+                    if ((code >= 'A' && code <= 'Z') || (code >= 'a' && code <= 'z') ||
+                        code == '~' || code == WEOF) {
+                        break;
+                    }
+                    params.push_back(static_cast<char>(code));
+                }
+                if (code == 'D') {
+                    if (cursor > 0) {
+                        cursor = run_prev_utf8(line, cursor);
+                    }
+                } else if (code == 'C') {
+                    cursor = run_next_utf8(line, cursor);
+                } else if (code == 'H') {
+                    cursor = 0;
+                } else if (code == 'F') {
+                    cursor = line.size();
+                } else if (code == '~') {
+                    cursor = line.size();
+                }
+                redraw();
+            } else if (code == 0x1B) {
+                while ((code = run_input_getchar32()) != WEOF) {
+                    if ((code >= 'A' && code <= 'Z') || (code >= 'a' && code <= 'z') || code == '~') {
+                        break;
+                    }
+                }
+            }
+            continue;
+        }
+
+        // Windows special keys arrive as private-use code points
+#if defined(_WIN32)
+        switch (cp) {
+            case 0xE000:
+                if (cursor > 0) {
+                    cursor = run_prev_utf8(line, cursor);
+                    redraw();
+                }
+                continue;
+            case 0xE001:
+                cursor = run_next_utf8(line, cursor);
+                redraw();
+                continue;
+            case 0xE004:
+                cursor = 0;
+                redraw();
+                continue;
+            case 0xE005:
+                cursor = line.size();
+                redraw();
+                continue;
+            case 0xE008:
+                if (cursor < line.size()) {
+                    size_t next = run_next_utf8(line, cursor);
+                    line.erase(cursor, next - cursor);
+                    redraw();
+                }
+                continue;
+            default:
+                break;
+        }
+#endif
+
+        // Insert a printable character at the cursor
+        if (cp >= 0x20 && cp <= 0x10FFFF) {
+            std::string ch;
+            run_append_utf8(cp, ch);
+            line.insert(cursor, ch);
+            cursor += ch.size();
+            redraw();
+        }
+    }
+
+    if (eof && line.empty()) {
+        return std::string();
+    }
+    line += '\n';
+    return line;
+}
+
 // note: make this view implementation generic, so that we can move to TUI in the future if we want to
 namespace ui {
     static void init(const common_params & params) {
@@ -181,6 +593,22 @@ namespace ui {
             return buffer;
         }
     };
+
+    // Dedicated reader for the /run and /# command: the whole typed line is
+    // submitted, Tab ends the command, and the line gets a #C3C3C3 background
+    // while it is a /run or /# command. Only used in advanced input mode.
+    static std::string read_run_input(bool color_enabled) {
+        std::string line = read_run_input_raw(color_enabled);
+        // The reader leaves the cursor at the end of the line; commit it.
+        if (!line.empty()) {
+            fputc('\n', stdout);
+        }
+        fflush(stdout);
+        if (!line.empty() && line.back() == '\n') {
+            line.pop_back();
+        }
+        return line;
+    }
 
     enum assistant_display_mode {
         ASSISTANT_DISPLAY_MODE_REASONING,

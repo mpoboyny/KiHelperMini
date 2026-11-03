@@ -968,24 +968,29 @@ int cli_context::run() {
 
     while (true) {
         std::string buffer;
-        {
-            ui::user_turn user_turn;
-
-            if (params.prompt.empty()) {
-                buffer = user_turn.read_input(params.multiline_input);
+        if (params.prompt.empty()) {
+            if (!params.simple_io) {
+                // /run and /# use the dedicated input path: the whole line is
+                // submitted, Tab ends the command, and the line shows a
+                // #C3C3C3 background while it is a /run or /# command.
+                buffer = ui::read_run_input(params.use_color);
             } else {
-                // process input prompt from args
-                for (auto & fname : params.image) {
-                    if (!stage_media_file(fname, media_type_from_ext(fname))) {
-                        ui::show_error(string_format("file does not exist or cannot be opened: '%s'", fname.c_str()));
-                        break;
-                    }
-                    ui::show_message(string_format("Loaded media from '%s'", fname.c_str()));
-                }
-                buffer = params.prompt;
-                user_turn.echo(buffer);
-                params.prompt.clear(); // only use it once
+                ui::user_turn user_turn;
+                buffer = user_turn.read_input(params.multiline_input);
             }
+        } else {
+            // process input prompt from args
+            ui::user_turn user_turn;
+            for (auto & fname : params.image) {
+                if (!stage_media_file(fname, media_type_from_ext(fname))) {
+                    ui::show_error(string_format("file does not exist or cannot be opened: '%s'", fname.c_str()));
+                    break;
+                }
+                ui::show_message(string_format("Loaded media from '%s'", fname.c_str()));
+            }
+            buffer = params.prompt;
+            user_turn.echo(buffer);
+            params.prompt.clear(); // only use it once
         }
 
         if (should_stop()) {
@@ -1066,27 +1071,6 @@ int cli_context::run() {
         else if (run_pos != std::string::npos && (run_pos == 0 || buffer.front() != '/')) {
             std::string fname = string_strip(buffer.substr(run_pos + run_length));
             std::string question = string_strip(buffer.substr(0, run_pos));
-            if (!fname.empty() && fname.front() == '"') {
-                std::string command;
-                size_t end = 1;
-                while (end < fname.size() && fname[end] != '"') {
-                    if (fname[end] == '\\' && end + 1 < fname.size() &&
-                        (fname[end + 1] == '"' || fname[end + 1] == '\\')) {
-                        ++end;
-                    }
-                    command += fname[end++];
-                }
-                if (end == fname.size()) {
-                    ui::show_error("Missing closing quote in command.");
-                    continue;
-                }
-                std::string suffix = string_strip(fname.substr(end + 1));
-                if (!question.empty() && !suffix.empty()) {
-                    question += ' ';
-                }
-                question += suffix;
-                fname = command;
-            }
             RunHandler run;
             std::string result = run.Handle(fname);
             ui::show_message("Command output:\n" + result);
