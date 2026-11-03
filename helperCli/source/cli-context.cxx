@@ -18,9 +18,11 @@
 #include <fstream>
 #include <map>
 #include <set>
+#if !defined(_WIN32)
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#endif
 
 using json = common_json;
 
@@ -47,6 +49,7 @@ static bool should_stop() {
 static constexpr size_t FILE_GLOB_MAX_RESULTS = 100;
 static constexpr size_t FILE_TOOL_MAX_CALLS = 4;
 
+#if !defined(_WIN32)
 static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files)
 {
     json args = json::parse_no_throw(arguments);
@@ -228,6 +231,214 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
     created_files.insert(path);
     return "Created file: " + path;
 }
+#endif // !defined(_WIN32)
+
+#ifdef _WIN32
+// Windows implementation of the file tools: same behavior and messages as the
+// POSIX version above, using the Win32 file API instead.
+
+static std::wstring utf8_to_wide(const std::string & text)
+{
+    if (text.empty()) {
+        return std::wstring();
+    }
+    const int size = MultiByteToWideChar(CP_UTF8, 0, text.data(),
+        static_cast<int>(text.size()), nullptr, 0);
+    std::wstring wide(static_cast<size_t>(size), L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, text.data(), static_cast<int>(text.size()), wide.data(), size);
+    return wide;
+}
+
+static std::string win32_error_message()
+{
+    return std::to_string(GetLastError());
+}
+
+static bool write_all(HANDLE handle, const std::string & data)
+{
+    size_t written = 0;
+    while (written < data.size()) {
+        DWORD n = 0;
+        if (!WriteFile(handle, data.data() + written, static_cast<DWORD>(data.size() - written), &n, nullptr) || n == 0) {
+            return false;
+        }
+        written += n;
+    }
+    return FlushFileBuffers(handle) != 0;
+}
+
+static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files)
+{
+    json args = json::parse_no_throw(arguments);
+    if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
+        !args.contains("content") || !args.at("content").is_string()) {
+        return "Error: expected a filename and replacement text.";
+    }
+    std::string path = args.at("path").get<std::string>();
+    std::string content = args.at("content").get<std::string>();
+    if (path.compare(0, 2, "./") == 0) {
+        path.erase(0, 2);
+    }
+    if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
+        path.find('\0') != std::string::npos) {
+        return "Error: only a filename in the current directory is allowed.";
+    }
+    auto loaded = loaded_files.find(path);
+    if (loaded == loaded_files.end()) {
+        return "Error: load the file with /read before editing it.";
+    }
+    if (content.find("</" "parameter>") != std::string::npos &&
+        content.find("</" "function>") != std::string::npos &&
+        (content.find("<tool_call>") != std::string::npos || content.find("</tool_call>") != std::string::npos)) {
+        return "Error: replacement contains malformed tool-call markup. No file was changed.";
+    }
+
+    std::wstring w_path = utf8_to_wide(path);
+    DWORD attrs = GetFileAttributesW(w_path.c_str());
+    if (attrs == INVALID_FILE_ATTRIBUTES) {
+        return std::string("Error opening file: ") + win32_error_message();
+    }
+    if (attrs & FILE_ATTRIBUTE_REPARSE_POINT) {
+        return "Error: the file must be a regular file, not a symbolic link.";
+    }
+    HANDLE handle = CreateFileW(w_path.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (handle == INVALID_HANDLE_VALUE) {
+        return std::string("Error opening file: ") + win32_error_message();
+    }
+    BY_HANDLE_FILE_INFORMATION original;
+    if (GetFileInformationByHandle(handle, &original) == 0) {
+        CloseHandle(handle);
+        return "Error: the file must be a regular file, not a symbolic link.";
+    }
+    std::string current;
+    char buffer[4096];
+    for (;;) {
+        DWORD count = 0;
+        if (!ReadFile(handle, buffer, sizeof(buffer), &count, nullptr)) {
+            CloseHandle(handle);
+            return std::string("Error reading file: ") + win32_error_message();
+        }
+        if (count == 0) {
+            break;
+        }
+        current.append(buffer, count);
+    }
+    CloseHandle(handle);
+    if (current != loaded->second) {
+        loaded->second = current;
+        return "File changed since /read. No edit was applied. The current content has been reloaded below; "
+            "review it and call edit_file again with the complete updated content.\n--- File: " + path + " ---\n" + current;
+    }
+    if (content == current) {
+        return "File is unchanged: " + path;
+    }
+    ui::show_message("Edit file in current directory: " + path + "\nCurrent content:\n" + current + "\nProposed content:\n" + content);
+    ui::user_turn user_turn;
+    std::string answer = string_strip(user_turn.read_input(false, "Replace this file's content? [y/N] "));
+    if (should_stop() || (answer != "y" && answer != "Y" && answer != "yes" && answer != "YES")) {
+        return "File edit cancelled by user.";
+    }
+
+    std::wstring w_temp = utf8_to_wide(".kihelper-edit-XXXXXX");
+    HANDLE temp = CreateFileW(w_temp.c_str(), GENERIC_WRITE, 0, nullptr,
+                              CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (temp == INVALID_HANDLE_VALUE) {
+        return std::string("Error creating temporary file: ") + win32_error_message();
+    }
+    if (!write_all(temp, content) || CloseHandle(temp) == 0) {
+        DeleteFileW(w_temp.c_str());
+        return "Error: file changed during confirmation or the replacement could not be prepared; no edit was applied.";
+    }
+    BY_HANDLE_FILE_INFORMATION named;
+    HANDLE named_handle = CreateFileW(w_path.c_str(), 0, FILE_SHARE_READ | FILE_SHARE_WRITE,
+                                      nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (named_handle == INVALID_HANDLE_VALUE || GetFileInformationByHandle(named_handle, &named) == 0 ||
+        named.dwVolumeSerialNumber != original.dwVolumeSerialNumber ||
+        named.nFileIndexHigh != original.nFileIndexHigh || named.nFileIndexLow != original.nFileIndexLow ||
+        named.nFileSizeHigh != original.nFileSizeHigh || named.nFileSizeLow != original.nFileSizeLow ||
+        named.ftLastWriteTime.dwLowDateTime != original.ftLastWriteTime.dwLowDateTime ||
+        named.ftLastWriteTime.dwHighDateTime != original.ftLastWriteTime.dwHighDateTime) {
+        if (named_handle != INVALID_HANDLE_VALUE) {
+            CloseHandle(named_handle);
+        }
+        DeleteFileW(w_temp.c_str());
+        return "Error: file changed during confirmation or the replacement could not be prepared; no edit was applied.";
+    }
+    CloseHandle(named_handle);
+    // MOVEFILE_REPLACE_EXISTING mirrors POSIX rename(); this SDK has no
+    // atomic-move flag, so the replace is a rename-or-replace.
+    if (!MoveFileExW(w_temp.c_str(), w_path.c_str(), MOVEFILE_REPLACE_EXISTING)) {
+        std::string message = std::string("Error replacing file: ") + win32_error_message();
+        DeleteFileW(w_temp.c_str());
+        return message;
+    }
+    loaded->second = content;
+    return "Updated file: " + path;
+}
+
+static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files,
+                                         const std::map<std::string, std::string> & loaded_files)
+{
+    json args = json::parse_no_throw(arguments);
+    if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
+        (args.contains("content") && !args.at("content").is_string())) {
+        return "Error: expected a filename and optional text content.";
+    }
+    std::string path = args.at("path").get<std::string>();
+    std::string content = args.value("content", std::string());
+    if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
+        path.find('\0') != std::string::npos) {
+        return "Error: only a filename in the current directory is allowed.";
+    }
+    if (created_files.count(path)) {
+        return "File already created during this request: " + path + ". No additional action was taken.";
+    }
+    if (content.find("</" "parameter>") != std::string::npos &&
+        content.find("</" "function>") != std::string::npos &&
+        (content.find("<tool_call>") != std::string::npos || content.find("</tool_call>") != std::string::npos)) {
+        return "Error: file content contains malformed tool-call markup. No file was created; retry with the intended content only.";
+    }
+
+    std::wstring w_path = utf8_to_wide(path);
+    if (GetFileAttributesW(w_path.c_str()) != INVALID_FILE_ATTRIBUTES) {
+        return loaded_files.count(path)
+            ? "Error: file already exists; use edit_file instead: " + path
+            : "Error: file already exists; load it with /read before editing: " + path;
+    }
+    DWORD code = GetLastError();
+    if (code != ERROR_FILE_NOT_FOUND && code != ERROR_PATH_NOT_FOUND) {
+        return std::string("Error checking file: ") + win32_error_message();
+    }
+
+    ui::show_message("Create file in current directory: " + path + "\nContent:\n" + content);
+    ui::user_turn user_turn;
+    std::string answer = string_strip(user_turn.read_input(false, "Create this file? [y/N] "));
+    if (should_stop() || (answer != "y" && answer != "Y" && answer != "yes" && answer != "YES")) {
+        return "File creation cancelled by user.";
+    }
+
+    HANDLE handle = CreateFileW(w_path.c_str(), GENERIC_WRITE, 0, nullptr,
+                                CREATE_NEW, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (handle == INVALID_HANDLE_VALUE) {
+        if (GetLastError() == ERROR_ALREADY_EXISTS) {
+            return loaded_files.count(path)
+                ? "Error: file already exists; use edit_file instead: " + path
+                : "Error: file already exists; load it with /read before editing: " + path;
+        }
+        return std::string("Error creating file: ") + win32_error_message();
+    }
+    bool ok = write_all(handle, content);
+    if (CloseHandle(handle) == 0) {
+        ok = false;
+    }
+    if (!ok) {
+        return "Error writing file; a partial file may remain: " + win32_error_message();
+    }
+    created_files.insert(path);
+    return "Created file: " + path;
+}
+#endif // _WIN32
 
 const char * LLAMA_ASCII_LOGO =
     "\n"
