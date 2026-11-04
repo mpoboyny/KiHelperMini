@@ -147,12 +147,17 @@ static std::vector<std::pair<std::string, size_t>> auto_completion_callback(std:
 // Dedicated input path for the /run and /# command.
 //
 // Unlike the generic console reader (Enter submits, Tab completes), this one:
-//   - shows a #C3C3C3 background on the line while it is a /run or /# command
-//   - treats Tab as end of the command (submits the whole line)
-//   - keeps Enter as a normal submit
+//   - shows a #C3C3C3 background on the /run or /# command part of the line
+//   - treats Tab as end of the command (same line, no submit); text typed
+//     after the Tab is the question
+//   - keeps Enter as the submit key
 // The reader only works in the console's advanced (character) input mode; in
 // simple_io mode it is not used and the normal path applies.
 //
+// When non-null, keys are taken from run_input_source (unit-test injection)
+// instead of the real console.
+static std::function<char32_t()> run_input_source;
+
 #if defined(_WIN32)
 static char32_t run_input_getchar32() {
     HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
@@ -203,6 +208,10 @@ static char32_t run_input_getchar32() {
     return static_cast<char32_t>(wc);
 }
 #endif
+
+static char32_t run_input_fetch_char32() {
+    return run_input_source ? run_input_source() : run_input_getchar32();
+}
 
 static char32_t decode_run_utf8(const std::string & input, size_t pos, size_t & advance) {
     unsigned char c = static_cast<unsigned char>(input[pos]);
@@ -351,10 +360,16 @@ static void run_append_utf8(char32_t ch, std::string & out) {
     }
 }
 
-// True while the line is a /run or /# command (the background + Tab-submit
-// behavior only apply to these two commands, not to other /commands).
+// True while the line is a /run or /# command (the background + Tab
+// end-of-command behavior only applies to these two commands).
 static bool run_is_run_mode(const std::string & line) {
-    return line.compare(0, 4, "/run") == 0 || line.compare(0, 2, "/#") == 0;
+    if (line.length() >= 2 && string_starts_with(line, "/#")) {
+        return true;
+    }
+    if (line.length() >= 4 && string_starts_with(line, "/run")) {
+        return true;
+    }
+    return false;
 }
 
 static void run_put(const char * text) {
@@ -363,8 +378,7 @@ static void run_put(const char * text) {
 
 // Reads one line with the dedicated /run behavior. Returns a string that ends
 // with '\n' (matching console::readline), or an empty string on EOF. The
-// #C3C3C3 background is only drawn when color is actually enabled (the reader
-// is otherwise used for its Tab/Enter behavior).
+// #C3C3C3 background covers the /run or /# command part while it is drawn.
 static std::string read_run_input_raw(bool color_enabled) {
     const char * bg_on  = "\x1b[30;48;2;195;195;195m";
     const char * bg_off = "\x1b[0m";
@@ -372,6 +386,7 @@ static std::string read_run_input_raw(bool color_enabled) {
     std::string line;
     size_t cursor = 0; // byte position of the cursor
     bool eof       = false;
+    size_t run_end = 0; // byte offset where the /run or /# command ends (set on Tab); 0 = not ended
 
     int prev_cursor_col = 0; // cursor offset (cols) from the line start at the last draw
     int prev_line_width = 0; // width of the line at the last draw
@@ -382,7 +397,8 @@ static std::string read_run_input_raw(bool color_enabled) {
         if (prev_cursor_col > 0) {
             run_move_cursor(-prev_cursor_col);
         }
-        const bool show_bg = color_enabled && run_is_run_mode(line) && !line.empty();
+        const bool show_bg = color_enabled && run_end > 0 && line.size() >= run_end &&
+            run_is_run_mode(line.substr(0, run_end));
         if (color_enabled) {
             run_put(show_bg ? bg_on : bg_off);
         }
@@ -414,27 +430,15 @@ static std::string read_run_input_raw(bool color_enabled) {
     redraw();
 
     for (;;) {
-        char32_t cp = run_input_getchar32();
+        char32_t cp = run_input_fetch_char32();
 
         if (cp == WEOF) {
             eof = true;
             break;
         }
 
-        // Submit on Tab (end of command), Enter, or Ctrl+D (EOF)
-        if (cp == '\t' || cp == '\r' || cp == '\n' || cp == 0x04) {
-            // Tab: end of the /run or /# command; otherwise keep completion
-            if (cp == '\t' && !run_is_run_mode(line)) {
-                auto candidates = auto_completion_callback(line, cursor);
-                if (!candidates.empty()) {
-                    if (candidates.size() > 1 || candidates[0].first != line) {
-                        line = candidates[0].first;
-                        cursor = std::min(candidates[0].second, line.size());
-                    }
-                    redraw();
-                    continue;
-                }
-            }
+        // Enter submits the line; Ctrl+D submits it as EOF.
+        if (cp == '\r' || cp == '\n' || cp == 0x04) {
             if (cp == 0x04) {
                 eof = true;
             }
@@ -443,12 +447,39 @@ static std::string read_run_input_raw(bool color_enabled) {
             break;
         }
 
+        // Tab ends the /run or /# command (same line, no submit); the text typed
+        // after it is the question. On any other line it auto-completes.
+        if (cp == '\t') {
+            if (run_is_run_mode(line)) {
+                run_end = line.size();
+                if (line.back() != ' ') {
+                    line.push_back(' ');
+                }
+                cursor = line.size();
+                redraw();
+                continue;
+            }
+            auto candidates = auto_completion_callback(line, cursor);
+            if (!candidates.empty()) {
+                if (candidates.size() > 1 || candidates[0].first != line) {
+                    line = candidates[0].first;
+                    cursor = std::min(candidates[0].second, line.size());
+                }
+                redraw();
+                continue;
+            }
+            continue;
+        }
+
         // Backspace
         if (cp == 0x08 || cp == 0x7F) {
             if (cursor > 0) {
                 size_t prev = run_prev_utf8(line, cursor);
                 line.erase(prev, cursor - prev);
                 cursor = prev;
+                if (prev < run_end) {
+                    run_end = 0; // the command was edited or removed
+                }
                 redraw();
             }
             continue;
@@ -456,11 +487,11 @@ static std::string read_run_input_raw(bool color_enabled) {
 
         // Escape sequences (arrows, Home, End, Delete)
         if (cp == 0x1B) {
-            char32_t code = run_input_getchar32();
+            char32_t code = run_input_fetch_char32();
             if (code == '[') {
                 std::string params;
                 for (;;) {
-                    code = run_input_getchar32();
+                    code = run_input_fetch_char32();
                     if ((code >= 'A' && code <= 'Z') || (code >= 'a' && code <= 'z') ||
                         code == '~' || code == WEOF) {
                         break;
@@ -482,7 +513,7 @@ static std::string read_run_input_raw(bool color_enabled) {
                 }
                 redraw();
             } else if (code == 0x1B) {
-                while ((code = run_input_getchar32()) != WEOF) {
+                while ((code = run_input_fetch_char32()) != WEOF) {
                     if ((code >= 'A' && code <= 'Z') || (code >= 'a' && code <= 'z') || code == '~') {
                         break;
                     }
@@ -594,9 +625,12 @@ namespace ui {
         }
     };
 
-    // Dedicated reader for the /run and /# command: the whole typed line is
-    // submitted, Tab ends the command, and the line gets a #C3C3C3 background
-    // while it is a /run or /# command. Only used in advanced input mode.
+    // Dedicated reader for the /run and /# command: Enter submits the whole
+    // line, Tab marks the end of the command (same line), and the command part
+    // gets a #C3C3C3 background. Only used in advanced input mode.
+    // The result keeps the trailing '\n' of the reader (an empty line yields
+    // "\n", a real EOF yields ""); cli_context::run() strips the newline, so
+    // an empty line is skipped instead of being treated as EOF.
     static std::string read_run_input(bool color_enabled) {
         std::string line = read_run_input_raw(color_enabled);
         // The reader leaves the cursor at the end of the line; commit it.
@@ -604,9 +638,6 @@ namespace ui {
             fputc('\n', stdout);
         }
         fflush(stdout);
-        if (!line.empty() && line.back() == '\n') {
-            line.pop_back();
-        }
         return line;
     }
 

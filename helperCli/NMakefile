@@ -72,8 +72,8 @@ PCH_SRC  = include\pre.hxx
 TEST_BIN_DIR  = $(BIN_DIR_ROOT)\tests\$(BUILD_TYPE)
 TEST_OBJ_DIR  = $(OBJ_DIR_ROOT)\tests\$(BUILD_TYPE)
 TEST_TARGET   = $(TEST_BIN_DIR)\helperCli-tests.exe
-TEST_SOURCES  = tests\common.cxx tests\createAndEditFile.cxx
-TEST_OBJ_FILES = $(TEST_OBJ_DIR)\common.obj $(TEST_OBJ_DIR)\createAndEditFile.obj
+TEST_SOURCES  = tests\common.cxx tests\createAndEditFile.cxx tests\runInput.cxx
+TEST_OBJ_FILES = $(TEST_OBJ_DIR)\common.obj $(TEST_OBJ_DIR)\createAndEditFile.obj $(TEST_OBJ_DIR)\runInput.obj
 
 .PHONY: all release test clean
 
