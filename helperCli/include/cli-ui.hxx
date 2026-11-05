@@ -158,6 +158,14 @@ static std::vector<std::pair<std::string, size_t>> auto_completion_callback(std:
 // instead of the real console.
 static std::function<char32_t()> run_input_source;
 
+struct run_input_command {
+    size_t start;
+    size_t end;
+    size_t prefix_length;
+};
+
+static std::vector<run_input_command> run_input_commands;
+
 #if defined(_WIN32)
 static char32_t run_input_getchar32() {
     HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
@@ -170,6 +178,9 @@ static char32_t run_input_getchar32() {
         }
         if (record.EventType == KEY_EVENT && record.Event.KeyEvent.bKeyDown) {
             const wchar_t wc = record.Event.KeyEvent.uChar.UnicodeChar;
+            if (wc == 0x1B) {
+                return 0xE009;
+            }
             if (wc == 0) {
                 switch (record.Event.KeyEvent.wVirtualKeyCode) {
                     case VK_TAB:    return '\t';
@@ -182,6 +193,7 @@ static char32_t run_input_getchar32() {
                     case VK_HOME:   return 0xE004;
                     case VK_END:    return 0xE005;
                     case VK_DELETE: return 0xE008;
+                    case VK_ESCAPE: return 0xE009;
                     default:        continue;
                 }
             }
@@ -372,6 +384,18 @@ static bool run_is_run_mode(const std::string & line) {
     return false;
 }
 
+static size_t run_command_prefix_length(const std::string & line, size_t end) {
+    if (end >= 2 && line.compare(end - 2, 2, "/#") == 0 &&
+        (end == 2 || std::isspace(static_cast<unsigned char>(line[end - 3])))) {
+        return 2;
+    }
+    if (end >= 4 && line.compare(end - 4, 4, "/run") == 0 &&
+        (end == 4 || std::isspace(static_cast<unsigned char>(line[end - 5])))) {
+        return 4;
+    }
+    return 0;
+}
+
 static void run_put(const char * text) {
     fputs(text, stdout);
 }
@@ -386,7 +410,9 @@ static std::string read_run_input_raw(bool color_enabled) {
     std::string line;
     size_t cursor = 0; // byte position of the cursor
     bool eof       = false;
-    size_t run_end = 0; // byte offset where the /run or /# command ends (set on Tab); 0 = not ended
+    size_t command_start = std::string::npos;
+    size_t command_prefix_length = 0;
+    std::vector<run_input_command> commands;
 
     int prev_cursor_col = 0; // cursor offset (cols) from the line start at the last draw
     int prev_line_width = 0; // width of the line at the last draw
@@ -397,13 +423,19 @@ static std::string read_run_input_raw(bool color_enabled) {
         if (prev_cursor_col > 0) {
             run_move_cursor(-prev_cursor_col);
         }
-        const bool show_bg = color_enabled && run_end > 0 && line.size() >= run_end &&
-            run_is_run_mode(line.substr(0, run_end));
         if (color_enabled) {
-            run_put(show_bg ? bg_on : bg_off);
+            run_put(bg_off);
         }
         const int new_width = run_line_width(line);
-        fputs(line.c_str(), stdout);
+        if (command_start == std::string::npos) {
+            fputs(line.c_str(), stdout);
+        } else {
+            fwrite(line.data(), 1, command_start, stdout);
+            if (color_enabled) {
+                run_put(bg_on);
+            }
+            fputs(line.c_str() + command_start, stdout);
+        }
         // Clear stale characters left over from a longer previous line, keeping
         // them on the same background so the block stays uniform.
         if (prev_line_width > new_width) {
@@ -447,11 +479,9 @@ static std::string read_run_input_raw(bool color_enabled) {
             break;
         }
 
-        // Tab ends the /run or /# command (same line, no submit); the text typed
-        // after it is the question. On any other line it auto-completes.
+        // Tab keeps the active command open; outside a command it auto-completes.
         if (cp == '\t') {
-            if (run_is_run_mode(line)) {
-                run_end = line.size();
+            if (command_start != std::string::npos) {
                 if (line.back() != ' ') {
                     line.push_back(' ');
                 }
@@ -477,8 +507,9 @@ static std::string read_run_input_raw(bool color_enabled) {
                 size_t prev = run_prev_utf8(line, cursor);
                 line.erase(prev, cursor - prev);
                 cursor = prev;
-                if (prev < run_end) {
-                    run_end = 0; // the command was edited or removed
+                if (command_start != std::string::npos && prev < command_start) {
+                    command_start = std::string::npos;
+                    command_prefix_length = 0;
                 }
                 redraw();
             }
@@ -550,6 +581,16 @@ static std::string read_run_input_raw(bool color_enabled) {
                     redraw();
                 }
                 continue;
+            case 0xE009:
+                if (command_start != std::string::npos) {
+                    commands.push_back({command_start, cursor, command_prefix_length});
+                    line.insert(cursor, 1, ' ');
+                    cursor++;
+                    command_start = std::string::npos;
+                    command_prefix_length = 0;
+                    redraw();
+                }
+                continue;
             default:
                 break;
         }
@@ -561,6 +602,12 @@ static std::string read_run_input_raw(bool color_enabled) {
             run_append_utf8(cp, ch);
             line.insert(cursor, ch);
             cursor += ch.size();
+            if (command_start == std::string::npos) {
+                command_prefix_length = run_command_prefix_length(line, cursor);
+                if (command_prefix_length != 0) {
+                    command_start = cursor - command_prefix_length;
+                }
+            }
             redraw();
         }
     }
@@ -568,6 +615,7 @@ static std::string read_run_input_raw(bool color_enabled) {
     if (eof && line.empty()) {
         return std::string();
     }
+    run_input_commands = std::move(commands);
     line += '\n';
     return line;
 }
@@ -632,6 +680,7 @@ namespace ui {
     // "\n", a real EOF yields ""); cli_context::run() strips the newline, so
     // an empty line is skipped instead of being treated as EOF.
     static std::string read_run_input(bool color_enabled) {
+        run_input_commands.clear();
         std::string line = read_run_input_raw(color_enabled);
         // The reader leaves the cursor at the end of the line; commit it.
         if (!line.empty()) {
@@ -639,6 +688,10 @@ namespace ui {
         }
         fflush(stdout);
         return line;
+    }
+
+    static std::vector<run_input_command> take_run_input_commands() {
+        return std::move(run_input_commands);
     }
 
     enum assistant_display_mode {

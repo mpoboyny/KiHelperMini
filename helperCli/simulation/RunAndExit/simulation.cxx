@@ -10,6 +10,7 @@
 #include <iostream>
 #include <iterator>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace {
@@ -77,7 +78,7 @@ DWORD find_helper_process(DWORD parent_id) {
     return 0;
 }
 
-int inject_input(DWORD process_id) {
+int inject_input(DWORD process_id, std::wstring_view text) {
     if (!AttachConsole(process_id)) {
         return 1;
     }
@@ -89,14 +90,19 @@ int inject_input(DWORD process_id) {
         return 1;
     }
 
-    constexpr wchar_t text[] = L"/exit\r";
-    std::array<INPUT_RECORD, (std::size(text) - 1) * 2> records{};
+    std::vector<INPUT_RECORD> records(text.size() * 2);
     std::size_t index = 0;
     for (const wchar_t character : text) {
-        if (character == L'\0') {
-            break;
+        SHORT key = 0;
+        if (character == L'\r') {
+            key = VK_RETURN;
+        } else if (character == L'\t') {
+            key = VK_TAB;
+        } else if (character == 0x1B) {
+            key = VK_ESCAPE;
+        } else {
+            key = VkKeyScanW(character);
         }
-        const SHORT key = character == L'\r' ? VK_RETURN : VkKeyScanW(character);
         if (key == -1) {
             FreeConsole();
             return 1;
@@ -125,6 +131,25 @@ int inject_input(DWORD process_id) {
                          written == records.size();
     FreeConsole();
     return success ? 0 : 1;
+}
+
+bool send_command(const std::filesystem::path & self, DWORD helper_id, const wchar_t * command) {
+    const std::wstring inject_command = L"\"" + self.wstring() + L"\" --inject " +
+                                        std::to_wstring(helper_id) + L" " + command;
+    PROCESS_INFORMATION injector{};
+    if (!start_process(self.wstring(), inject_command, L"", DETACHED_PROCESS, injector)) {
+        std::wcerr << L"Cannot start the input sender: " << GetLastError() << L'\n';
+        return false;
+    }
+    unique_handle injector_process(injector.hProcess);
+    unique_handle injector_thread(injector.hThread);
+    DWORD injector_exit = 0;
+    if (WaitForSingleObject(injector_process.get(), INFINITE) != WAIT_OBJECT_0 ||
+        !GetExitCodeProcess(injector_process.get(), &injector_exit) || injector_exit != 0) {
+        std::wcerr << L"Cannot send input to the helperCli console.\n";
+        return false;
+    }
+    return true;
 }
 
 int run_simulation(const std::filesystem::path & self) {
@@ -183,24 +208,21 @@ int run_simulation(const std::filesystem::path & self) {
         return 1;
     }
 
-    const std::wstring inject_command = L"\"" + self.wstring() + L"\" --inject " + std::to_wstring(helper_id);
-    PROCESS_INFORMATION injector{};
-    if (!start_process(self.wstring(), inject_command, L"", DETACHED_PROCESS, injector)) {
-        std::wcerr << L"Cannot start the input sender: " << GetLastError() << L'\n';
+#ifdef RUN_DIR_BEFORE_EXIT
+    if (!send_command(self, helper_id, L"run-dir")) {
+        std::wcerr << L"Cannot send /run dir to the helperCli console.\n";
         return 1;
     }
-    unique_handle injector_process(injector.hProcess);
-    unique_handle injector_thread(injector.hThread);
-    DWORD injector_exit = 0;
-    if (WaitForSingleObject(injector_process.get(), INFINITE) != WAIT_OBJECT_0 ||
-        !GetExitCodeProcess(injector_process.get(), &injector_exit) || injector_exit != 0) {
+    std::wcout << L"Sent /run dir and Enter; waiting 3 seconds...\n";
+    Sleep(3000);
+#endif
+    if (!send_command(self, helper_id, L"exit")) {
         std::wcerr << L"Cannot send /exit to the helperCli console.\n";
         return 1;
     }
 
-    std::wcout << L"Send /exit and Enter; waiting 3 seconds...\n";
-    Sleep(3000);
-    const DWORD state = WaitForSingleObject(helper_process.get(), 0);
+    std::wcout << L"Sent /exit and Enter; waiting for helperCli to finish...\n";
+    const DWORD state = WaitForSingleObject(helper_process.get(), 120000);
     if (state == WAIT_TIMEOUT) {
         std::wcerr << L"FAIL: helperCli is still running.\n";
         return 2;
@@ -225,13 +247,19 @@ int run_simulation(const std::filesystem::path & self) {
 } // namespace
 
 int wmain(int argc, wchar_t ** argv) {
-    if (argc == 3 && std::wcscmp(argv[1], L"--inject") == 0) {
+    if (argc == 4 && std::wcscmp(argv[1], L"--inject") == 0) {
         wchar_t * end = nullptr;
         const unsigned long process_id = std::wcstoul(argv[2], &end, 10);
         if (argv[2][0] == L'\0' || *end != L'\0' || process_id == 0) {
             return 1;
         }
-        return inject_input(static_cast<DWORD>(process_id));
+        if (std::wcscmp(argv[3], L"exit") == 0) {
+            return inject_input(static_cast<DWORD>(process_id), L"/exit\r");
+        }
+        if (std::wcscmp(argv[3], L"run-dir") == 0) {
+            return inject_input(static_cast<DWORD>(process_id), L"/run dir\t\x1B\r");
+        }
+        return 1;
     }
 
     const std::filesystem::path self = executable_path();

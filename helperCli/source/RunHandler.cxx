@@ -54,6 +54,30 @@ std::string RunHandler::Handle(const std::string & args) {
 }
 #else
 
+namespace {
+
+class unique_handle {
+public:
+    explicit unique_handle(HANDLE handle = nullptr) noexcept : handle_(handle) {}
+    ~unique_handle() { reset(); }
+
+    unique_handle(const unique_handle &) = delete;
+    unique_handle & operator=(const unique_handle &) = delete;
+
+    HANDLE get() const noexcept { return handle_; }
+    void reset() noexcept {
+        if (handle_ != nullptr && handle_ != INVALID_HANDLE_VALUE) {
+            CloseHandle(handle_);
+        }
+        handle_ = nullptr;
+    }
+
+private:
+    HANDLE handle_;
+};
+
+} // namespace
+
 static std::wstring wide_from_utf8(const std::string & text)
 {
     if (text.empty()) {
@@ -71,7 +95,7 @@ static void read_pipe(HANDLE handle, std::string & output, bool & read_error)
     for (;;) {
         DWORD count = 0;
         if (!ReadFile(handle, buffer, sizeof(buffer), &count, nullptr)) {
-            read_error = true;
+            read_error = GetLastError() != ERROR_BROKEN_PIPE;
             break;
         }
         if (count == 0) {
@@ -110,34 +134,38 @@ std::string RunHandler::Handle(const std::string & args)
         status = std::string("Failed to start process: ") + std::to_string(GetLastError());
         return status;
     }
-    SetHandleInformation(read_end, HANDLE_FLAG_INHERIT, 0);
+    unique_handle read_handle(read_end);
+    unique_handle write_handle(write_end);
+    if (!SetHandleInformation(read_handle.get(), HANDLE_FLAG_INHERIT, 0)) {
+        status = std::string("Failed to configure process pipe: ") + std::to_string(GetLastError());
+        return status;
+    }
 
     STARTUPINFOW startup{};
     startup.cb = sizeof(startup);
     startup.dwFlags = STARTF_USESTDHANDLES;
     startup.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-    startup.hStdOutput = write_end;
-    startup.hStdError = write_end;
+    startup.hStdOutput = write_handle.get();
+    startup.hStdError = write_handle.get();
     PROCESS_INFORMATION process{};
     if (!CreateProcessW(nullptr, command.data(), nullptr, nullptr, TRUE, CREATE_NO_WINDOW,
                         nullptr, nullptr, &startup, &process)) {
         const DWORD code = GetLastError();
-        CloseHandle(read_end);
-        CloseHandle(write_end);
         status = std::string("Failed to start process: ") + std::to_string(code);
         return status;
     }
-    CloseHandle(process.hThread);
+    unique_handle process_handle(process.hProcess);
+    unique_handle thread_handle(process.hThread);
+    // EOF is observable only after every writer, including the parent's, closes.
+    write_handle.reset();
 
     std::string output;
     bool read_error = false;
-    read_pipe(read_end, output, read_error);
-    CloseHandle(read_end);
-    CloseHandle(write_end);
+    read_pipe(read_handle.get(), output, read_error);
+    read_handle.reset();
 
-    if (WaitForSingleObject(process.hProcess, INFINITE) == WAIT_FAILED) {
+    if (WaitForSingleObject(process_handle.get(), INFINITE) == WAIT_FAILED) {
         const DWORD code = GetLastError();
-        CloseHandle(process.hProcess);
         status = std::string("Failed to wait for process: ") + std::to_string(code);
         if (read_error) {
             status += " (failed to read complete output)";
@@ -145,13 +173,12 @@ std::string RunHandler::Handle(const std::string & args)
         return output;
     }
     DWORD exit_code = 0;
-    if (GetExitCodeProcess(process.hProcess, &exit_code) == 0) {
+    if (GetExitCodeProcess(process_handle.get(), &exit_code) == 0) {
         status = "Process ended with unknown status.";
     } else {
         status = "Exit code: " + std::to_string(static_cast<long>(exit_code));
         succeeded = exit_code == 0 && !read_error;
     }
-    CloseHandle(process.hProcess);
     if (read_error) {
         status += " (failed to read complete output)";
     }

@@ -1008,6 +1008,8 @@ int cli_context::run() {
             buffer.pop_back();
         }
 
+        const std::vector<run_input_command> run_commands = ui::take_run_input_commands();
+
         // skip empty messages
         if (buffer.empty()) {
             continue;
@@ -1029,7 +1031,22 @@ int cli_context::run() {
         }
 
         // process commands
-        if (string_starts_with(buffer, "/exit")) {
+        if (!run_commands.empty()) {
+            std::string prompt = buffer;
+            for (auto command = run_commands.rbegin(); command != run_commands.rend(); ++command) {
+                if (command->start + command->prefix_length > command->end || command->end > prompt.size()) {
+                    continue;
+                }
+                const std::string args = string_strip(prompt.substr(command->start + command->prefix_length,
+                    command->end - command->start - command->prefix_length));
+                RunHandler run;
+                const std::string result = run.Handle(args);
+                ui::show_message("Command output:\n" + result);
+                ui::show_message(run.Status());
+                prompt.replace(command->start, command->end - command->start, result);
+            }
+            cur_msg += prompt;
+        } else if (string_starts_with(buffer, "/exit")) {
             break;
         } else if (string_starts_with(buffer, "/regen")) {
             if (impl->messages.size() >= 2) {
@@ -1068,7 +1085,7 @@ int cli_context::run() {
             write_output_file(string_format("User: Added text file: %s\n", fname.c_str()));
             continue;
         } 
-        else if (run_pos != std::string::npos && (run_pos == 0 || buffer.front() != '/')) {
+        else if (run_pos != std::string::npos && (run_pos != 0 && buffer.front() != '/')) {
             std::string fname = string_strip(buffer.substr(run_pos + run_length));
             std::string question = string_strip(buffer.substr(0, run_pos));
             RunHandler run;

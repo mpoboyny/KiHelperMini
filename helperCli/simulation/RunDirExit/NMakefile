@@ -1,0 +1,30 @@
+# Run from simulation\RunDirExit in an MSVC developer command prompt.
+# Build: nmake /f NMakefile release
+# Run:   ..\..\bin\simulation\RunDirExit\release\RunDirExit.exe
+# Clean: nmake /f NMakefile clean
+
+!if !defined(CXX)
+CXX = cl.exe
+!endif
+
+BUILD_TYPE = release
+BIN_DIR = ..\..\bin\simulation\RunDirExit\$(BUILD_TYPE)
+OBJ_DIR = ..\..\obj\simulation\RunDirExit\$(BUILD_TYPE)
+TARGET = $(BIN_DIR)\RunDirExit.exe
+OBJECT = $(OBJ_DIR)\simulation.obj
+
+.PHONY: all release clean
+
+all: release
+
+release: $(TARGET)
+	@cd /d ..\.. && $(MAKE) /nologo /f NMakefile bin\release\helperCli.exe
+
+$(TARGET): simulation.cxx ..\RunAndExit\simulation.cxx
+	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
+	$(CXX) /nologo /EHsc /std:c++17 /MD /O2 /W4 /DUNICODE /D_UNICODE /Fo"$(OBJECT)" /Fe"$(TARGET)" simulation.cxx /link user32.lib
+
+clean:
+	@if exist ..\..\obj\simulation\RunDirExit rmdir /S /Q ..\..\obj\simulation\RunDirExit
+	@if exist ..\..\bin\simulation\RunDirExit rmdir /S /Q ..\..\bin\simulation\RunDirExit
