@@ -1,6 +1,7 @@
 #include "pre.hxx"
 
 #include "cli-context.hxx"
+#include "cli-todo.hxx"
 #include "cli-ui.hxx"
 #include "RunHandler.hxx"
 
@@ -48,9 +49,23 @@ static bool should_stop() {
 
 static constexpr size_t FILE_GLOB_MAX_RESULTS = 100;
 static constexpr size_t FILE_TOOL_MAX_CALLS = 4;
+static constexpr size_t TODO_MAX_CONFIRMATIONS = 3;
+
+static bool confirm_file_operation(const char * prompt, bool automatic) {
+    if (should_stop()) {
+        return false;
+    }
+    if (automatic) {
+        ui::show_message(std::string(prompt) + "y");
+        return true;
+    }
+    ui::user_turn user_turn;
+    const std::string answer = string_strip(user_turn.read_input(false, prompt));
+    return !should_stop() && (answer == "y" || answer == "Y" || answer == "yes" || answer == "YES");
+}
 
 #if !defined(_WIN32)
-static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files)
+static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files, bool automatic)
 {
     json args = json::parse_no_throw(arguments);
     if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
@@ -110,9 +125,7 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
         return "File is unchanged: " + path;
     }
     ui::show_message("Edit file in current directory: " + path + "\nCurrent content:\n" + current + "\nProposed content:\n" + content);
-    ui::user_turn user_turn;
-    std::string answer = string_strip(user_turn.read_input(false, "Replace this file's content? [y/N] "));
-    if (should_stop() || (answer != "y" && answer != "Y" && answer != "yes" && answer != "YES")) {
+    if (!confirm_file_operation("Replace this file's content? [y/N] ", automatic)) {
         close(fd);
         return "File edit cancelled by user.";
     }
@@ -164,7 +177,7 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
 }
 
 static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files,
-                                         const std::map<std::string, std::string> & loaded_files)
+                                         const std::map<std::string, std::string> & loaded_files, bool automatic)
 {
     json args = json::parse_no_throw(arguments);
     if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
@@ -197,9 +210,7 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
     }
 
     ui::show_message("Create file in current directory: " + path + "\nContent:\n" + content);
-    ui::user_turn user_turn;
-    std::string answer = string_strip(user_turn.read_input(false, "Create this file? [y/N] "));
-    if (should_stop() || (answer != "y" && answer != "Y" && answer != "yes" && answer != "YES")) {
+    if (!confirm_file_operation("Create this file? [y/N] ", automatic)) {
         return "File creation cancelled by user.";
     }
 
@@ -267,7 +278,7 @@ static bool write_all(HANDLE handle, const std::string & data)
     return FlushFileBuffers(handle) != 0;
 }
 
-static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files)
+static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files, bool automatic)
 {
     json args = json::parse_no_throw(arguments);
     if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
@@ -334,9 +345,7 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
         return "File is unchanged: " + path;
     }
     ui::show_message("Edit file in current directory: " + path + "\nCurrent content:\n" + current + "\nProposed content:\n" + content);
-    ui::user_turn user_turn;
-    std::string answer = string_strip(user_turn.read_input(false, "Replace this file's content? [y/N] "));
-    if (should_stop() || (answer != "y" && answer != "Y" && answer != "yes" && answer != "YES")) {
+    if (!confirm_file_operation("Replace this file's content? [y/N] ", automatic)) {
         return "File edit cancelled by user.";
     }
 
@@ -378,7 +387,7 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
 }
 
 static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files,
-                                         const std::map<std::string, std::string> & loaded_files)
+                                         const std::map<std::string, std::string> & loaded_files, bool automatic)
 {
     json args = json::parse_no_throw(arguments);
     if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
@@ -412,9 +421,7 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
     }
 
     ui::show_message("Create file in current directory: " + path + "\nContent:\n" + content);
-    ui::user_turn user_turn;
-    std::string answer = string_strip(user_turn.read_input(false, "Create this file? [y/N] "));
-    if (should_stop() || (answer != "y" && answer != "Y" && answer != "yes" && answer != "YES")) {
+    if (!confirm_file_operation("Create this file? [y/N] ", automatic)) {
         return "File creation cancelled by user.";
     }
 
@@ -636,10 +643,15 @@ bool cli_context::list_and_ask_models() {
     }
 
     // only one model: use it without asking
-    if (models.size() == 1) {
+    if (models.size() == 1 || (todo_mode && !models.empty())) {
         model_name = models[0];
         client.model = model_name;
         return true;
+    }
+
+    if (todo_mode) {
+        ui::show_error("No model is available for todo processing.");
+        return false;
     }
 
     std::string message = "\nAvailable models:";
@@ -930,11 +942,17 @@ int cli_context::run() {
     }
     banner += "\n";
 
-    ui::show_message(banner);
+    if (!todo_mode) {
+        ui::show_message(banner);
+    }
 
     // interactive loop
     std::string cur_msg;
     std::map<std::string, std::string> loaded_files;
+    size_t todo_index = 0;
+    size_t todo_confirmations = 0;
+    std::set<std::string> confirmation_requests;
+    bool confirm_question = false;
 
     auto add_text_file = [&](const std::string & fname) -> bool {
         std::ifstream file(fname, std::ios::binary);
@@ -968,7 +986,25 @@ int cli_context::run() {
 
     while (true) {
         std::string buffer;
-        if (params.prompt.empty()) {
+        if (todo_mode) {
+            if (confirm_question) {
+                buffer = "y";
+                confirm_question = false;
+            } else {
+                if (todo_index >= todo_prompts.size()) {
+                    ui::show_error("Todo input ended without /exit.");
+                    return 1;
+                }
+                buffer = todo_prompts[todo_index++];
+                todo_confirmations = 0;
+                confirmation_requests.clear();
+                const size_t first = buffer.find_first_not_of(" \t");
+                if (first != std::string::npos && buffer[first] == '/') {
+                    buffer.erase(0, first);
+                }
+            }
+            ui::show_message(">" + buffer);
+        } else if (params.prompt.empty()) {
             if (!params.simple_io) {
                 // /run and /# use the dedicated input path: the whole line is
                 // submitted, Tab ends the command, and the line shows a
@@ -995,6 +1031,10 @@ int cli_context::run() {
 
         if (should_stop()) {
             cli_context::interrupted().store(false);
+            if (todo_mode) {
+                ui::show_error("Todo processing was interrupted.");
+                return 1;
+            }
             break;
         }
 
@@ -1008,7 +1048,8 @@ int cli_context::run() {
             buffer.pop_back();
         }
 
-        const std::vector<run_input_command> run_commands = ui::take_run_input_commands();
+        const std::vector<run_input_command> run_commands = todo_mode
+            ? std::vector<run_input_command>() : ui::take_run_input_commands();
 
         // skip empty messages
         if (buffer.empty()) {
@@ -1074,17 +1115,41 @@ int cli_context::run() {
             std::string fname = string_strip(buffer.substr(7));
             if (!stage_media_file(fname, type)) {
                 ui::show_error(string_format("file does not exist or cannot be opened: '%s'", fname.c_str()));
+                if (todo_mode) {
+                    return 1;
+                }
                 continue;
             }
             ui::show_message(string_format("Loaded media from '%s'", fname.c_str()));
             write_output_file(string_format("User: Added media: %s\n", fname.c_str()));
-            continue;
+            if (!todo_mode) {
+                continue;
+            }
         } else if (string_starts_with(buffer, "/read ")) {
             std::string fname = string_strip(buffer.substr(6));
-            add_text_file(fname);
+            if (fname.size() >= 2 && fname.front() == '"' && fname.back() == '"') {
+                fname = fname.substr(1, fname.size() - 2);
+            }
+            if (!add_text_file(fname) && todo_mode) {
+                return 1;
+            }
             write_output_file(string_format("User: Added text file: %s\n", fname.c_str()));
-            continue;
-        } 
+            if (!todo_mode) {
+                continue;
+            }
+        } else if (todo_mode && run_pos == 0) {
+            const std::string command = string_strip(buffer.substr(run_length));
+            if (command.empty()) {
+                ui::show_error("The /run command requires an argument.");
+                return 1;
+            }
+            RunHandler run;
+            const std::string result = run.Handle(command);
+            ui::show_message("Command output:\n" + result);
+            ui::show_message(run.Status());
+            cur_msg += "The following is the captured output (stdout and stderr) of the command: " + command + "\n";
+            cur_msg += run.Status() + "\n" + result;
+        }
         else if (run_pos != std::string::npos && (run_pos != 0 && buffer.front() != '/')) {
             std::string fname = string_strip(buffer.substr(run_pos + run_length));
             std::string question = string_strip(buffer.substr(0, run_pos));
@@ -1178,7 +1243,9 @@ int cli_context::run() {
                     break;
                 }
             }
-            continue;
+            if (!todo_mode) {
+                continue;
+            }
         } else {
             // not a command
             cur_msg += buffer;
@@ -1190,13 +1257,20 @@ int cli_context::run() {
             write_output_file(string_format("User:\n%s\n\n", cur_msg.c_str()));
             cur_msg.clear();
         }
+        if (todo_mode && output_file && !*output_file) {
+            ui::show_error("Failed to write the todo response file.");
+            return 1;
+        }
 
         cli_timings timings;
         std::set<std::string> created_files;
+        bool completion_failed = false;
+        std::string confirmation_request;
         for (size_t tool_round = 0; tool_round <= FILE_TOOL_MAX_CALLS; ++tool_round) {
             generated_content content;
             if (!generate_completion(content, timings, disable_thinking,
                     !disable_thinking && tool_round < FILE_TOOL_MAX_CALLS)) {
+                completion_failed = true;
                 break;
             }
 
@@ -1234,7 +1308,15 @@ int cli_context::run() {
                 write_output_file(out_content);
             }
 
+            if (todo_mode && output_file && !*output_file) {
+                ui::show_error("Failed to write the todo response file.");
+                return 1;
+            }
+
             if (content.tool_calls.empty()) {
+                if (todo_mode && todo::asks_confirmation(content.content)) {
+                    confirmation_request = content.content;
+                }
                 break;
             }
             for (const auto & call : content.tool_calls) {
@@ -1242,9 +1324,9 @@ int cli_context::run() {
                 if (tool_round >= FILE_TOOL_MAX_CALLS || call.id.empty()) {
                     result = "Error: invalid tool call or tool call limit reached.";
                 } else if (call.name == "create_file") {
-                    result = create_file_from_tool(call.arguments, created_files, loaded_files);
+                    result = create_file_from_tool(call.arguments, created_files, loaded_files, todo_mode);
                 } else if (call.name == "edit_file") {
-                    result = edit_file_from_tool(call.arguments, loaded_files);
+                    result = edit_file_from_tool(call.arguments, loaded_files, todo_mode);
                 } else {
                     result = "Error: unknown tool.";
                 }
@@ -1257,7 +1339,23 @@ int cli_context::run() {
             }
             if (should_stop()) {
                 cli_context::interrupted().store(false);
+                completion_failed = true;
                 break;
+            }
+        }
+
+        if (todo_mode) {
+            if (completion_failed || (output_file && !*output_file) || should_stop()) {
+                ui::show_error("Todo processing failed or was interrupted.");
+                return 1;
+            }
+            if (!confirmation_request.empty()) {
+                if (++todo_confirmations > TODO_MAX_CONFIRMATIONS ||
+                    !confirmation_requests.insert(confirmation_request).second) {
+                    ui::show_error("The model repeated or exceeded the limit for confirmation requests.");
+                    return 1;
+                }
+                confirm_question = true;
             }
         }
 
@@ -1274,6 +1372,10 @@ int cli_context::run() {
         }
     }
 
+    if (todo_mode && output_file && !*output_file) {
+        ui::show_error("Failed to write the todo response file.");
+        return 1;
+    }
     ui::show_message("\n\nExiting...");
 
     return 0;

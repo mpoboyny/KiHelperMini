@@ -35,6 +35,8 @@ struct cli_context {
     bool has_video  = false;
 
     std::optional<std::ofstream> output_file;
+    bool todo_mode = false;
+    std::vector<std::string> todo_prompts;
 
     cli_context(const common_params & params);
     ~cli_context();

@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "cli-ui.hxx"
+#include "cli-todo.hxx"
 
+#include <sstream>
 #include <string>
 
 #ifdef _WIN32
@@ -29,6 +31,56 @@ private:
 };
 } // namespace
 #endif
+
+TEST(TodoInput, ParsesPromptsAndAppendsExit)
+{
+    std::istringstream input("\xEF\xBB\xBF>Hallo\r\n>/run hostname\r\n>/read \"C:\\Temp\\main.cxx\"\r\n>Create new file xxx.txt");
+    std::vector<std::string> prompts;
+    std::string error;
+    ASSERT_TRUE(todo::read_prompts(input, prompts, error)) << error;
+    ASSERT_EQ(prompts.size(), 5u);
+    EXPECT_EQ(prompts[0], "Hallo");
+    EXPECT_EQ(prompts[1], "/run hostname");
+    EXPECT_EQ(prompts[2], "/read \"C:\\Temp\\main.cxx\"");
+    EXPECT_EQ(prompts[3], "Create new file xxx.txt");
+    EXPECT_EQ(prompts[4], "/exit");
+}
+
+TEST(TodoInput, RejectsInvalidLinesBeforeReturningPrompts)
+{
+    std::istringstream input(">first\nnot a prompt\n>third\n");
+    std::vector<std::string> prompts = {"unchanged"};
+    std::string error;
+    EXPECT_FALSE(todo::read_prompts(input, prompts, error));
+    EXPECT_NE(error.find("line 2"), std::string::npos);
+    ASSERT_EQ(prompts.size(), 1u);
+    EXPECT_EQ(prompts[0], "unchanged");
+}
+
+TEST(TodoInput, RejectsEmptyLinesAndEmptyPrompts)
+{
+    for (const std::string & text : {std::string(">valid\n\n"), std::string("> \t\n")}) {
+        std::istringstream input(text);
+        std::vector<std::string> prompts;
+        std::string error;
+        EXPECT_FALSE(todo::read_prompts(input, prompts, error));
+        EXPECT_FALSE(error.empty());
+    }
+}
+
+TEST(TodoInput, DetectsConfirmationRequestsButNotOrdinaryQuestions)
+{
+    EXPECT_TRUE(todo::asks_confirmation("Continue? [y/N]"));
+    EXPECT_TRUE(todo::asks_confirmation("Should I proceed? Please confirm."));
+    EXPECT_TRUE(todo::asks_confirmation("Would you like me to create the file?"));
+    EXPECT_FALSE(todo::asks_confirmation("Hello! How are you?"));
+    // The German greeting from the reported response, including its emoji.
+    EXPECT_FALSE(todo::asks_confirmation(
+        "\x48\x61\x6c\x6c\x6f\x21\x20\x57\x69\x65\x20\x67\x65\x68\x74\x20"
+        "\x65\x73\x20\x64\x69\x72\x3f\x20\xf0\x9f\x98\x8a"));
+    EXPECT_FALSE(todo::asks_confirmation("What can I help you with?"));
+    EXPECT_FALSE(todo::asks_confirmation("Completed."));
+}
 
 // Scripts a sequence of characters as the reader's console input.
 // Returns what ui::read_run_input hands to the chat loop, i.e. the line with
