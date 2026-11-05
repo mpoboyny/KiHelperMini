@@ -89,7 +89,7 @@ static void test_read_file(const std::string & model, const std::string & name)
 
     const std::string command = cd + shell_quote(output_dir.string()) + " && " +
         shell_quote(executable.string()) + " -m " + shell_quote(model) +
-        " --simple-io --no-warmup --reasoning off --temp 0 -c 4096 -n 512 < " +
+        " --simple-io --single-turn --no-warmup --reasoning off --temp 0 -c 4096 -n 512 < " +
         shell_quote(input_file.string()) + " > " + shell_quote(log_file.string()) + " 2>&1";
     const int result = std::system(command.c_str());
 
@@ -137,7 +137,7 @@ static void test_edit_file(const std::string & model, const std::string & name)
 
     const std::string command = cd + shell_quote(output_dir.string()) + " && " +
         shell_quote(executable.string()) + " -m " + shell_quote(model) +
-        " --simple-io --no-warmup --reasoning off --temp 0 -c 4096 -n 512 < " +
+        " --simple-io --single-turn --no-warmup --reasoning off --temp 0 -c 4096 -n 512 < " +
         shell_quote(input_file.string()) + " > " + shell_quote(log_file.string()) + " 2>&1";
     const int result = std::system(command.c_str());
 
@@ -157,27 +157,33 @@ TEST(CreateAndEdit, Test001_Qwen3dot5_0_8B_Q4_K_M_CreateFile)
     test_create_file(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M, "qwen3_5_0_8b");
 }
 
+#if USE_BIG_MODELS
 TEST(CreateAndEdit, Test002_Qwen3dot5_9B_Q4_K_M_CreateFile)
 {
     test_create_file(g_TestModel_Qwen3dot5_9B_Q4_K_M, "qwen3_5_9b");
 }
+#endif
 
 TEST(CreateAndEdit, Test003_Qwen3dot5_0_8B_Q4_K_M_ReadFile)
 {
     test_read_file(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M, "qwen3_5_0_8b_read");
 }
 
+#if USE_BIG_MODELS
 TEST(CreateAndEdit, Test004_Qwen3dot5_9B_Q4_K_M_ReadFile)
 {
     test_read_file(g_TestModel_Qwen3dot5_9B_Q4_K_M, "qwen3_5_9b_read");
 }
+#endif
 
 TEST(CreateAndEdit, Test005_Qwen3dot5_0_8B_Q4_K_M_EditFile)
 {
     test_edit_file(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M, "qwen3_5_0_8b_edit");
 }
 
+#if USE_BIG_MODELS
 TEST(CreateAndEdit, Test006_Qwen3dot5_9B_Q4_K_M_EditFile)
 {
     test_edit_file(g_TestModel_Qwen3dot5_9B_Q4_K_M, "qwen3_5_9b_edit");
 }
+#endif

@@ -29,8 +29,9 @@
             "name": "Win32",
 			"includePath": [
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/llama.cpp/llama.cpp-master/include",
-                "${workspaceFolder}/llama.cpp/llama.cpp-master/ggml/include"
+                "${workspaceFolder}/../llama.cpp/llama.cpp-master/include",
+                "${workspaceFolder}/../llama.cpp/llama.cpp-master/ggml/include",
+                "${workspaceFolder}/../googletest/googletest/include"
 			],
             "cStandard": "c17",
             "cppStandard": "c++17"

@@ -6,7 +6,9 @@
 
 #ifdef _WIN32
 std::string g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M;
+#if USE_BIG_MODELS
 std::string g_TestModel_Qwen3dot5_9B_Q4_K_M;
+#endif
 
 // Expand %NAME% environment variable references in a Windows path.
 static std::string resolve_windows_path(const std::string & path)
@@ -47,12 +49,16 @@ public:
     void SetUp() override
     {
         g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M = resolve_windows_path(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M_In);
+#if USE_BIG_MODELS
         g_TestModel_Qwen3dot5_9B_Q4_K_M = resolve_windows_path(g_TestModel_Qwen3dot5_9B_Q4_K_M_In);
+#endif
 
         ASSERT_TRUE(std::filesystem::exists(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M))
             << g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M;
+#if USE_BIG_MODELS
         ASSERT_TRUE(std::filesystem::exists(g_TestModel_Qwen3dot5_9B_Q4_K_M))
             << g_TestModel_Qwen3dot5_9B_Q4_K_M;
+#endif
 
         ASSERT_NO_THROW(std::filesystem::remove_all(g_TestOutputRoot));
         ASSERT_NO_THROW(std::filesystem::create_directories(g_TestOutputRoot));
@@ -64,8 +70,10 @@ public:
     {
         ASSERT_TRUE(std::filesystem::exists(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M))
             << g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M;
+#if USE_BIG_MODELS
         ASSERT_TRUE(std::filesystem::exists(g_TestModel_Qwen3dot5_9B_Q4_K_M))
             << g_TestModel_Qwen3dot5_9B_Q4_K_M;
+#endif
 
         ASSERT_NO_THROW(std::filesystem::remove_all(g_TestOutputRoot));
         ASSERT_NO_THROW(std::filesystem::create_directories(g_TestOutputRoot));
