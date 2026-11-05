@@ -1,7 +1,8 @@
 # VS2019 NMakefile for helperCli
 #
-# Build:  nmake /f NMakefile release
-# Test:   nmake /f NMakefile test
+# Build application, unit tests and simulations: nmake /f NMakefile release
+# Build and run unit tests:                      nmake /f NMakefile test
+# Build and run simulation S1:                   nmake /f NMakefile sim1
 # Clean:  nmake /f NMakefile clean
 #
 # Run from inside the helperCli directory. The MSVC environment
@@ -75,14 +76,28 @@ TEST_TARGET   = $(TEST_BIN_DIR)\helperCli-tests.exe
 TEST_SOURCES  = tests\common.cxx tests\createAndEditFile.cxx tests\runInput.cxx
 TEST_OBJ_FILES = $(TEST_OBJ_DIR)\common.obj $(TEST_OBJ_DIR)\createAndEditFile.obj $(TEST_OBJ_DIR)\runInput.obj
 
-.PHONY: all release test clean
+SIMULATION_BIN_DIR = $(BIN_DIR_ROOT)\simulation
+
+.PHONY: all release test sim1 clean
 
 all: release
 
-release: $(TARGET)
+release: $(TARGET) $(TEST_TARGET) $(SIMULATION_BIN_DIR)\runSimulation.ps1 $(SIMULATION_BIN_DIR)\simulation.xml
+	@cd /d simulation\RunAndExit && $(MAKE) /nologo /f NMakefile release
 
-test: release $(TEST_TARGET)
+test: release
 	$(TEST_TARGET)
+
+sim1: release
+	powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$(SIMULATION_BIN_DIR)\runSimulation.ps1" S1
+
+$(SIMULATION_BIN_DIR)\runSimulation.ps1: scripts\runSimulation.ps1
+	@if not exist $(SIMULATION_BIN_DIR) mkdir $(SIMULATION_BIN_DIR)
+	@copy /Y "scripts\runSimulation.ps1" "$(SIMULATION_BIN_DIR)\runSimulation.ps1"
+
+$(SIMULATION_BIN_DIR)\simulation.xml: simulation\simulation.xml
+	@if not exist $(SIMULATION_BIN_DIR) mkdir $(SIMULATION_BIN_DIR)
+	@copy /Y "simulation\simulation.xml" "$(SIMULATION_BIN_DIR)\simulation.xml"
 
 $(TARGET): $(OBJ_FILES) scripts\helperCliRunner.bat
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
@@ -138,6 +153,7 @@ $(TEST_OBJ_FILES): tests\common.hxx
 	@$(CXX) $(CXXFLAGS) /I"$(GTEST_INC_PATH)" /c /Fo"$@" $<
 
 clean:
+	@cd /d simulation\RunAndExit && $(MAKE) /nologo /f NMakefile clean
 	@if exist obj rmdir /S /Q obj
 	@if exist bin rmdir /S /Q bin
 	@if exist *.obj del /Q *.obj

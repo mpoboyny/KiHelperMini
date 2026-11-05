@@ -38,3 +38,4 @@ You are a principal software engineer and world-class expert in low-level and hi
 - **Build System:** `nmake` (NMakefile)
 - **Build Command:** `nmake /f NMakefile clean release`
 - **Test Command:** `nmake /f NMakefile clean test`
+- **Sim Command:** `nmake /f NMakefile` and user parameter is needed. If not parameter is given, do nothing.
