@@ -3,6 +3,7 @@
 
 #include <cerrno>
 #include <cstdio>
+#include <limits>
 #if !defined(_WIN32)
 #include <sys/wait.h>
 #endif
@@ -105,6 +106,47 @@ static void read_pipe(HANDLE handle, std::string & output, bool & read_error)
     }
 }
 
+static bool normalize_command_output(std::string & output)
+{
+    if (output.empty()) {
+        return true;
+    }
+    if (output.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
+        return false;
+    }
+
+    const int length = static_cast<int>(output.size());
+    if (MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, output.data(), length, nullptr, 0) > 0) {
+        return true;
+    }
+
+    const UINT code_page = GetOEMCP();
+    if (code_page == CP_UTF8) {
+        return false;
+    }
+    const int wide_length = MultiByteToWideChar(code_page, 0, output.data(), length, nullptr, 0);
+    if (wide_length == 0) {
+        return false;
+    }
+    std::wstring wide(static_cast<size_t>(wide_length), L'\0');
+    if (MultiByteToWideChar(code_page, 0, output.data(), length, wide.data(), wide_length) == 0) {
+        return false;
+    }
+
+    const int utf8_length = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide.data(), wide_length,
+                                                 nullptr, 0, nullptr, nullptr);
+    if (utf8_length == 0) {
+        return false;
+    }
+    std::string utf8(static_cast<size_t>(utf8_length), '\0');
+    if (WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide.data(), wide_length,
+                            utf8.data(), utf8_length, nullptr, nullptr) == 0) {
+        return false;
+    }
+    output = std::move(utf8);
+    return true;
+}
+
 std::string RunHandler::Handle(const std::string & args)
 {
     TrFu;
@@ -163,12 +205,19 @@ std::string RunHandler::Handle(const std::string & args)
     bool read_error = false;
     read_pipe(read_handle.get(), output, read_error);
     read_handle.reset();
+    const bool decode_error = !normalize_command_output(output);
+    if (decode_error) {
+        output = "Failed to decode command output as text.";
+    }
 
     if (WaitForSingleObject(process_handle.get(), INFINITE) == WAIT_FAILED) {
         const DWORD code = GetLastError();
         status = std::string("Failed to wait for process: ") + std::to_string(code);
         if (read_error) {
             status += " (failed to read complete output)";
+        }
+        if (decode_error) {
+            status += " (failed to decode command output)";
         }
         return output;
     }
@@ -177,10 +226,13 @@ std::string RunHandler::Handle(const std::string & args)
         status = "Process ended with unknown status.";
     } else {
         status = "Exit code: " + std::to_string(static_cast<long>(exit_code));
-        succeeded = exit_code == 0 && !read_error;
+        succeeded = exit_code == 0 && !read_error && !decode_error;
     }
     if (read_error) {
         status += " (failed to read complete output)";
+    }
+    if (decode_error) {
+        status += " (failed to decode command output)";
     }
     return output;
 }
