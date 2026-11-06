@@ -1,8 +1,8 @@
 @echo off
 setlocal enabledelayedexpansion
 
-REM set "CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1"
-REM set "PATH=%CUDA_PATH%\bin;%PATH%"
+set "CUDA_PATH=C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.1"
+set "PATH=%CUDA_PATH%\bin;%PATH%"
 
 call buildEnv.bat
 if %ERRORLEVEL% neq 0 (
@@ -83,7 +83,7 @@ echo Build Mode:       %MODE%
 cmake -G "NMake Makefiles" ^
     "%SRC_DIR%" ^
     -DBUILD_SHARED_LIBS=ON ^
-    -DGGML_CUDA=OFF ^
+    -DGGML_CUDA=ON ^
     -DCMAKE_CXX_STANDARD=17 ^
     -DCMAKE_CXX_STANDARD_REQUIRED=ON ^
     -DLLAMA_CURL=OFF ^
