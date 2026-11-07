@@ -1,2 +1,3 @@
+§%USERPROFILE%\Helper-Mini
 >Hallo
->Create new file test.txt
+>What DLLs are present? $/run dir *.dll$

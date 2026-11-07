@@ -4,6 +4,7 @@
 #include <fstream>
 #include <iterator>
 #include <string>
+#include "cli-text.hxx"
 #include "common.hxx"
 
 static std::string shell_quote(const std::string & value)
@@ -16,6 +17,49 @@ static std::string shell_quote(const std::string & value)
         quoted += c == '\'' ? "'\\''" : std::string(1, c);
     }
     return quoted + "'";
+#endif
+}
+
+TEST(ReadText, ValidatesUtf8)
+{
+    EXPECT_TRUE(text_file::is_utf8("ASCII"));
+    EXPECT_TRUE(text_file::is_utf8("\xC2\xA9\xE2\x82\xAC\xF0\x9F\x98\x80"));
+    for (const std::string & invalid : {std::string("\xB8"), std::string("\xC0\x80"),
+                                        std::string("\xE0\x80\x80"), std::string("\xED\xA0\x80"),
+                                        std::string("\xF4\x90\x80\x80"), std::string("\xE2\x82")}) {
+        EXPECT_FALSE(text_file::is_utf8(invalid));
+    }
+}
+
+TEST(ReadText, PreservesValidUtf8)
+{
+    const std::string input = "Copyright \xC2\xA9";
+    std::string output;
+    bool converted = true;
+    ASSERT_TRUE(text_file::to_utf8(input, output, converted));
+    EXPECT_EQ(output, input);
+    EXPECT_FALSE(converted);
+}
+
+TEST(ReadText, HandlesNonUtf8Input)
+{
+    const std::string input = "Copyright \xB8";
+    std::string output = "unchanged";
+    bool converted = false;
+#ifdef _WIN32
+    if (GetOEMCP() == CP_UTF8) {
+        EXPECT_FALSE(text_file::to_utf8(input, output, converted));
+    } else {
+        ASSERT_TRUE(text_file::to_utf8(input, output, converted));
+        EXPECT_TRUE(converted);
+        EXPECT_TRUE(text_file::is_utf8(output));
+        EXPECT_EQ(output.substr(0, 10), "Copyright ");
+        if (GetOEMCP() == 850) {
+            EXPECT_EQ(output, "Copyright \xC2\xA9");
+        }
+    }
+#else
+    EXPECT_FALSE(text_file::to_utf8(input, output, converted));
 #endif
 }
 
@@ -99,6 +143,8 @@ static void test_read_file(const std::string & model, const std::string & name)
     const std::string loaded_message = "Loaded text from '" + filename + "'";
     const size_t loaded_pos = log_content.find(loaded_message);
     ASSERT_NE(loaded_pos, std::string::npos) << log_content;
+    EXPECT_NE(log_content.find("Processing prompt...", loaded_pos + loaded_message.size()), std::string::npos)
+        << log_content;
     EXPECT_NE(log_content.find("Hello from helperCli", loaded_pos + loaded_message.size()), std::string::npos)
         << log_content;
 }

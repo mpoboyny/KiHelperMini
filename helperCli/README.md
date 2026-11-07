@@ -4,20 +4,42 @@
 
 ### Todo mode
 
-Pass `-todo <file>` (also accepted as `--todo <file>` or `- todo <file>`) alongside the normal model or `--server-base` options. Quote paths containing spaces. Todo mode validates the whole input file before starting the model. Each line must begin with `>` and contain a nonempty prompt, for example:
+Pass `-todo <file>` (also accepted as `--todo <file>` or `- todo <file>`) alongside the normal model or `--server-base` options. Quote paths containing spaces. Todo mode validates the whole input file before starting the model. After an optional output-folder directive on the first line, each line must begin with `>` and contain a nonempty prompt.
+
+On Windows, the model path supports environment variables such as `%USERPROFILE%`, even when the caller passes them literally:
+
+```bat
+helperCli.exe -m "%USERPROFILE%\LocalKiModels\Qwen_Qwen3.5-0.8B-Q4_K_M.gguf" -todo "todo.txt"
+```
+
+On Linux, a leading `~` or `~/` in the model path is expanded using `HOME`, even when quoted:
+
+```sh
+helperCli -m "~/LocalKiModels/Qwen_Qwen3.5-0.8B-Q4_K_M.gguf" -todo "todo.txt"
+```
+
+The relative `todo.txt` path is resolved from the current working directory. A UTF-8 todo file can contain an optional first line starting with `§` followed immediately by the output folder:
 
 ```text
+§%USERPROFILE%\My Responses
 >Hallo
->/run hostname
->/read "C:\DelMe\opencodeTest\main.cxx"
+>$/run hostname$
+>What DLLs are present? $/run dir *.dll$
+>Summarize this file: $/read "C:\DelMe\opencodeTest\main.cxx"$
+>Summarize these files: $/glob *.txt$
+>$/regen$
 >Create new file xxx.txt
 ```
 
-Prompts run sequentially in one conversation. `/run` executes the command and sends its output to the model; `/read` sends the file contents to the model. After the last line, `/exit` is processed automatically. An explicit `/exit` ends the todo early. On router servers, the first available model is selected without prompting. `--single-turn` and an initial `--prompt` are ignored in todo mode.
+On Linux, use a folder such as `§~/My Responses`. Relative output folders are resolved from the current working directory. If the first line does not specify a folder, the default is `%USERPROFILE%\temp` on Windows or `~/temp` on Linux. Missing folders are created; an error is reported if they cannot be created or the home variable needed for expansion is not set.
+
+Prompts run sequentially in one conversation. In todo files, `$`-delimited commands can appear inside a prompt and execute from left to right: `/run` and `/#` capture command output, `/read` adds a file, `/glob` adds matching files, and `/image`, `/audio`, and `/video` add media when the model supports it. For example, `$/run dir$`, `$/read "file name.txt"$`, and `$/glob *.txt$`. `$/clear$` clears the conversation; `$/regen$` regenerates the previous response and must be alone on its line. The closing `$` ends a command, so its argument cannot contain `$`. An undelimited `/run` or `/#` is not executed; existing standalone forms of other commands remain supported. After the last line, `/exit` is processed automatically. An explicit `/exit` ends the todo early; `$/exit$` is not a delimited command. On router servers, the first available model is selected without prompting. `--single-turn` and an initial `--prompt` are ignored in todo mode.
 
 File creation and editing confirmations are automatically approved. Recognizable yes/no confirmation requests are answered with `y` before continuing; ordinary conversational questions are not answered automatically. Text-based confirmation detection is heuristic and may miss or misidentify requests. Processing stops with an error if a confirmation is repeated or more than three confirmations are requested for one prompt. **Only run trusted todo files:** `/run` executes local commands, and automatic approval permits model-requested file changes within the existing file-tool restrictions.
 
-The conversation and all model responses overwrite `C:\Temp\lastResponses.txt` on Windows (`/tmp/lastResponses.txt` on other platforms), regardless of `--output`. The output directory is created if needed. Processing stops on a read, response-stream, or transcript-write error.
+The conversation and all model responses overwrite `lastResponses.txt` in the selected output folder, regardless of `--output`. Processing stops on a read, response-stream, or transcript-write error.
+
+`/read` accepts UTF-8 text. On Windows, non-UTF-8 input is interpreted using the system OEM code page and converted to UTF-8 for the model. The program reports this conversion; converted files cannot be edited by the file tool. On other platforms, non-UTF-8 input is rejected.
 
 <!-- HELP_START -->
 

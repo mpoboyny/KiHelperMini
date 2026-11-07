@@ -61,7 +61,7 @@ BIN_DIR = $(BIN_DIR_ROOT)\$(BUILD_TYPE)
 
 SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\RunHandler.cxx source\main.cxx
 OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\main.obj
-HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\RunHandler.hxx
+HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\cli-text.hxx include\RunHandler.hxx
 
 TARGET = $(BIN_DIR)\helperCli.exe
 
@@ -150,7 +150,7 @@ $(TEST_TARGET): $(TEST_OBJ_FILES)
 	@if exist "$(CUDA_BIN_PATH)\cublasLt64_12.dll" copy /Y "$(CUDA_BIN_PATH)\cublasLt64_12.dll" "$(TEST_BIN_DIR)\"
 
 # Rebuild the tests when their shared header changes.
-$(TEST_OBJ_FILES): tests\common.hxx include\cli-todo.hxx
+$(TEST_OBJ_FILES): tests\common.hxx include\cli-todo.hxx include\cli-text.hxx
 
 # Inference rule for the test sources. The GTest include path is added here.
 {tests}.cxx{$(TEST_OBJ_DIR)}.obj:

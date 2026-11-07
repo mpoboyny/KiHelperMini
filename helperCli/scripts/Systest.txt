@@ -1,0 +1,2472 @@
+
+Sprecher.V460.GuiTester (4.1.0.0)
+Copyright ¸ Sprecher 2026
+
+Read configuration...
+
+Location: C:\Sprecher.V460.GuiTester
+Configuration file: C:\Sprecher.V460.GuiTester\Config.xml
+ZenonVersion: 12
+ZenonVersionInt: 12000
+IntallDir: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering
+IntallDirV460: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460
+EditorAddInFolder: SPRECON-V460 Add-In\Engineering Studio
+RuntimeAddInFolder: SPRECON-V460 Add-In\Service Engine
+TempDir: C:\Sprecher.V460.GuiTester.Temp
+ProjectName: V460_SYSTEMTEST
+ResetExtensionsXml: True
+ResetGenSttinsXml: True
+DbInstance: SPRECHER_2012
+DbServerName: LNZ-V460-AST1
+CheckScreenResolution: True
+Configurated extensions: FLP,UIM,DPS,VSM,SMA,LEM,IWI,DSC870,DSC850,DCM,AMA,ADM,DRM,PMW,FLM
+Configurated tools: IEC870OEM
+Configurated AddIns: PDE,SEC,ENM,WWS,STR
+virtualGUser: C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+MyLuaTestsRoot: C:\Sprecher.V460.GuiTester\LuaTests\
+
+
+Check command line parameters...
+
+MaxWaitSec: 40
+Execute all tests for all extensions
+Screen resolution is default 1920 X 1080
+
+Execute...
+
+Systest: Run test T1 for FLP
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:45:02 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLP_Reaktanz.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Fault Location from Protection\FLP.exe
+		4	: 	SPRECON-V460 Fault Location from Protection
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Fault Location from Protection\FLP.exe
+titelString: SPRECON-V460 Fault Location from Protection
+maxWaitFor: 40
+closeExt: false
+No param
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 Fault Location from Protection
+The pid is: 	1888
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 1 seconds ... Mouse clicked on Menu FLP
+
+The runtime go sleep for 1 seconds ... Mouse clicked on FLP test case 2
+Diff with blank: 99.50287
+
+The runtime go sleep for 1 seconds ... Mouse clicked LS1
+
+The runtime go sleep for 1 seconds ... 2 is entered to LS1
+
+The runtime go sleep for 1 seconds ... LS1 is changed
+
+The runtime go sleep for 1 seconds ... Mouse clicked LS6
+
+The runtime go sleep for 1 seconds ... 2 is entered to LS6
+
+The runtime go sleep for 1 seconds ... LS6 is changed
+Compare result: 	99.43488
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... Mouse clicked LS1
+
+The runtime go sleep for 1 seconds ... 0 is entered to LS1
+
+The runtime go sleep for 1 seconds ... LS1 is changed
+
+The runtime go sleep for 1 seconds ... Mouse clicked LS6
+
+The runtime go sleep for 1 seconds ... 0 is entered to LS6
+Compare with blank again...
+Diff with blank: 99.50287
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T2 for FLP
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:45:31 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLP_StateCheck.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Fault Location from Protection\FLP.exe
+		4	: 	SPRECON-V460 Fault Location from Protection
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Fault Location from Protection\FLP.exe
+titelString: SPRECON-V460 Fault Location from Protection
+maxWaitFor: 40
+closeExt: false
+No param
+
+The window with SPRECON-V460 Fault Location from Protection in title is already running
+The main window title is: 	SPRECON-V460 Fault Location from Protection
+The pid is: 	1888
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 4 seconds ... 
+Common state info - OK
+Additional state info panel, Project - OK
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T3 for FLP
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:45:38 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLP_CheckOtherWnd.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Fault Location from Protection\FLP.exe
+		4	: 	SPRECON-V460 Fault Location from Protection
+		5	: 	40
+		6	: 	yes
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Fault Location from Protection\FLP.exe
+titelString: SPRECON-V460 Fault Location from Protection
+maxWaitFor: 40
+closeExt: true
+No param
+
+The window with SPRECON-V460 Fault Location from Protection in title is already running
+The main window title is: 	SPRECON-V460 Fault Location from Protection
+The pid is: 	1888
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 1 seconds ... Mouse clicked on Menu FLP
+
+The runtime go sleep for 1 seconds ... Mouse clicked on FLP test case 2
+Diff with blank: 99.66498
+
+The runtime go sleep for 1 seconds ... Mouse clicked on FLP test case 1
+
+The runtime go sleep for 1 seconds ... Set switches ON
+
+The runtime go sleep for 5 seconds ... Set reaktanz values and wait for calculation...
+
+The runtime go sleep for 1 seconds ... Mouse clicked on FLP test case 2
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+Diff with lstMarkerlPicSet: 87.7484
+ERROR: ...460.GuiTester\LuaTests\Systest\FLP_CheckOtherWnd.lua:101: Compare with FLP_T3_MarkerlLst_Set.bmp FAILED
+Save desktop screenshort to: scr_06_11_2026-04_46_05.bmp
+
+The runtime go sleep for 1 seconds ... 
+Error: Terminate terminate process...
+	 VGU Failed (61)
+Systest: Run test T1 for UIM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:46:06 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\UIM_StateCheck.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+		4	: 	SPRECON-V460 User Information Manager
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+titelString: SPRECON-V460 User Information Manager
+maxWaitFor: 40
+closeExt: false
+No param
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 User Information Manager
+The pid is: 	2912
+
+The runtime go sleep for 1 seconds ... 
+Common state info - OK
+Additional state info panel, Project - OK
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T2 for UIM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:46:09 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\UIM_Dynamic.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+		4	: 	SPRECON-V460 User Information Manager
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+titelString: SPRECON-V460 User Information Manager
+maxWaitFor: 40
+closeExt: false
+No param
+
+The window with SPRECON-V460 User Information Manager in title is already running
+The main window title is: 	SPRECON-V460 User Information Manager
+The pid is: 	2912
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu UIM
+
+The runtime go sleep for 2 seconds ... 
+Diff with blank: 99.99963
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\UIM_Dynamic.lua:73: Create first 5 via right double click..
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\UIM_Dynamic.lua:94: Create next 5 via DD..
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Diff with 10 notes: 99.9968
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 1 seconds ... Mouse clicked on Menu UIM
+
+The runtime go sleep for 1 seconds ... 
+Diff with 10 notes again: 99.9968
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\UIM_Dynamic.lua:160: Remove first 5 notes...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\UIM_Dynamic.lua:178: Move last 5 notes...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+diff: 99.99821
+diff2: 98.48673
+Diff with 5 notes: 99.99821
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 3 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Wait for close
+
+The runtime go sleep for 3 seconds ... Wait for close...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 User Information Manager
+The pid is: 	6036
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu UIM
+
+The runtime go sleep for 2 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\UIM_Dynamic.lua:241: Diff with 5 notes after restart: 99.99821
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 3 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\UIM_Dynamic.lua:270: Diff with blank after delete all: 99.99963
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T3 for UIM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:48:51 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\UIM_Static.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+		4	: 	SPRECON-V460 User Information Manager
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+titelString: SPRECON-V460 User Information Manager
+maxWaitFor: 40
+closeExt: false
+No param
+
+The window with SPRECON-V460 User Information Manager in title is already running
+The main window title is: 	SPRECON-V460 User Information Manager
+The pid is: 	6036
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu UIM
+INFO: ...echer.V460.GuiTester\LuaTests\Systest\UIM_Static.lua:55: Create all notes
+st1, diff with blank: 99.88206
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+st1, diff with set: 99.8624
+st2, diff with blank: 100
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+st2, diff with set: 99.91154
+st3, diff with blank: 99.88206
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+st3, diff with set: 99.8624
+st4, diff with blank: 99.91154
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+st4, diff with set: 99.8624
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu UIM
+INFO: ...echer.V460.GuiTester\LuaTests\Systest\UIM_Static.lua:85: Delete 2 last notes
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...echer.V460.GuiTester\LuaTests\Systest\UIM_Static.lua:109: Close and run again..
+
+The runtime go sleep for 3 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Wait for close
+
+The runtime go sleep for 3 seconds ... Wait for close...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 User Information Manager
+The pid is: 	9220
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu UIM
+
+The runtime go sleep for 2 seconds ... 
+INFO: ...echer.V460.GuiTester\LuaTests\Systest\UIM_Static.lua:130: Delete 2 first notes
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...echer.V460.GuiTester\LuaTests\Systest\UIM_Static.lua:149: Last check
+st1, diff with blank: 99.88206
+st2, diff with blank: 100
+st3, diff with blank: 99.88206
+st4, diff with blank: 99.91154
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T4 for UIM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:50:03 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\UIM_PopUpStatic.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+		4	: 	SPRECON-V460 User Information Manager
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+titelString: SPRECON-V460 User Information Manager
+maxWaitFor: 40
+closeExt: false
+No param
+
+The window with SPRECON-V460 User Information Manager in title is already running
+The main window title is: 	SPRECON-V460 User Information Manager
+The pid is: 	9220
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu UIM
+INFO: ....V460.GuiTester\LuaTests\Systest\UIM_PopUpStatic.lua:57: Static note check using note 4 ...
+st4, diff with blank: 99.91154
+
+The runtime go sleep for 2 seconds ... 
+Create new note 4..
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Open popup
+Diff with popup set: 100
+Open note from popup...
+
+The runtime go sleep for 2 seconds ... 
+Change note first time..
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Open note note 4 ...
+
+The runtime go sleep for 2 seconds ... 
+Change note again..
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Open note from popup again...
+
+The runtime go sleep for 2 seconds ... 
+Delete note
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+Diff with popup def: 100
+
+The runtime go sleep for 1 seconds ... Close popup
+Diff with popup def: 58.8166
+st4, diff with blank: 99.91154
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T5 for UIM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:50:41 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\UIM_CheckCrashStatic.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+		4	: 	SPRECON-V460 User Information Manager
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+titelString: SPRECON-V460 User Information Manager
+maxWaitFor: 40
+closeExt: false
+No param
+
+The window with SPRECON-V460 User Information Manager in title is already running
+The main window title is: 	SPRECON-V460 User Information Manager
+The pid is: 	9220
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu UIM
+INFO: ....GuiTester\LuaTests\Systest\UIM_CheckCrashStatic.lua:57: Static note check using note 1 ...
+st1, diff with blank: 99.88206
+
+The runtime go sleep for 2 seconds ... 
+Try left click...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Try right click...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Try left double click...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Try left click...
+
+The runtime go sleep for 2 seconds ... 
+Try right click...
+
+The runtime go sleep for 2 seconds ... 
+Try left double click...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+st1, diff with blank: 99.88206
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T6 for UIM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:51:09 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\UIM_CheckCrashDynamic.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+		4	: 	SPRECON-V460 User Information Manager
+		5	: 	40
+		6	: 	yes
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 User Information Manager\UIM.exe
+titelString: SPRECON-V460 User Information Manager
+maxWaitFor: 40
+closeExt: true
+No param
+
+The window with SPRECON-V460 User Information Manager in title is already running
+The main window title is: 	SPRECON-V460 User Information Manager
+The pid is: 	9220
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu UIM
+
+The runtime go sleep for 2 seconds ... 
+INFO: ...GuiTester\LuaTests\Systest\UIM_CheckCrashDynamic.lua:58: Dynamic note check ...
+Diff with blank: 99.99963
+
+The runtime go sleep for 2 seconds ... 
+Try left click...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Try right click...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Try right double click...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Try left click...
+
+The runtime go sleep for 2 seconds ... 
+Try right click...
+
+The runtime go sleep for 2 seconds ... 
+Try right double click...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Diff with blank: 99.99963
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Wait for close
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T1 for VSM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:51:43 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\VSM_StateCheck.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Variable Status Manager\VSM.exe
+		4	: 	SPRECON-V460 Variable Status Manager
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Variable Status Manager\VSM.exe
+titelString: SPRECON-V460 Variable Status Manager
+maxWaitFor: 40
+closeExt: false
+No param
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 Variable Status Manager
+The pid is: 	7344
+
+The runtime go sleep for 10 seconds ... Reading variables
+
+The runtime go sleep for 1 seconds ... 
+Common state info - OK
+Additional state info panel, Project - OK
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T2 for VSM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:51:59 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\VSM_Variables.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Variable Status Manager\VSM.exe
+		4	: 	SPRECON-V460 Variable Status Manager
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Variable Status Manager\VSM.exe
+titelString: SPRECON-V460 Variable Status Manager
+maxWaitFor: 40
+closeExt: false
+No param
+
+The window with SPRECON-V460 Variable Status Manager in title is already running
+The main window title is: 	SPRECON-V460 Variable Status Manager
+The pid is: 	7344
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu VSM
+
+The runtime go sleep for 2 seconds ... 
+Dif Def: 99.95708
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu VSM
+
+The runtime go sleep for 2 seconds ... 
+Dif Set 10: 99.95708
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+Dif Def: 99.95708
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T3 for VSM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:52:48 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\VSM_DoubleClick.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Variable Status Manager\VSM.exe
+		4	: 	SPRECON-V460 Variable Status Manager
+		5	: 	40
+		6	: 	no
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Variable Status Manager\VSM.exe
+titelString: SPRECON-V460 Variable Status Manager
+maxWaitFor: 40
+closeExt: false
+No param
+
+The window with SPRECON-V460 Variable Status Manager in title is already running
+The main window title is: 	SPRECON-V460 Variable Status Manager
+The pid is: 	7344
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu VSM
+Number of alt values 0
+Number of off 0
+
+The runtime go sleep for 2 seconds ... 
+Dif Def: 99.95708
+Check double click, set off and alt...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of alt values 5
+Number of off 5
+Check double click, reset off and alt...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of alt values 0
+Number of off 0
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T4 for VSM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:53:27 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\VSM_FastClick.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Variable Status Manager\VSM.exe
+		4	: 	SPRECON-V460 Variable Status Manager
+		5	: 	40
+		6	: 	yes
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Variable Status Manager\VSM.exe
+titelString: SPRECON-V460 Variable Status Manager
+maxWaitFor: 40
+closeExt: true
+No param
+
+The window with SPRECON-V460 Variable Status Manager in title is already running
+The main window title is: 	SPRECON-V460 Variable Status Manager
+The pid is: 	7344
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu VSM
+Number of revision 0
+
+The runtime go sleep for 2 seconds ... 
+Dif Def: 99.95708
+Fast click 3 times on revision...
+Slow click 2 times on next revision...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of revision 3
+Slow click back, 5 times...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of revision 2
+Slow click reset, 2 times...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Number of revision 0
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Wait for close
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T1 for FLM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:53:59 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLM_StateCheck.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+		4	: 	SPRECON-V460 Feed-in and Load Management
+		5	: 	40
+		6	: 	no
+		7	: 	-PT01M
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+titelString: SPRECON-V460 Feed-in and Load Management
+maxWaitFor: 40
+RunParam: -PT01M
+closeExt: false
+Clean sftp and db first...
+
+The runtime go sleep for 4 seconds ... 
+FlmCleanSftpAndDB: seem to work...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 Feed-in and Load Management
+The pid is: 	3844
+
+The runtime go sleep for 5 seconds ... Let FLM to start...
+
+The runtime go sleep for 1 seconds ... 
+Common state info - OK
+Additional state info panel - OK
+Check functionality...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Functionality - OK
+
+The runtime go sleep for 1 seconds ... 
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T2 for FLM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:54:17 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+		4	: 	SPRECON-V460 Feed-in and Load Management
+		5	: 	40
+		6	: 	no
+		7	: 	-PT01M
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+titelString: SPRECON-V460 Feed-in and Load Management
+maxWaitFor: 40
+closeExt: false
+
+The runtime go sleep for 4 seconds ... 
+FlmCleanSftpAndDB: seem to work...
+
+The window with SPRECON-V460 Feed-in and Load Management in title is already running
+The main window title is: 	SPRECON-V460 Feed-in and Load Management
+The pid is: 	3844
+
+The runtime go sleep for 5 seconds ... Let FLM to start...
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu FLM
+
+The runtime go sleep for 2 seconds ... Mouse clicked on FMA button
+
+The runtime go sleep for 4 seconds ... Mouse clicked on FMA init button
+Check stufenFeder, stufe 1...
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 2 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 3 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 1000
+
+The runtime go sleep for 1 seconds ... 
+Check valueFeder, default...
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 1 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 2 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 3 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 4 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 5 value: 700
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 3 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:69: Overview list is empty
+
+The runtime go sleep for 1 seconds ... Create test measure...
+
+The runtime go sleep for 1 seconds ... Enter test name...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Set execution...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Enter adjustment...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Open details dialog...
+
+The runtime go sleep for 5 seconds ... Let details dialog start...
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:114: Check settings...
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:139: Check settings - OK
+
+The runtime go sleep for 2 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:143: Check feder list...
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:145: flmMeasureDetDlg.federLst.line1 - OK
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:149: flmMeasureDetDlg.federLst.line10 - OK
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:151: Try to activate...
+
+The runtime go sleep for 2 seconds ... Calculate
+
+The runtime go sleep for 2 seconds ... Plan in
+
+The runtime go sleep for 7 seconds ... Activate
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:181: Check runtime...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 200
+
+The runtime go sleep for 1 seconds ... 
+Set value from ocr to 0
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 0
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:193: Part release...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... Click Part release
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 3 seconds ... Calculate again...
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:219: Check feder list...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:225: flmMeasureDetDlg.federLst.line1 - OK
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:229: flmMeasureDetDlg.federLst.line10 - OK
+
+The runtime go sleep for 2 seconds ... Plan in
+
+The runtime go sleep for 7 seconds ... Activate
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:247: Check runtime...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 500
+
+The runtime go sleep for 1 seconds ... 
+Set value from ocr to 0
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 0
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:255: Adaption...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... Click Adaption
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 3 seconds ... Calculate again...
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:281: Check feder list...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:287: flmMeasureDetDlg.federLst.line1 - OK
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:291: flmMeasureDetDlg.federLst.line5 - OK
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:295: flmMeasureDetDlg.federLst.line10 - OK
+
+The runtime go sleep for 2 seconds ... Plan in
+
+The runtime go sleep for 7 seconds ... Activate
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:313: Check runtime...
+
+The runtime go sleep for 1 seconds ... 
+Set value from ocr to 0
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 0
+
+The runtime go sleep for 1 seconds ... 
+Set value from ocr to 0
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 0
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 1 value: 400
+
+The runtime go sleep for 1 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:323: Release...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... Click Release
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 4 seconds ... Calculate again...
+
+The runtime go sleep for 4 seconds ... Plan in
+
+The runtime go sleep for 10 seconds ... Activate
+
+The runtime go sleep for 2 seconds ... 
+INFO: ...cher.V460.GuiTester\LuaTests\Systest\FLM_FMAtest.lua:360: Overview list is empty
+
+The runtime go sleep for 2 seconds ... Close overview
+Check stufenFeder, stufe 1...
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 2 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 3 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 1000
+
+The runtime go sleep for 1 seconds ... 
+Check valueFeder, default...
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 1 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 2 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 3 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 4 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 5 value: 700
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T3 for FLM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 04:57:58 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLM_RDCtest72.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+		4	: 	SPRECON-V460 Feed-in and Load Management
+		5	: 	40
+		6	: 	no
+		7	: 	-PT01M
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+titelString: SPRECON-V460 Feed-in and Load Management
+maxWaitFor: 40
+closeExt: false
+
+The runtime go sleep for 4 seconds ... 
+FlmCleanSftpAndDB: seem to work...
+
+The window with SPRECON-V460 Feed-in and Load Management in title is already running
+The main window title is: 	SPRECON-V460 Feed-in and Load Management
+The pid is: 	3844
+
+The runtime go sleep for 5 seconds ... Let FLM to start...
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu FLM
+
+The runtime go sleep for 2 seconds ... Mouse clicked on FMA button
+
+The runtime go sleep for 4 seconds ... Mouse clicked on FMA init button
+Check stufenFeder, stufe 1...
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 2 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 3 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 1000
+
+The runtime go sleep for 1 seconds ... 
+Check valueFeder, default...
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 1 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 2 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 3 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 4 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 5 value: 700
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 4 seconds ... 
+PutRdcFile: seem to work...
+
+The runtime go sleep for 90 seconds ... Wait for download and start 
+
+The runtime go sleep for 3 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 3 seconds ... 
+INFO: ...er.V460.GuiTester\LuaTests\Systest\FLM_RDCtest72.lua:76: Overview list is not empty
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 30 seconds ... Wait for stufe 3
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 800
+ERROR: FLM_RT_settings.lua:376: Feder ind: 1, 1000 ~= 800
+Save desktop screenshort to: scr_06_11_2026-05_00_55.bmp
+
+The runtime go sleep for 1 seconds ... 
+Error: Terminate terminate process...
+	 VGU Failed (61)
+Systest: Run test T4 for FLM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 05:00:56 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLM_RDCtest73.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+		4	: 	SPRECON-V460 Feed-in and Load Management
+		5	: 	40
+		6	: 	no
+		7	: 	-PT01M
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+titelString: SPRECON-V460 Feed-in and Load Management
+maxWaitFor: 40
+closeExt: false
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 Feed-in and Load Management
+The pid is: 	10940
+
+The runtime go sleep for 5 seconds ... Let FLM to start...
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu FLM
+
+The runtime go sleep for 2 seconds ... Mouse clicked on FMA button
+
+The runtime go sleep for 4 seconds ... Mouse clicked on FMA init button
+Check stufenFeder, stufe 1...
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 2 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 3 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 1000
+
+The runtime go sleep for 1 seconds ... 
+Check valueFeder, default...
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 1 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 2 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 3 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 4 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 5 value: 700
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 4 seconds ... 
+PutRdcFile: seem to work...
+
+The runtime go sleep for 90 seconds ... Wait for download and start 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 3 seconds ... 
+INFO: ...er.V460.GuiTester\LuaTests\Systest\FLM_RDCtest73.lua:78: Overview list is not empty
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 30 seconds ... Wait for stufe 3
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 800
+ERROR: FLM_RT_settings.lua:376: Feder ind: 1, 1000 ~= 800
+Save desktop screenshort to: scr_06_11_2026-05_03_50.bmp
+
+The runtime go sleep for 1 seconds ... 
+Error: Terminate terminate process...
+	 VGU Failed (61)
+Systest: Run test T5 for FLM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 05:03:51 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLM_RDCtest82.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+		4	: 	SPRECON-V460 Feed-in and Load Management
+		5	: 	40
+		6	: 	yes
+		7	: 	-PT01M
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+titelString: SPRECON-V460 Feed-in and Load Management
+maxWaitFor: 40
+closeExt: true
+Clean sftp and db first...
+
+The runtime go sleep for 4 seconds ... 
+FlmCleanSftpAndDB: seem to work...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 Feed-in and Load Management
+The pid is: 	4768
+
+The runtime go sleep for 5 seconds ... Let FLM to start...
+
+The runtime go sleep for 2 seconds ... 
+Set set max value property...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Close general settings...
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu FLM
+
+The runtime go sleep for 2 seconds ... Mouse clicked on FMA button
+
+The runtime go sleep for 4 seconds ... Mouse clicked on FMA init button
+Check init for feder 1 ...
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 1000
+
+The runtime go sleep for 4 seconds ... 
+PutRdcFile: seem to work...
+
+The runtime go sleep for 90 seconds ... Wait for download 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 3 seconds ... 
+INFO: ...er.V460.GuiTester\LuaTests\Systest\FLM_RDCtest82.lua:80: Overview list is not empty
+
+The runtime go sleep for 1 seconds ... Open interval dialog...
+
+The runtime go sleep for 2 seconds ... Let interval dialog start...
+Check interval list, line 1 ...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+Check interval list, line 2 ...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+ERROR: FLM_RT_settings.lua:511: Data check failed: The value will determined at runtime not start with Set controllable resource
+Save desktop screenshort to: scr_06_11_2026-05_06_18.bmp
+
+The runtime go sleep for 1 seconds ... 
+Error: Terminate terminate process...
+	 VGU Failed (61)
+Systest: Run test T6 for FLM
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 05:06:19 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+		4	: 	SPRECON-V460 Feed-in and Load Management
+		5	: 	40
+		6	: 	yes
+		7	: 	-FMAROLL15
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Feed-in and Load Management\FLM.exe
+titelString: SPRECON-V460 Feed-in and Load Management
+maxWaitFor: 40
+closeExt: true
+Clean sftp and db first...
+
+The runtime go sleep for 4 seconds ... 
+FlmCleanSftpAndDB: seem to work...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 Feed-in and Load Management
+The pid is: 	5652
+
+The runtime go sleep for 5 seconds ... Let FLM to start...
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu FLM
+
+The runtime go sleep for 2 seconds ... Mouse clicked on FMA button
+
+The runtime go sleep for 4 seconds ... Mouse clicked on FMA init button
+Check stufenFeder, stufe 1...
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 2 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 3 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 1000
+
+The runtime go sleep for 1 seconds ... 
+Check valueFeder, default...
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 1 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 2 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 3 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 4 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 5 value: 700
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 3 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:78: Overview list is empty
+
+The runtime go sleep for 1 seconds ... Create test measure...
+
+The runtime go sleep for 1 seconds ... Enter test name...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Set execution...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Enter adjustment...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... Open details dialog...
+
+The runtime go sleep for 5 seconds ... Let details dialog start...
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:123: Check settings...
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:147: Check settings - OK
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:157: Rolling method: alternating
+
+The runtime go sleep for 2 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:163: Check feder list (case1)...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:167: flmMeasureDetDlg.federLst.line1 - OK
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:171: flmMeasureDetDlg.federLst.line5 - OK
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:175: flmMeasureDetDlg.federLst.line10 - OK
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:177: Try to activate...
+
+The runtime go sleep for 2 seconds ... Calculate
+
+The runtime go sleep for 2 seconds ... Plan in
+
+The runtime go sleep for 7 seconds ... Activate
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:206: Check feder list (case2)...
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:212: flmMeasureDetDlg.federLst.line1 - OK
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:216: flmMeasureDetDlg.federLst.line5 - OK
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:220: flmMeasureDetDlg.federLst.line10 - OK
+
+The runtime go sleep for 8 seconds ... Wait for case 3
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:226: Check feder list (case3)...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:232: flmMeasureDetDlg.federLst.line6 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:236: flmMeasureDetDlg.federLst.line7 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:240: flmMeasureDetDlg.federLst.line8 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:244: flmMeasureDetDlg.federLst.line9 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:248: flmMeasureDetDlg.federLst.line10 - OK
+
+The runtime go sleep for 4 seconds ... Part release...
+
+The runtime go sleep for 1 seconds ... Click Part release
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Calculate again...
+
+The runtime go sleep for 2 seconds ... Plan in
+
+The runtime go sleep for 6 seconds ... Activate
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:282: Check feder list (case4)...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:288: flmMeasureDetDlg.federLst.line6 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:292: flmMeasureDetDlg.federLst.line7 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:296: flmMeasureDetDlg.federLst.line8 - OK
+
+The runtime go sleep for 8 seconds ... Wait for next roll...
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:314: Check feder list (case5)...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:320: flmMeasureDetDlg.federLst.line1 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:324: flmMeasureDetDlg.federLst.line10 - OK
+
+The runtime go sleep for 12 seconds ... Wait for next roll...
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:341: Adaption...
+
+The runtime go sleep for 1 seconds ... Click Adaption
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Calculate again...
+
+The runtime go sleep for 2 seconds ... Plan in
+
+The runtime go sleep for 5 seconds ... Activate
+
+The runtime go sleep for 2 seconds ... Wait for next roll...
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:372: Check feder list (case6)...
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:378: flmMeasureDetDlg.federLst.line1 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:382: flmMeasureDetDlg.federLst.line10 - OK
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:386: flmMeasureDetDlg.federLst.line7 - OK
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:399: Release...
+
+The runtime go sleep for 1 seconds ... Click Release
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Calculate again...
+
+The runtime go sleep for 2 seconds ... Plan in
+
+The runtime go sleep for 10 seconds ... Activate
+
+The runtime go sleep for 2 seconds ... 
+INFO: ....V460.GuiTester\LuaTests\Systest\FLM_FMAtestRoll.lua:434: Overview list is empty
+
+The runtime go sleep for 2 seconds ... Close overview
+
+The runtime go sleep for 1 seconds ... Minimize main window...
+Check stufenFeder, stufe 1...
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 1 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 2 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 3 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 4 value: 1000
+
+The runtime go sleep for 1 seconds ... FlmCheckStufenFeder 5 value: 1000
+
+The runtime go sleep for 1 seconds ... 
+Check valueFeder, default...
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 1 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 2 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 3 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 4 value: 700
+
+The runtime go sleep for 1 seconds ... FlmCheckValueFeder 5 value: 700
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 8 seconds ... Wait for close
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T1 for SMA
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 05:10:38 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\SMA_Schedule.lua
+		3	: 	C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Schedule Manager\SMA.exe
+		4	: 	SPRECON-V460 Schedule Manager
+		5	: 	40
+		6	: 	yes
+Tesseract-OCR - avaliable
+exeFilePath: C:\Program Files (x86)\sprecher\SPRECON-V460\SPRECON-V460 Software Platform 12\Engineering\V460\SPRECON-V460 Schedule Manager\SMA.exe
+titelString: SPRECON-V460 Schedule Manager
+maxWaitFor: 40
+closeExt: true
+No param
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+The main window title is: 	SPRECON-V460 Schedule Manager
+The pid is: 	4220
+
+The runtime go sleep for 1 seconds ... 
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu SMA
+
+The runtime go sleep for 10 seconds ... Wait first time for value change
+
+The runtime go sleep for 1 seconds ... 
+Current value: 1484
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Wait for Values...
+ERROR: ..\Common\SMA_settings.lua:176: Values dialog not found
+Save desktop screenshort to: scr_06_11_2026-05_11_04.bmp
+
+The runtime go sleep for 1 seconds ... 
+Error: Terminate terminate process...
+	 VGU Failed (61)
+Systest: Run test T1 for Iec870oem
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 05:11:05 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\IEC870OEM_VariantCheck.lua
+Tesseract-OCR - avaliable
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 2 seconds ... 
+
+The runtime go sleep for 4 seconds ... Test running...
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Systest: Run test T2 for Iec870oem
+currOS: MSWINDOWS*
+VGU_INC: C:\Sprecher.V460.GuiTester\LuaTests\VguInclude\
+makeRef: false
+
+------- StartCheck --------
+At: 05:11:25 06.11.2026
+
+My application name: 	virtualGUser-1.3.5.exe
+Arguments:
+		1	: 	C:\Sprecher.V460.GuiTester\virtualGUser-1.3.5.exe
+		2	: 	C:\Sprecher.V460.GuiTester\LuaTests\Systest\IEC870OEM_StatusInDriver.lua
+Tesseract-OCR - avaliable
+Number of SPRECON-V460 windows: 	1
+Classname: 	zenOnRT
+Runtime found
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 1 seconds ... 
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu Extension
+
+The runtime go sleep for 2 seconds ... Mouse clicked on Menu FLM
+Check drivers...
+Check: SIF104
+DLL state - OK
+Driver state - OK
+Check: FLM
+DLL state - OK
+Driver state - OK
+Check: IEC104
+DLL state - OK
+Driver state - OK
+VGU Done.
+	 VGU Succussed
+Test Succussed
+Close runtime...
+
+Systest run summary:
+	 Running at:	06.11.2026 04:45:02
+	 Run duration:	26 min. 29 sec.
+	 Whole tests:	22
+	 Succeeded:		17
+	 Failed:		5
+
+Done.

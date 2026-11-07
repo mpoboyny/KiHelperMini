@@ -2,6 +2,7 @@
 
 #include "cli-context.hxx"
 #include "cli-todo.hxx"
+#include "cli-text.hxx"
 #include "cli-ui.hxx"
 #include "RunHandler.hxx"
 
@@ -580,7 +581,11 @@ bool cli_context::init() {
     fetch_server_props();
 
     if (!params.out_file.empty()) {
-        output_file.emplace(params.out_file);
+        if (todo_mode) {
+            output_file.emplace(std::filesystem::u8path(params.out_file));
+        } else {
+            output_file.emplace(params.out_file);
+        }
         if (!output_file->is_open()) {
             ui::show_error(string_format("failed to open output file '%s'", params.out_file.c_str()));
             return false;
@@ -810,6 +815,15 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
     bool stream_error = false;
 
     ui::assistant_turn a;
+    std::optional<ui::spinner> processing;
+    processing.emplace("Processing prompt...");
+    console::flush();
+    auto stop_processing = [&]() {
+        if (processing) {
+            processing.reset();
+            ui::show_message("");
+        }
+    };
 
     std::string err = client.post_sse("/v1/chat/completions", body.dump(), should_stop, [&](const std::string & payload) {
         json chunk = json::parse_no_throw(payload);
@@ -817,6 +831,7 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
             return;
         }
         if (chunk.contains("error")) {
+            stop_processing();
             stream_error = true;
             ui::show_error(format_error_message(chunk));
             return;
@@ -835,6 +850,9 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
         }
         const auto & delta = choice.at("delta");
         if (delta.contains("tool_calls") && delta.at("tool_calls").is_array()) {
+            if (!delta.at("tool_calls").empty()) {
+                stop_processing();
+            }
             if (!allow_file_creation) {
                 stream_error = true;
                 return;
@@ -870,6 +888,7 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
         if (delta.contains("reasoning_content") && delta.at("reasoning_content").is_string()) {
             const std::string text = delta.at("reasoning_content").get<std::string>();
             if (!text.empty()) {
+                stop_processing();
                 content_out.reasoning += text;
                 a.push(ui::ASSISTANT_DISPLAY_MODE_REASONING, text);
             }
@@ -877,11 +896,13 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
         if (delta.contains("content") && delta.at("content").is_string()) {
             const std::string text = delta.at("content").get<std::string>();
             if (!text.empty()) {
+                stop_processing();
                 content_out.content += text;
                 a.push(ui::ASSISTANT_DISPLAY_MODE_CONTENT, text);
             }
         }
     });
+    stop_processing();
 
     bool interrupted = should_stop();
     cli_context::interrupted().store(false);
@@ -960,9 +981,15 @@ int cli_context::run() {
             ui::show_error(string_format("file does not exist or cannot be opened: '%s'", fname.c_str()));
             return false;
         }
-        std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        const std::string bytes((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         if (file.bad()) {
             ui::show_error(string_format("failed to read file: '%s'", fname.c_str()));
+            return false;
+        }
+        std::string content;
+        bool converted = false;
+        if (!text_file::to_utf8(bytes, content, converted)) {
+            ui::show_error(string_format("file is not valid UTF-8 and could not be converted: '%s'", fname.c_str()));
             return false;
         }
         std::string name = fname;
@@ -970,7 +997,11 @@ int cli_context::run() {
             name.erase(0, 2);
         }
         if (!name.empty() && name != "." && name != ".." && name.find('/') == std::string::npos) {
-            loaded_files[name] = content;
+            if (converted) {
+                loaded_files.erase(name);
+            } else {
+                loaded_files[name] = content;
+            }
         }
         cur_msg += "--- File: ";
         cur_msg += fname;
@@ -981,7 +1012,61 @@ int cli_context::run() {
         }
         cur_msg += "--- End of file ---\n";
         ui::show_message(string_format("Loaded text from '%s'", fname.c_str()));
+        if (converted) {
+            ui::show_message("The file was converted from the Windows OEM code page for reading and cannot be edited by the file tool.");
+        }
         return true;
+    };
+
+    auto add_glob_files = [&](std::string pattern) {
+        std::error_code ec;
+        size_t count = 0;
+        auto curdir = std::filesystem::current_path();
+        std::filesystem::path rel_path;
+
+        auto startglob = pattern.find_first_of("![*?");
+        if (startglob != std::string::npos && startglob != 0) {
+            auto endpath = pattern.substr(0, startglob).find_last_of('/');
+            if (endpath != std::string::npos) {
+                std::string rel_pattern = pattern.substr(0, endpath);
+#if !defined(_WIN32)
+                if (string_starts_with(rel_pattern, '~')) {
+                    const char * home = std::getenv("HOME");
+                    if (home && home[0]) {
+                        rel_pattern = home + rel_pattern.substr(1);
+                    }
+                }
+#endif
+                rel_path = rel_pattern;
+                pattern.erase(0, endpath + 1);
+                curdir /= rel_path;
+            }
+        }
+
+        for (const auto & entry : std::filesystem::recursive_directory_iterator(curdir,
+                std::filesystem::directory_options::skip_permission_denied, ec)) {
+            if (!entry.is_regular_file()) {
+                continue;
+            }
+            std::string rel = std::filesystem::relative(entry.path(), curdir, ec).string();
+            if (ec) {
+                ec.clear();
+                continue;
+            }
+            std::replace(rel.begin(), rel.end(), '\\', '/');
+            if (!glob_match(pattern, rel)) {
+                continue;
+            }
+            const std::string full_path = (curdir / rel).string();
+            if (!add_text_file(full_path)) {
+                continue;
+            }
+            write_output_file(string_format("User: Added text file: %s\n", full_path.c_str()));
+            if (++count >= FILE_GLOB_MAX_RESULTS) {
+                ui::show_error(string_format("Maximum number of globbed files allowed (%zu) reached.", FILE_GLOB_MAX_RESULTS));
+                break;
+            }
+        }
     };
 
     while (true) {
@@ -1058,7 +1143,15 @@ int cli_context::run() {
 
         bool add_user_msg = true;
         bool disable_thinking = false;
-        size_t run_pos = buffer.find('/');
+        std::vector<todo::command> todo_commands;
+        if (todo_mode) {
+            std::string error;
+            if (!todo::find_commands(buffer, todo_commands, error)) {
+                ui::show_error(error);
+                return 1;
+            }
+        }
+        size_t run_pos = todo_mode ? std::string::npos : buffer.find('/');
         size_t run_length = 0;
         while (run_pos != std::string::npos) {
             run_length = buffer.compare(run_pos, 4, "/run") == 0 ? 4 :
@@ -1072,7 +1165,68 @@ int cli_context::run() {
         }
 
         // process commands
-        if (!run_commands.empty()) {
+        if (!todo_commands.empty()) {
+            size_t pos = 0;
+            bool only_clear = true;
+            for (const auto & command : todo_commands) {
+                cur_msg.append(buffer, pos, command.start - pos);
+                if (command.name == "/run" || command.name == "/#") {
+                    RunHandler run;
+                    const std::string result = run.Handle(command.arguments);
+                    ui::show_message("Command output:\n" + result);
+                    ui::show_message(run.Status());
+                    cur_msg += "The following is the captured output (stdout and stderr) of the command: " + command.arguments + "\n";
+                    cur_msg += run.Status() + "\n" + result;
+                } else if (command.name == "/read") {
+                    std::string fname = command.arguments;
+                    if (fname.size() >= 2 && fname.front() == '"' && fname.back() == '"') {
+                        fname = fname.substr(1, fname.size() - 2);
+                    }
+                    if (!add_text_file(fname)) {
+                        return 1;
+                    }
+                    write_output_file(string_format("User: Added text file: %s\n", fname.c_str()));
+                } else if (command.name == "/glob") {
+                    add_glob_files(command.arguments);
+                } else if (command.name == "/clear") {
+                    impl->messages.clear();
+                    add_system_prompt();
+                    impl->pending_media = json::array();
+                    loaded_files.clear();
+                    ui::show_message("Chat history cleared.");
+                } else if (command.name == "/regen") {
+                    if (impl->messages.size() < 2) {
+                        ui::show_error("No message to regenerate.");
+                        return 1;
+                    }
+                    impl->messages.erase(impl->messages.size() - 1);
+                    add_user_msg = false;
+                } else {
+                    const bool supported = (command.name == "/image" && has_vision) ||
+                        (command.name == "/audio" && has_audio) || (command.name == "/video" && has_video);
+                    if (!supported) {
+                        ui::show_error("The model does not support " + command.name + ".");
+                        return 1;
+                    }
+                    if (!stage_media_file(command.arguments, command.name.substr(1))) {
+                        ui::show_error(string_format("file does not exist or cannot be opened: '%s'", command.arguments.c_str()));
+                        return 1;
+                    }
+                    ui::show_message(string_format("Loaded media from '%s'", command.arguments.c_str()));
+                    write_output_file(string_format("User: Added media: %s\n", command.arguments.c_str()));
+                }
+                only_clear = only_clear && command.name == "/clear";
+                pos = command.end;
+            }
+            cur_msg.append(buffer, pos, std::string::npos);
+            if (only_clear && cur_msg.find_first_not_of(" \t\r\n") == std::string::npos) {
+                cur_msg.clear();
+                continue;
+            }
+            if (!add_user_msg) {
+                cur_msg.clear();
+            }
+        } else if (!run_commands.empty()) {
             std::string prompt = buffer;
             for (auto command = run_commands.rbegin(); command != run_commands.rend(); ++command) {
                 if (command->start + command->prefix_length > command->end || command->end > prompt.size()) {
@@ -1137,20 +1291,7 @@ int cli_context::run() {
             if (!todo_mode) {
                 continue;
             }
-        } else if (todo_mode && run_pos == 0) {
-            const std::string command = string_strip(buffer.substr(run_length));
-            if (command.empty()) {
-                ui::show_error("The /run command requires an argument.");
-                return 1;
-            }
-            RunHandler run;
-            const std::string result = run.Handle(command);
-            ui::show_message("Command output:\n" + result);
-            ui::show_message(run.Status());
-            cur_msg += "The following is the captured output (stdout and stderr) of the command: " + command + "\n";
-            cur_msg += run.Status() + "\n" + result;
-        }
-        else if (run_pos != std::string::npos && (run_pos != 0 && buffer.front() != '/')) {
+        } else if (run_pos != std::string::npos && (run_pos != 0 && buffer.front() != '/')) {
             std::string fname = string_strip(buffer.substr(run_pos + run_length));
             std::string question = string_strip(buffer.substr(0, run_pos));
             RunHandler run;
@@ -1190,59 +1331,7 @@ int cli_context::run() {
             }
             disable_thinking = true;
         } else if (string_starts_with(buffer, "/glob ")) {
-            std::error_code ec;
-            size_t count = 0;
-            auto curdir = std::filesystem::current_path();
-            std::string pattern = string_strip(buffer.substr(6));
-            std::filesystem::path rel_path;
-
-            auto startglob = pattern.find_first_of("![*?");
-            if (startglob != std::string::npos && startglob != 0) {
-                auto endpath = pattern.substr(0, startglob).find_last_of('/');
-                if (endpath != std::string::npos) {
-                    std::string rel_pattern = pattern.substr(0, endpath);
-#if !defined(_WIN32)
-                    if (string_starts_with(rel_pattern, '~')) {
-                        const char * home = std::getenv("HOME");
-                        if (home && home[0]) {
-                            rel_pattern = home + rel_pattern.substr(1);
-                        }
-                    }
-#endif
-                    rel_path = rel_pattern;
-                    pattern.erase(0, endpath + 1);
-                    curdir /= rel_path;
-                }
-            }
-
-            for (const auto & entry : std::filesystem::recursive_directory_iterator(curdir,
-                    std::filesystem::directory_options::skip_permission_denied, ec)) {
-                if (!entry.is_regular_file()) {
-                    continue;
-                }
-
-                std::string rel = std::filesystem::relative(entry.path(), curdir, ec).string();
-                if (ec) {
-                    ec.clear();
-                    continue;
-                }
-                std::replace(rel.begin(), rel.end(), '\\', '/');
-
-                if (!glob_match(pattern, rel)) {
-                    continue;
-                }
-
-                const std::string full_path = (curdir / rel).string();
-                if (!add_text_file(full_path)) {
-                    continue;
-                }
-                write_output_file(string_format("User: Added text file: %s\n", full_path.c_str()));
-
-                if (++count >= FILE_GLOB_MAX_RESULTS) {
-                    ui::show_error(string_format("Maximum number of globbed files allowed (%zu) reached.", FILE_GLOB_MAX_RESULTS));
-                    break;
-                }
-            }
+            add_glob_files(string_strip(buffer.substr(6)));
             if (!todo_mode) {
                 continue;
             }

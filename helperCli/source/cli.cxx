@@ -7,6 +7,7 @@
 #include "cli-context.hxx"
 #include "cli-todo.hxx"
 
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <signal.h>
@@ -18,6 +19,27 @@
 #   define NOMINMAX
 #endif
 #include <windows.h>
+
+static bool expand_model_path(std::string & path)
+{
+    if (path.find('%') == std::string::npos) {
+        return true;
+    }
+    DWORD size = ExpandEnvironmentStringsA(path.c_str(), nullptr, 0);
+    while (size != 0) {
+        std::vector<char> expanded(size);
+        const DWORD length = ExpandEnvironmentStringsA(path.c_str(), expanded.data(), size);
+        if (length == 0) {
+            return false;
+        }
+        if (length <= size) {
+            path.assign(expanded.data(), length - 1);
+            return true;
+        }
+        size = length;
+    }
+    return false;
+}
 #endif
 
 #if defined (__unix__) || (defined (__APPLE__) && defined (__MACH__)) || defined (_WIN32)
@@ -65,6 +87,7 @@ int llama_cli(int argc, char ** argv) {
     forwarded_args.push_back(nullptr);
 
     std::vector<std::string> todo_prompts;
+    std::string todo_output_folder;
     if (todo_mode) {
         std::ifstream input(std::filesystem::u8path(todo_path), std::ios::binary);
         if (!input) {
@@ -72,7 +95,7 @@ int llama_cli(int argc, char ** argv) {
             return 1;
         }
         std::string error;
-        if (!todo::read_prompts(input, todo_prompts, error)) {
+        if (!todo::read_prompts(input, todo_prompts, todo_output_folder, error)) {
             fprintf(stderr, "%s\n", error.c_str());
             return 1;
         }
@@ -88,22 +111,27 @@ int llama_cli(int argc, char ** argv) {
         return 1;
     }
 
-    if (todo_mode) {
-#ifdef _WIN32
-        const std::filesystem::path output_path = L"C:\\Temp\\lastResponses.txt";
-#else
-        const std::filesystem::path output_path = "/tmp/lastResponses.txt";
-#endif
-        std::error_code ec;
-        const bool same_file = std::filesystem::equivalent(std::filesystem::u8path(todo_path), output_path, ec);
-        if (!ec && same_file) {
-            fprintf(stderr, "The todo file must not be the response file.\n");
+#if defined(_WIN32)
+    if (!expand_model_path(params.model.path)) {
+        fprintf(stderr, "Cannot expand environment variables in the model path.\n");
+        return 1;
+    }
+#elif defined(__linux__)
+    if (params.model.path == "~" || params.model.path.compare(0, 2, "~/") == 0) {
+        const char * home = std::getenv("HOME");
+        if (home == nullptr || home[0] == '\0') {
+            fprintf(stderr, "Cannot expand the model path: HOME is not set.\n");
             return 1;
         }
-        ec.clear();
-        std::filesystem::create_directories(output_path.parent_path(), ec);
-        if (ec) {
-            fprintf(stderr, "Cannot create response directory: %s\n", ec.message().c_str());
+        params.model.path = std::string(home) + params.model.path.substr(1);
+    }
+#endif
+
+    if (todo_mode) {
+        std::filesystem::path output_path;
+        std::string error;
+        if (!todo::prepare_output_path(todo_output_folder, std::filesystem::u8path(todo_path), output_path, error)) {
+            fprintf(stderr, "%s\n", error.c_str());
             return 1;
         }
         params.out_file = output_path.u8string();
