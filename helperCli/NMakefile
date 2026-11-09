@@ -139,10 +139,10 @@ $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DI
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 	@$(CXX) $(CXXFLAGS) /Yu"$(PCH_HDR)" /Fp"$(PCH_FILE)" /c /Fo"$@" $<
 
-$(TEST_TARGET): $(TEST_OBJ_FILES) $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\pre.obj
+$(TEST_TARGET): $(TEST_OBJ_FILES) $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\pre.obj
 	@if not exist $(TEST_BIN_DIR) mkdir $(TEST_BIN_DIR)
 	@echo Linking $@...
-	$(LINK) $(LDFLAGS) /LIBPATH:$(GTEST_LIB_PATH) /OUT:$@ $(TEST_OBJ_FILES) $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\pre.obj gtest.lib $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS)
+	$(LINK) $(LDFLAGS) /LIBPATH:$(GTEST_LIB_PATH) /OUT:$@ $(TEST_OBJ_FILES) $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\pre.obj gtest.lib $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS)
 	@echo Copying required DLLs...
 	@copy /Y "$(GTEST_LIB_PATH)\gtest.dll" "$(TEST_BIN_DIR)\"
 	@copy /Y "$(LLAMA_BIN_PATH)\llama-common.dll" "$(TEST_BIN_DIR)\"
@@ -155,7 +155,7 @@ $(TEST_TARGET): $(TEST_OBJ_FILES) $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\pre
 	@if exist "$(CUDA_BIN_PATH)\cublasLt64_12.dll" copy /Y "$(CUDA_BIN_PATH)\cublasLt64_12.dll" "$(TEST_BIN_DIR)\"
 
 # Rebuild the tests when their shared header changes.
-$(TEST_OBJ_FILES): tests\common.hxx include\cli-todo.hxx include\cli-text.hxx include\cli-ui.hxx include\UserInputManager.hxx
+$(TEST_OBJ_FILES): tests\common.hxx include\cli-todo.hxx include\cli-text.hxx include\cli-ui.hxx include\UserInputManager.hxx include\RunHandler.hxx
 
 # Inference rule for the test sources. The GTest include path is added here.
 {tests}.cxx{$(TEST_OBJ_DIR)}.obj:

@@ -80,12 +80,12 @@ $(OBJ_DIR)/%.o: source/%.cxx $(HEADERS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TEST_TARGET): $(TEST_OBJ_FILES) $(OBJ_DIR)/UserInputManager.o tests
+$(TEST_TARGET): $(TEST_OBJ_FILES) $(OBJ_DIR)/UserInputManager.o $(OBJ_DIR)/RunHandler.o tests
 	@mkdir -p $(TEST_BIN_DIR)
-	$(CXX) $(TEST_OBJ_FILES) $(OBJ_DIR)/UserInputManager.o $(LDFLAGS) -Wl,-rpath,'$$ORIGIN/../../release' -L$(GTEST_LIB_PATH) -lgtest $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS) -o $@
+	$(CXX) $(TEST_OBJ_FILES) $(OBJ_DIR)/UserInputManager.o $(OBJ_DIR)/RunHandler.o $(LDFLAGS) -Wl,-rpath,'$$ORIGIN/../../release' -L$(GTEST_LIB_PATH) -lgtest $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS) -o $@
 	@cp -a $(GTEST_LIB_PATH)/libgtest.so* $(TEST_BIN_DIR)/
 
-$(TEST_OBJ_DIR)/%.o: tests/%.cxx tests/common.hxx include/cli-todo.hxx include/cli-text.hxx include/cli-ui.hxx include/UserInputManager.hxx
+$(TEST_OBJ_DIR)/%.o: tests/%.cxx tests/common.hxx include/cli-todo.hxx include/cli-text.hxx include/cli-ui.hxx include/UserInputManager.hxx include/RunHandler.hxx
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -I$(GTEST_INC_PATH) -c $< -o $@
 

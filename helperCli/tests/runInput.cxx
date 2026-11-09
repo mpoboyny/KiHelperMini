@@ -48,7 +48,6 @@ static std::string read_run_input_with_keys(const std::string & keys)
     return result;
 }
 
-#ifdef _WIN32
 static std::string read_run_input_with_key_codes(const std::u32string & keys)
 {
     size_t pos = 0;
@@ -59,7 +58,6 @@ static std::string read_run_input_with_key_codes(const std::u32string & keys)
     run_input_source = nullptr;
     return result;
 }
-#endif
 
 TEST(HelpOutput, StartsWithInputCommands)
 {
@@ -87,9 +85,9 @@ TEST(HelpOutput, StartsWithInputCommands)
     EXPECT_NE(output.find("----- common params -----"), std::string::npos);
 }
 
-TEST(RunInput, TabEndsCommandAndKeepsInputOpen)
+TEST(RunInput, CtrlTabEndsCommandAndKeepsInputOpen)
 {
-    EXPECT_EQ(read_run_input_with_keys("/run\tdir\r"), "/run dir\n");
+    EXPECT_EQ(read_run_input_with_key_codes(U"/run\uE00Adir\r"), "/run dir\n");
     const std::vector<run_input_command> commands = ui::take_run_input_commands();
     ASSERT_EQ(commands.size(), 1u);
     EXPECT_EQ(commands[0].start, 0u);
@@ -97,9 +95,9 @@ TEST(RunInput, TabEndsCommandAndKeepsInputOpen)
     EXPECT_EQ(commands[0].prefix_length, 4u);
 }
 
-TEST(RunInput, TabEndsHashCommandThenEnterSubmits)
+TEST(RunInput, CtrlTabEndsHashCommandThenEnterSubmits)
 {
-    EXPECT_EQ(read_run_input_with_keys("/#\tdir\r"), "/# dir\n");
+    EXPECT_EQ(read_run_input_with_key_codes(U"/#\uE00Adir\r"), "/# dir\n");
     const std::vector<run_input_command> commands = ui::take_run_input_commands();
     ASSERT_EQ(commands.size(), 1u);
     EXPECT_EQ(commands[0].start, 0u);
@@ -210,16 +208,88 @@ TEST(RunInput, EnterSubmitsHashCommand)
     EXPECT_EQ(read_run_input_with_keys("/# dir\r"), "/# dir\n");
 }
 
-TEST(RunInput, TabDoesNotDoubleSpace)
+TEST(RunInput, CtrlTabDoesNotDoubleSpace)
 {
     // The line already ends in a space, so Tab must not add another.
-    EXPECT_EQ(read_run_input_with_keys("/run \t\r"), "/run \n");
+    EXPECT_EQ(read_run_input_with_key_codes(U"/run \uE00A\r"), "/run \n");
 }
 
-#ifdef _WIN32
-TEST(RunInput, TabEndsCommandBeforeQuestion)
+TEST(RunInput, TabCompletesPathWithoutEndingCommand)
 {
-    EXPECT_EQ(read_run_input_with_key_codes(U"/run dir *.dll\tHow many DLL files?\r"),
+    EXPECT_EQ(read_run_input_with_key_codes(U"/run cat tests/runInput.c\t\r"),
+        "/run cat tests/runInput.cxx \n");
+    EXPECT_TRUE(ui::take_run_input_commands().empty());
+}
+
+TEST(RunInput, TabCompletesRelativePathInHashCommand)
+{
+    EXPECT_EQ(read_run_input_with_keys("/# cat ./AGE\t\r"), "/# cat ./AGENTS.md \n");
+    EXPECT_TRUE(ui::take_run_input_commands().empty());
+}
+
+TEST(RunInput, TabCompletesPathsAfterCompletingRunPrefix)
+{
+    EXPECT_EQ(read_run_input_with_keys("/ru\tcat ./AGE\t\r"), "/run cat ./AGENTS.md \n");
+}
+
+TEST(RunInput, TabCompletionStillAllowsCtrlTabToEndCommand)
+{
+    EXPECT_EQ(read_run_input_with_key_codes(U"/# cat tests/runInput.c\t\uE00AWhat is this?\r"),
+        "/# cat tests/runInput.cxx What is this?\n");
+    const auto commands = ui::take_run_input_commands();
+    ASSERT_EQ(commands.size(), 1u);
+    EXPECT_EQ(commands[0].prefix_length, 2u);
+}
+
+TEST(RunInput, TabCompletionDoesNotSubmitWithoutEnter)
+{
+    EXPECT_EQ(read_run_input_with_key_codes(U"/run cat tests/runInput.c\t"), "");
+}
+
+TEST(RunInput, TabCompletesCommonPrefixForAmbiguousPaths)
+{
+    EXPECT_EQ(read_run_input_with_key_codes(U"/run cat tests/comm\t\t\r"),
+        "/run cat tests/common.\n");
+}
+
+TEST(RunInput, TabCompletesBeforeClosingQuote)
+{
+    EXPECT_EQ(read_run_input_with_key_codes(U"/run cat \"tests/runInput.c\"" + cursor_left + U"\t\r"),
+        "/run cat tests/runInput.cxx \n");
+}
+
+#if !defined(_WIN32)
+TEST(RunInput, CtrlTabExtendedTerminalSequencesEndCommand)
+{
+    EXPECT_EQ(read_run_input_with_keys("/run cat file\x1b[9;5uquestion\r"),
+        "/run cat file question\n");
+    EXPECT_EQ(ui::take_run_input_commands().size(), 1u);
+    EXPECT_EQ(read_run_input_with_keys("/run cat file\x1b[27;5;9~question\r"),
+        "/run cat file question\n");
+    EXPECT_EQ(ui::take_run_input_commands().size(), 1u);
+}
+
+TEST(RunInput, KittyKeyboardResponseEnablesCtrlTabWithoutSubmitting)
+{
+    run_input_kitty_query_pending = true;
+    const std::string input = read_run_input_with_keys("\x1b[?0u/# cat file\x1b[9;5uQuestion\r");
+    const bool enabled = run_input_kitty_enabled;
+    if (enabled) {
+        run_put("\x1b[<u");
+        fflush(stdout);
+    }
+    run_input_kitty_query_pending = false;
+    run_input_kitty_enabled = false;
+    EXPECT_TRUE(enabled);
+    EXPECT_EQ(input, "/# cat file Question\n");
+    EXPECT_EQ(ui::take_run_input_commands().size(), 1u);
+}
+#endif
+
+#ifdef _WIN32
+TEST(RunInput, CtrlTabEndsCommandBeforeQuestion)
+{
+    EXPECT_EQ(read_run_input_with_key_codes(U"/run dir *.dll\uE00AHow many DLL files?\r"),
               "/run dir *.dll How many DLL files?\n");
     const std::vector<run_input_command> commands = ui::take_run_input_commands();
     ASSERT_EQ(commands.size(), 1u);

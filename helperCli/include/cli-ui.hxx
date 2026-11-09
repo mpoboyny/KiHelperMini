@@ -2,16 +2,19 @@
 
 #include "common.h"
 #include "console.h"
+#include "RunHandler.hxx"
 #include "UserInputManager.hxx"
 
 #include <array>
 #include <algorithm>
 #include <cctype>
+#include <csignal>
 #include <cstddef>
 #include <cstdio>
 #include <cwchar>
 #include <cwctype>
 #include <filesystem>
+#include <stdexcept>
 #include <string_view>
 
 #if defined(_WIN32)
@@ -22,6 +25,8 @@
 #define NOMINMAX
 #endif
 #include <windows.h>
+#else
+#include <unistd.h>
 #endif
 
 // TODO?: Make this reusable, enums, docs
@@ -147,9 +152,9 @@ static std::vector<std::pair<std::string, size_t>> auto_completion_callback(std:
 //
 // Dedicated input path for the /run and /# command.
 //
-// Unlike the generic console reader (Enter submits, Tab completes), this one:
+// Unlike the generic console reader, this one:
 //   - shows a #C3C3C3 background on the /run or /# command part of the line
-//   - treats Tab as end of the command (same line, no submit); text typed
+//   - treats Ctrl+Tab as end of the command (same line, no submit); text typed
 //     after the Tab is the question
 //   - keeps Enter as the submit key
 // The reader only works in the console's advanced (character) input mode; in
@@ -160,6 +165,10 @@ static std::vector<std::pair<std::string, size_t>> auto_completion_callback(std:
 static std::function<char32_t()> run_input_source;
 
 static std::vector<run_input_command> run_input_commands;
+#if !defined(_WIN32)
+static bool run_input_kitty_query_pending = false;
+static bool run_input_kitty_enabled = false;
+#endif
 
 #if defined(_WIN32)
 static char32_t run_input_getchar32() {
@@ -172,6 +181,10 @@ static char32_t run_input_getchar32() {
             return WEOF;
         }
         if (record.EventType == KEY_EVENT && record.Event.KeyEvent.bKeyDown) {
+            if (record.Event.KeyEvent.wVirtualKeyCode == VK_TAB &&
+                (record.Event.KeyEvent.dwControlKeyState & (LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)) != 0) {
+                return 0xE00A;
+            }
             const wchar_t wc = record.Event.KeyEvent.uChar.UnicodeChar;
             if (wc == 0x1B) {
                 return 0xE009;
@@ -489,6 +502,77 @@ static std::string read_run_input_raw(bool color_enabled, UserInputManager * inp
         }
     };
 
+    bool completion_pending = false;
+    std::string completion_line;
+    size_t completion_cursor = 0;
+    auto complete_command = [&]() {
+        if (command_start == std::string::npos || cursor < command_start + command_prefix_length) {
+            completion_pending = false;
+            return;
+        }
+        const bool repeat = completion_pending && line == completion_line && cursor == completion_cursor;
+        const std::string original = line;
+        std::vector<std::string> candidates;
+        try {
+            candidates = RunHandler::Complete(line, cursor, command_start + command_prefix_length);
+        } catch (const std::filesystem::filesystem_error &) {
+            completion_pending = false;
+            return;
+        } catch (const std::range_error &) {
+            completion_pending = false;
+            return;
+        }
+        if (line != original) {
+            size_t start = 0;
+            while (start < original.size() && start < line.size() && original[start] == line[start]) {
+                ++start;
+            }
+            size_t old_end = original.size();
+            size_t new_end = line.size();
+            while (old_end > start && new_end > start && original[old_end - 1] == line[new_end - 1]) {
+                --old_end;
+                --new_end;
+            }
+            adjust_commands(start, old_end - start, new_end - start);
+        }
+        if (repeat && candidates.size() > 1) {
+            run_move_cursor(run_line_width(original) - prev_cursor_col);
+            run_put("\n");
+            for (const auto & candidate : candidates) {
+                fputs(candidate.c_str(), stdout);
+                run_put("  ");
+            }
+            run_put("\n> ");
+            prev_cursor_col = 0;
+            prev_line_width = 0;
+        } else if (candidates.empty()) {
+            run_put("\a");
+        }
+        redraw();
+        completion_pending = !candidates.empty();
+        completion_line = line;
+        completion_cursor = cursor;
+    };
+
+    auto finish_command = [&]() {
+        completion_pending = false;
+        if (command_start == std::string::npos) {
+            return;
+        }
+        const run_input_command completed = {command_start, cursor, command_prefix_length};
+        if (cursor < line.size() && std::isspace(static_cast<unsigned char>(line[cursor]))) {
+            cursor++;
+        } else if (cursor == 0 || !std::isspace(static_cast<unsigned char>(line[cursor - 1]))) {
+            line.insert(cursor, 1, ' ');
+            adjust_commands(cursor, 0, 1);
+            cursor++;
+        }
+        commands.push_back(completed);
+        command_start = std::string::npos;
+        command_prefix_length = 0;
+        redraw();
+    };
+
     if (color_enabled) {
         run_put(bg_off); // clear any color inherited from the console
     }
@@ -497,6 +581,14 @@ static std::string read_run_input_raw(bool color_enabled, UserInputManager * inp
 
     for (;;) {
         char32_t cp = run_input_fetch_char32();
+
+        if (cp == 0xE00A) {
+            finish_command();
+            continue;
+        }
+        if (cp != 0x1B && cp != '\t') {
+            completion_pending = false;
+        }
 
         if (cp == WEOF) {
             eof = true;
@@ -513,21 +605,10 @@ static std::string read_run_input_raw(bool color_enabled, UserInputManager * inp
             break;
         }
 
-        // Tab marks the end of the active command; outside a command it auto-completes.
+        // Tab completes shell commands and paths within an active /run command.
         if (cp == '\t') {
             if (command_start != std::string::npos) {
-                const run_input_command completed = {command_start, cursor, command_prefix_length};
-                if (cursor < line.size() && std::isspace(static_cast<unsigned char>(line[cursor]))) {
-                    cursor++;
-                } else if (cursor == 0 || !std::isspace(static_cast<unsigned char>(line[cursor - 1]))) {
-                    line.insert(cursor, 1, ' ');
-                    adjust_commands(cursor, 0, 1);
-                    cursor++;
-                }
-                commands.push_back(completed);
-                command_start = std::string::npos;
-                command_prefix_length = 0;
-                redraw();
+                complete_command();
                 continue;
             }
             auto candidates = auto_completion_callback(line, cursor);
@@ -536,6 +617,12 @@ static std::string read_run_input_raw(bool color_enabled, UserInputManager * inp
                     line = candidates[0].first;
                     commands.clear();
                     cursor = std::min(candidates[0].second, line.size());
+                    if (cursor > 0 && line[cursor - 1] == ' ') {
+                        command_prefix_length = run_command_prefix_length(line, cursor - 1);
+                        if (command_prefix_length != 0) {
+                            command_start = cursor - 1 - command_prefix_length;
+                        }
+                    }
                 }
                 redraw();
                 continue;
@@ -572,6 +659,34 @@ static std::string read_run_input_raw(bool color_enabled, UserInputManager * inp
                     }
                     params.push_back(static_cast<char>(code));
                 }
+#if !defined(_WIN32)
+                if (code == 'u' && run_input_kitty_query_pending && params.size() > 1 && params.front() == '?' &&
+                    std::all_of(params.begin() + 1, params.end(), [](unsigned char ch) { return std::isdigit(ch) != 0; })) {
+                    run_input_kitty_query_pending = false;
+                    run_input_kitty_enabled = true;
+                    run_put("\x1b[>1u");
+                    fflush(stdout);
+                    continue;
+                }
+#endif
+                if ((code == 'u' && params == "9;5") ||
+                    (code == '~' && params == "27;5;9") ||
+                    (code == 'I' && params == "1;5")) {
+                    finish_command();
+                    continue;
+                }
+                if ((code == 'u' && (params == "99;5" || params == "67;5" || params == "3;5")) ||
+                    (code == '~' && (params == "27;5;99" || params == "27;5;67" || params == "27;5;3"))) {
+                    std::raise(SIGINT);
+                    eof = true;
+                    break;
+                }
+                if ((code == 'u' && (params == "100;5" || params == "68;5" || params == "4;5")) ||
+                    (code == '~' && (params == "27;5;100" || params == "27;5;68" || params == "27;5;4"))) {
+                    eof = true;
+                    break;
+                }
+                completion_pending = false;
                 if (code == 'A') {
                     navigate(true);
                     continue;
@@ -593,11 +708,14 @@ static std::string read_run_input_raw(bool color_enabled, UserInputManager * inp
                 }
                 redraw();
             } else if (code == 0x1B) {
+                completion_pending = false;
                 while ((code = run_input_fetch_char32()) != WEOF) {
                     if ((code >= 'A' && code <= 'Z') || (code >= 'a' && code <= 'z') || code == '~') {
                         break;
                     }
                 }
+            } else {
+                completion_pending = false;
             }
             continue;
         }
@@ -733,13 +851,53 @@ namespace ui {
     };
 
     // Dedicated reader for the /run and /# command: Enter submits the whole
-    // line, Tab marks the end of the command (same line), and the command part
+    // line, Ctrl+Tab marks the end of the command, and the command part
     // gets a #C3C3C3 background. Only used in advanced input mode.
     // The result keeps the trailing '\n' of the reader (an empty line yields
     // "\n", a real EOF yields ""); cli_context::run() strips the newline, so
     // an empty line is skipped instead of being treated as EOF.
     [[maybe_unused]] static std::string read_run_input(bool color_enabled, UserInputManager * input_manager = nullptr) {
         run_input_commands.clear();
+#if !defined(_WIN32)
+        struct modified_keys_guard
+        {
+            bool enabled = false;
+            bool queried = false;
+            modified_keys_guard()
+            {
+                const char * term = std::getenv("TERM");
+                const bool interactive = run_input_source == nullptr && isatty(STDIN_FILENO) && isatty(STDOUT_FILENO) &&
+                    term != nullptr && std::string_view(term) != "dumb";
+                enabled = interactive && std::string_view(term).substr(0, 5) == "xterm";
+                if (enabled) {
+                    run_put("\x1b[>4;2m");
+                }
+                if (interactive) {
+                    queried = true;
+                    run_input_kitty_query_pending = true;
+                    run_input_kitty_enabled = false;
+                    run_put("\x1b[?u");
+                }
+                fflush(stdout);
+            }
+            ~modified_keys_guard()
+            {
+                if (queried && run_input_kitty_enabled) {
+                    run_put("\x1b[<u");
+                }
+                if (queried) {
+                    run_input_kitty_query_pending = false;
+                    run_input_kitty_enabled = false;
+                }
+                if (enabled) {
+                    run_put("\x1b[>4;0m");
+                }
+                if (queried || enabled) {
+                    fflush(stdout);
+                }
+            }
+        } modified_keys;
+#endif
         std::string line = read_run_input_raw(color_enabled, input_manager);
         // The reader leaves the cursor at the end of the line; commit it.
         if (!line.empty()) {

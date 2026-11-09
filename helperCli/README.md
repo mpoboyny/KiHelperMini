@@ -22,11 +22,13 @@ working directory on the bottom line, below the prompt and conversation.
 | `/audio <file>` | Add audio to the next prompt. Available only when the loaded model supports audio. |
 | `/video <file>` | Add video to the next prompt. Available only when the loaded model supports video. |
 
-For `/run` and `/#` in the advanced console input mode, press `Tab` after the command to keep typing a question on the same line. The command is executed when you press `Enter`; its captured output and the remaining text are supplied to the model. For example:
+For `/run` and `/#` in advanced console input mode, press `Tab` to complete command names and paths. Press `Ctrl+Tab` after the command to keep typing a question on the same line. The command is executed when you press `Enter`; its captured output and the remaining text are supplied to the model. For example:
 
 ```text
-/run ls -la<Tab>Which entries are executable?
+/run ls -la<Ctrl+Tab>Which entries are executable?
 ```
+
+Press `Tab` twice to list ambiguous matches. Completion does not execute the command. Shell-specific programmable completions and variable expansion are not supported. A distinct key sequence is required to detect `Ctrl+Tab`: the CLI requests supported terminal keyboard reporting while reading input, but some terminals may need additional configuration or intercept `Ctrl+Tab` themselves.
 
 `--simple-io` uses basic line input, so it does not provide this Tab behavior. Enter the complete command on its own line instead.
 
