@@ -59,9 +59,9 @@ BUILD_TYPE    = release
 OBJ_DIR = $(OBJ_DIR_ROOT)\$(BUILD_TYPE)
 BIN_DIR = $(BIN_DIR_ROOT)\$(BUILD_TYPE)
 
-SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\RunHandler.cxx source\UserInputManager.cxx source\main.cxx
-OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj
-HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\cli-text.hxx include\RunHandler.hxx include\UserInputManager.hxx
+SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\AdvancedModeHandler.cxx source\RunHandler.cxx source\UserInputManager.cxx source\main.cxx
+OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\AdvancedModeHandler.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj
+HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\cli-text.hxx include\AdvancedModeHandler.hxx include\RunHandler.hxx include\UserInputManager.hxx
 
 TARGET = $(BIN_DIR)\helperCli.exe
 
@@ -132,7 +132,7 @@ $(OBJ_DIR)\pre.obj $(PCH_FILE): $(PCH_SRC) $(KIHELPER_INC_PATH)\str.hxx $(KIHELP
 
 # The other objects depend on the PCH so a PCH change forces a full
 # recompile. The actual compilation is done by the inference rule below.
-$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
+$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\AdvancedModeHandler.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
 
 # Inference rule for all sources in source\ using the PCH.
 {source}.cxx{$(OBJ_DIR)}.obj:

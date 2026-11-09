@@ -6,6 +6,8 @@ When running interactively, enter one of the following commands at the prompt.
 In advanced input mode, use Up and Down to recall submitted prompts, edit them,
 and press Enter to submit. `/clear` also clears this session's prompt history.
 Prompt history navigation is not available with `--simple-io`.
+When supported by the terminal, advanced input mode also keeps the current
+working directory on the bottom line, below the prompt and conversation.
 
 | Command | Description |
 | ------- | ----------- |

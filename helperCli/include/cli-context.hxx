@@ -4,6 +4,7 @@
 
 #include "cli-client.hxx"
 #include "cli-server.hxx"
+#include "AdvancedModeHandler.hxx"
 
 #include <atomic>
 #include <memory>
@@ -55,6 +56,7 @@ struct cli_context {
     static std::atomic<bool> & interrupted();
 
 private:
+    std::optional<AdvancedModeHandler> advanced_mode;
     struct generated_tool_call {
         std::string id;
         std::string name;

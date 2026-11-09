@@ -33,9 +33,9 @@ OBJ_DIR := $(OBJ_DIR_ROOT)/$(BUILD_TYPE)
 BIN_DIR := $(BIN_DIR_ROOT)/$(BUILD_TYPE)
 
 TARGET := $(BIN_DIR)/helperCli
-SOURCES := source/pre.cxx source/cli.cxx source/cli-client.cxx source/cli-context.cxx source/AudioHandler.cxx source/ClearHandler.cxx source/ExitHandler.cxx source/GlobHandler.cxx source/ImageHandler.cxx source/ReadHandler.cxx source/RegenerateHandler.cxx source/RunHandler.cxx source/UserInputManager.cxx source/VideoHandler.cxx source/main.cxx
+SOURCES := source/pre.cxx source/cli.cxx source/cli-client.cxx source/cli-context.cxx source/AdvancedModeHandler.cxx source/AudioHandler.cxx source/ClearHandler.cxx source/ExitHandler.cxx source/GlobHandler.cxx source/ImageHandler.cxx source/ReadHandler.cxx source/RegenerateHandler.cxx source/RunHandler.cxx source/UserInputManager.cxx source/VideoHandler.cxx source/main.cxx
 OBJ_FILES := $(patsubst source/%.cxx,$(OBJ_DIR)/%.o,$(SOURCES))
-HEADERS := include/cli-client.hxx include/cli-context.hxx include/cli-server.hxx include/cli-ui.hxx include/cli-todo.hxx include/cli-text.hxx include/AudioHandler.hxx include/ClearHandler.hxx include/ExitHandler.hxx include/GlobHandler.hxx include/ImageHandler.hxx include/ReadHandler.hxx include/RegenerateHandler.hxx include/RunHandler.hxx include/UserInputManager.hxx include/VideoHandler.hxx
+HEADERS := include/cli-client.hxx include/cli-context.hxx include/cli-server.hxx include/cli-ui.hxx include/cli-todo.hxx include/cli-text.hxx include/AdvancedModeHandler.hxx include/AudioHandler.hxx include/ClearHandler.hxx include/ExitHandler.hxx include/GlobHandler.hxx include/ImageHandler.hxx include/ReadHandler.hxx include/RegenerateHandler.hxx include/RunHandler.hxx include/UserInputManager.hxx include/VideoHandler.hxx
 TEST_BIN_DIR := $(BIN_DIR_ROOT)/tests/$(BUILD_TYPE)
 TEST_OBJ_DIR := $(OBJ_DIR_ROOT)/tests/$(BUILD_TYPE)
 TEST_TARGET := $(TEST_BIN_DIR)/helperCli-tests

@@ -500,6 +500,7 @@ static std::string media_type_from_ext(const std::string & fname) {
 
 bool cli_context::init() {
     ui::init(params);
+    advanced_mode.emplace(!todo_mode && !params.simple_io);
 
     std::optional<ui::spinner> spinner;
 
