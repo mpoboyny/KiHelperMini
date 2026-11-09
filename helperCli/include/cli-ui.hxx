@@ -2,6 +2,7 @@
 
 #include "common.h"
 #include "console.h"
+#include "UserInputManager.hxx"
 
 #include <array>
 #include <algorithm>
@@ -157,12 +158,6 @@ static std::vector<std::pair<std::string, size_t>> auto_completion_callback(std:
 // When non-null, keys are taken from run_input_source (unit-test injection)
 // instead of the real console.
 static std::function<char32_t()> run_input_source;
-
-struct run_input_command {
-    size_t start;
-    size_t end;
-    size_t prefix_length;
-};
 
 static std::vector<run_input_command> run_input_commands;
 
@@ -391,7 +386,7 @@ static void run_put(const char * text) {
 // Reads one line with the dedicated /run behavior. Returns a string that ends
 // with '\n' (matching console::readline), or an empty string on EOF. The
 // #C3C3C3 background covers the /run or /# command part while it is drawn.
-static std::string read_run_input_raw(bool color_enabled) {
+static std::string read_run_input_raw(bool color_enabled, UserInputManager * input_manager = nullptr) {
     const char * bg_on  = "\x1b[30;48;2;195;195;195m";
     const char * bg_off = "\x1b[0m";
 
@@ -401,6 +396,34 @@ static std::string read_run_input_raw(bool color_enabled) {
     size_t command_start = std::string::npos;
     size_t command_prefix_length = 0;
     std::vector<run_input_command> commands;
+
+    if (input_manager != nullptr) {
+        input_manager->BeginInput();
+    }
+
+    auto adjust_commands = [&](size_t pos, size_t removed, size_t inserted) {
+        const size_t end = pos + removed;
+        for (auto & command : commands) {
+            auto adjust = [&](size_t value, bool is_end) {
+                if (removed == 0) {
+                    return value >= pos ? value + inserted : value;
+                }
+                if (value < pos || (value == pos && removed != 0 && !is_end)) {
+                    return value;
+                }
+                if (value <= end) {
+                    return pos + inserted;
+                }
+                return value - removed + inserted;
+            };
+            command.start = adjust(command.start, false);
+            command.end = adjust(command.end, true);
+        }
+        commands.erase(std::remove_if(commands.begin(), commands.end(), [&](const run_input_command & command) {
+            return command.start + command.prefix_length > command.end || command.end > line.size() ||
+                run_command_prefix_length(line, command.start + command.prefix_length) != command.prefix_length;
+        }), commands.end());
+    };
 
     int prev_cursor_col = 0; // cursor offset (cols) from the line start at the last draw
     int prev_line_width = 0; // width of the line at the last draw
@@ -443,6 +466,29 @@ static std::string read_run_input_raw(bool color_enabled) {
         fflush(stdout);
     };
 
+    auto navigate = [&](bool previous) {
+        if (input_manager != nullptr && (previous ? input_manager->Previous(line, commands) : input_manager->Next(line, commands))) {
+            cursor = line.size();
+            command_start = std::string::npos;
+            command_prefix_length = 0;
+            for (size_t end = 1; end <= line.size(); ++end) {
+                const size_t prefix_length = run_command_prefix_length(line, end);
+                if (prefix_length == 0) {
+                    continue;
+                }
+                const size_t start = end - prefix_length;
+                const bool recorded = std::any_of(commands.begin(), commands.end(), [&](const run_input_command & command) {
+                    return start >= command.start && start < command.end;
+                });
+                if (!recorded) {
+                    command_start = start;
+                    command_prefix_length = prefix_length;
+                }
+            }
+            redraw();
+        }
+    };
+
     if (color_enabled) {
         run_put(bg_off); // clear any color inherited from the console
     }
@@ -457,7 +503,7 @@ static std::string read_run_input_raw(bool color_enabled) {
             break;
         }
 
-        // Enter submits the line; Ctrl+D submits it as EOF.
+        // Enter submits the line; Ctrl+D ends input without submitting it.
         if (cp == '\r' || cp == '\n' || cp == 0x04) {
             if (cp == 0x04) {
                 eof = true;
@@ -470,13 +516,15 @@ static std::string read_run_input_raw(bool color_enabled) {
         // Tab marks the end of the active command; outside a command it auto-completes.
         if (cp == '\t') {
             if (command_start != std::string::npos) {
-                commands.push_back({command_start, cursor, command_prefix_length});
+                const run_input_command completed = {command_start, cursor, command_prefix_length};
                 if (cursor < line.size() && std::isspace(static_cast<unsigned char>(line[cursor]))) {
                     cursor++;
                 } else if (cursor == 0 || !std::isspace(static_cast<unsigned char>(line[cursor - 1]))) {
                     line.insert(cursor, 1, ' ');
+                    adjust_commands(cursor, 0, 1);
                     cursor++;
                 }
+                commands.push_back(completed);
                 command_start = std::string::npos;
                 command_prefix_length = 0;
                 redraw();
@@ -486,6 +534,7 @@ static std::string read_run_input_raw(bool color_enabled) {
             if (!candidates.empty()) {
                 if (candidates.size() > 1 || candidates[0].first != line) {
                     line = candidates[0].first;
+                    commands.clear();
                     cursor = std::min(candidates[0].second, line.size());
                 }
                 redraw();
@@ -499,6 +548,7 @@ static std::string read_run_input_raw(bool color_enabled) {
             if (cursor > 0) {
                 size_t prev = run_prev_utf8(line, cursor);
                 line.erase(prev, cursor - prev);
+                adjust_commands(prev, cursor - prev, 0);
                 cursor = prev;
                 if (command_start != std::string::npos && prev < command_start) {
                     command_start = std::string::npos;
@@ -522,7 +572,13 @@ static std::string read_run_input_raw(bool color_enabled) {
                     }
                     params.push_back(static_cast<char>(code));
                 }
-                if (code == 'D') {
+                if (code == 'A') {
+                    navigate(true);
+                    continue;
+                } else if (code == 'B') {
+                    navigate(false);
+                    continue;
+                } else if (code == 'D') {
                     if (cursor > 0) {
                         cursor = run_prev_utf8(line, cursor);
                     }
@@ -559,6 +615,12 @@ static std::string read_run_input_raw(bool color_enabled) {
                 cursor = run_next_utf8(line, cursor);
                 redraw();
                 continue;
+            case 0xE002:
+                navigate(true);
+                continue;
+            case 0xE003:
+                navigate(false);
+                continue;
             case 0xE004:
                 cursor = 0;
                 redraw();
@@ -571,14 +633,17 @@ static std::string read_run_input_raw(bool color_enabled) {
                 if (cursor < line.size()) {
                     size_t next = run_next_utf8(line, cursor);
                     line.erase(cursor, next - cursor);
+                    adjust_commands(cursor, next - cursor, 0);
                     redraw();
                 }
                 continue;
             case 0xE009:
                 if (command_start != std::string::npos) {
-                    commands.push_back({command_start, cursor, command_prefix_length});
+                    const run_input_command completed = {command_start, cursor, command_prefix_length};
                     line.insert(cursor, 1, ' ');
+                    adjust_commands(cursor, 0, 1);
                     cursor++;
+                    commands.push_back(completed);
                     command_start = std::string::npos;
                     command_prefix_length = 0;
                     redraw();
@@ -594,6 +659,7 @@ static std::string read_run_input_raw(bool color_enabled) {
             std::string ch;
             run_append_utf8(cp, ch);
             line.insert(cursor, ch);
+            adjust_commands(cursor, 0, ch.size());
             cursor += ch.size();
             if (command_start == std::string::npos) {
                 command_prefix_length = run_command_prefix_length(line, cursor);
@@ -605,7 +671,7 @@ static std::string read_run_input_raw(bool color_enabled) {
         }
     }
 
-    if (eof && line.empty()) {
+    if (eof) {
         return std::string();
     }
     run_input_commands = std::move(commands);
@@ -672,9 +738,9 @@ namespace ui {
     // The result keeps the trailing '\n' of the reader (an empty line yields
     // "\n", a real EOF yields ""); cli_context::run() strips the newline, so
     // an empty line is skipped instead of being treated as EOF.
-    inline std::string read_run_input(bool color_enabled) {
+    [[maybe_unused]] static std::string read_run_input(bool color_enabled, UserInputManager * input_manager = nullptr) {
         run_input_commands.clear();
-        std::string line = read_run_input_raw(color_enabled);
+        std::string line = read_run_input_raw(color_enabled, input_manager);
         // The reader leaves the cursor at the end of the line; commit it.
         if (!line.empty()) {
             fputc('\n', stdout);
@@ -683,7 +749,7 @@ namespace ui {
         return line;
     }
 
-    inline std::vector<run_input_command> take_run_input_commands() {
+    [[maybe_unused]] static std::vector<run_input_command> take_run_input_commands() {
         return std::move(run_input_commands);
     }
 

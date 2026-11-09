@@ -33,9 +33,9 @@ OBJ_DIR := $(OBJ_DIR_ROOT)/$(BUILD_TYPE)
 BIN_DIR := $(BIN_DIR_ROOT)/$(BUILD_TYPE)
 
 TARGET := $(BIN_DIR)/helperCli
-SOURCES := source/pre.cxx source/cli.cxx source/cli-client.cxx source/cli-context.cxx source/AudioHandler.cxx source/ClearHandler.cxx source/ExitHandler.cxx source/GlobHandler.cxx source/ImageHandler.cxx source/ReadHandler.cxx source/RegenerateHandler.cxx source/RunHandler.cxx source/VideoHandler.cxx source/main.cxx
+SOURCES := source/pre.cxx source/cli.cxx source/cli-client.cxx source/cli-context.cxx source/AudioHandler.cxx source/ClearHandler.cxx source/ExitHandler.cxx source/GlobHandler.cxx source/ImageHandler.cxx source/ReadHandler.cxx source/RegenerateHandler.cxx source/RunHandler.cxx source/UserInputManager.cxx source/VideoHandler.cxx source/main.cxx
 OBJ_FILES := $(patsubst source/%.cxx,$(OBJ_DIR)/%.o,$(SOURCES))
-HEADERS := include/cli-client.hxx include/cli-context.hxx include/cli-server.hxx include/cli-ui.hxx include/cli-todo.hxx include/cli-text.hxx include/AudioHandler.hxx include/ClearHandler.hxx include/ExitHandler.hxx include/GlobHandler.hxx include/ImageHandler.hxx include/ReadHandler.hxx include/RegenerateHandler.hxx include/RunHandler.hxx include/VideoHandler.hxx
+HEADERS := include/cli-client.hxx include/cli-context.hxx include/cli-server.hxx include/cli-ui.hxx include/cli-todo.hxx include/cli-text.hxx include/AudioHandler.hxx include/ClearHandler.hxx include/ExitHandler.hxx include/GlobHandler.hxx include/ImageHandler.hxx include/ReadHandler.hxx include/RegenerateHandler.hxx include/RunHandler.hxx include/UserInputManager.hxx include/VideoHandler.hxx
 TEST_BIN_DIR := $(BIN_DIR_ROOT)/tests/$(BUILD_TYPE)
 TEST_OBJ_DIR := $(OBJ_DIR_ROOT)/tests/$(BUILD_TYPE)
 TEST_TARGET := $(TEST_BIN_DIR)/helperCli-tests
@@ -80,12 +80,12 @@ $(OBJ_DIR)/%.o: source/%.cxx $(HEADERS)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-$(TEST_TARGET): $(TEST_OBJ_FILES) tests
+$(TEST_TARGET): $(TEST_OBJ_FILES) $(OBJ_DIR)/UserInputManager.o tests
 	@mkdir -p $(TEST_BIN_DIR)
-	$(CXX) $(TEST_OBJ_FILES) -L$(GTEST_LIB_PATH) -Wl,-rpath,'$$ORIGIN' -lgtest -pthread -o $@
+	$(CXX) $(TEST_OBJ_FILES) $(OBJ_DIR)/UserInputManager.o $(LDFLAGS) -Wl,-rpath,'$$ORIGIN/../../release' -L$(GTEST_LIB_PATH) -lgtest $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS) -o $@
 	@cp -a $(GTEST_LIB_PATH)/libgtest.so* $(TEST_BIN_DIR)/
 
-$(TEST_OBJ_DIR)/%.o: tests/%.cxx tests/common.hxx include/cli-todo.hxx include/cli-text.hxx
+$(TEST_OBJ_DIR)/%.o: tests/%.cxx tests/common.hxx include/cli-todo.hxx include/cli-text.hxx include/cli-ui.hxx include/UserInputManager.hxx
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -I$(GTEST_INC_PATH) -c $< -o $@
 

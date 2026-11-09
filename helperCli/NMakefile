@@ -59,9 +59,9 @@ BUILD_TYPE    = release
 OBJ_DIR = $(OBJ_DIR_ROOT)\$(BUILD_TYPE)
 BIN_DIR = $(BIN_DIR_ROOT)\$(BUILD_TYPE)
 
-SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\RunHandler.cxx source\main.cxx
-OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\main.obj
-HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\cli-text.hxx include\RunHandler.hxx
+SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\RunHandler.cxx source\UserInputManager.cxx source\main.cxx
+OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj
+HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\cli-text.hxx include\RunHandler.hxx include\UserInputManager.hxx
 
 TARGET = $(BIN_DIR)\helperCli.exe
 
@@ -132,25 +132,30 @@ $(OBJ_DIR)\pre.obj $(PCH_FILE): $(PCH_SRC) $(KIHELPER_INC_PATH)\str.hxx $(KIHELP
 
 # The other objects depend on the PCH so a PCH change forces a full
 # recompile. The actual compilation is done by the inference rule below.
-$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
+$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
 
 # Inference rule for all sources in source\ using the PCH.
 {source}.cxx{$(OBJ_DIR)}.obj:
 	@if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
 	@$(CXX) $(CXXFLAGS) /Yu"$(PCH_HDR)" /Fp"$(PCH_FILE)" /c /Fo"$@" $<
 
-$(TEST_TARGET): $(TEST_OBJ_FILES)
+$(TEST_TARGET): $(TEST_OBJ_FILES) $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\pre.obj
 	@if not exist $(TEST_BIN_DIR) mkdir $(TEST_BIN_DIR)
 	@echo Linking $@...
-	$(LINK) /nologo /SUBSYSTEM:CONSOLE /MACHINE:X64 /LIBPATH:$(GTEST_LIB_PATH) /OUT:$@ $(TEST_OBJ_FILES) gtest.lib
+	$(LINK) $(LDFLAGS) /LIBPATH:$(GTEST_LIB_PATH) /OUT:$@ $(TEST_OBJ_FILES) $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\pre.obj gtest.lib $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS)
 	@echo Copying required DLLs...
 	@copy /Y "$(GTEST_LIB_PATH)\gtest.dll" "$(TEST_BIN_DIR)\"
+	@copy /Y "$(LLAMA_BIN_PATH)\llama-common.dll" "$(TEST_BIN_DIR)\"
+	@copy /Y "$(LLAMA_BIN_PATH)\llama.dll" "$(TEST_BIN_DIR)\"
+	@copy /Y "$(LLAMA_BIN_PATH)\ggml.dll" "$(TEST_BIN_DIR)\"
+	@copy /Y "$(LLAMA_BIN_PATH)\ggml-base.dll" "$(TEST_BIN_DIR)\"
+	@copy /Y "$(LLAMA_BIN_PATH)\ggml-cpu.dll" "$(TEST_BIN_DIR)\"
 	@if exist "$(CUDA_BIN_PATH)\cudart64_12.dll" copy /Y "$(CUDA_BIN_PATH)\cudart64_12.dll" "$(TEST_BIN_DIR)\"
 	@if exist "$(CUDA_BIN_PATH)\cublas64_12.dll" copy /Y "$(CUDA_BIN_PATH)\cublas64_12.dll" "$(TEST_BIN_DIR)\"
 	@if exist "$(CUDA_BIN_PATH)\cublasLt64_12.dll" copy /Y "$(CUDA_BIN_PATH)\cublasLt64_12.dll" "$(TEST_BIN_DIR)\"
 
 # Rebuild the tests when their shared header changes.
-$(TEST_OBJ_FILES): tests\common.hxx include\cli-todo.hxx include\cli-text.hxx
+$(TEST_OBJ_FILES): tests\common.hxx include\cli-todo.hxx include\cli-text.hxx include\cli-ui.hxx include\UserInputManager.hxx
 
 # Inference rule for the test sources. The GTest include path is added here.
 {tests}.cxx{$(TEST_OBJ_DIR)}.obj:

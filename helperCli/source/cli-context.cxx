@@ -12,6 +12,7 @@
 #include "ReadHandler.hxx"
 #include "RegenerateHandler.hxx"
 #include "RunHandler.hxx"
+#include "UserInputManager.hxx"
 #include "VideoHandler.hxx"
 
 #include "arg.h"
@@ -1066,8 +1067,11 @@ int cli_context::run() {
         }
     };
 
+    UserInputManager input_manager;
     while (true) {
         std::string buffer;
+        std::vector<run_input_command> run_commands;
+        bool interactive_input = false;
         if (todo_mode) {
             if (confirm_question) {
                 buffer = "y";
@@ -1087,15 +1091,8 @@ int cli_context::run() {
             }
             ui::show_message(">" + buffer);
         } else if (params.prompt.empty()) {
-            if (!params.simple_io) {
-                // /run and /# use the dedicated input path: the whole line is
-                // submitted, Tab ends the command, and the line shows a
-                // #C3C3C3 background while it is a /run or /# command.
-                buffer = ui::read_run_input(params.use_color);
-            } else {
-                ui::user_turn user_turn;
-                buffer = user_turn.read_input(params.multiline_input);
-            }
+            interactive_input = true;
+            buffer = input_manager.ReadInput(params.simple_io, params.multiline_input, params.use_color, run_commands);
         } else {
             // process input prompt from args
             ui::user_turn user_turn;
@@ -1129,9 +1126,6 @@ int cli_context::run() {
         if (buffer.back() == '\n') {
             buffer.pop_back();
         }
-
-        const std::vector<run_input_command> run_commands = todo_mode
-            ? std::vector<run_input_command>() : ui::take_run_input_commands();
 
         // skip empty messages
         if (buffer.empty()) {
@@ -1187,6 +1181,7 @@ int cli_context::run() {
                     add_glob_files(command.arguments);
                 } else if (command.name == "/clear") {
                     impl->messages.clear();
+                    input_manager.Clear();
                     add_system_prompt();
                     impl->pending_media = json::array();
                     loaded_files.clear();
@@ -1251,6 +1246,7 @@ int cli_context::run() {
             }
         } else if (ClearHandler::Handle(buffer)) {
             impl->messages.clear();
+            input_manager.Clear();
             add_system_prompt();
 
             impl->pending_media = json::array();
@@ -1340,6 +1336,9 @@ int cli_context::run() {
 
         // generate response
         if (add_user_msg) {
+            if (interactive_input) {
+                input_manager.AddPrompt(buffer, run_commands);
+            }
             push_user_message(cur_msg);
             write_output_file(string_format("User:\n%s\n\n", cur_msg.c_str()));
             cur_msg.clear();

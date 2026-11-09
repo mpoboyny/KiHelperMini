@@ -107,13 +107,97 @@ TEST(RunInput, TabEndsHashCommandThenEnterSubmits)
     EXPECT_EQ(commands[0].prefix_length, 2u);
 }
 
-// Tab does not submit on its own: no Enter means the read is still pending,
-// so a following WEOF returns whatever was typed so far.
+// Tab does not submit on its own, and EOF discards an unfinished line.
 TEST(RunInput, TabAloneDoesNotSubmit)
 {
-    // "/run" + Tab leaves the reader waiting; the injected input then ends
-    // (WEOF) with a non-empty line, which is submitted with a newline.
-    EXPECT_EQ(read_run_input_with_keys("/run\t"), "/run \n");
+    EXPECT_EQ(read_run_input_with_keys("/run\t"), "");
+}
+
+static std::string read_history_input(UserInputManager & manager, const std::u32string & keys)
+{
+    size_t pos = 0;
+    run_input_source = [&]() -> char32_t {
+        return pos < keys.size() ? keys[pos++] : WEOF;
+    };
+    std::string result = ui::read_run_input(false, &manager);
+    run_input_source = nullptr;
+    return result;
+}
+
+#if defined(_WIN32)
+static const std::u32string history_up = U"\uE002";
+static const std::u32string history_down = U"\uE003";
+static const std::u32string cursor_left = U"\uE000";
+#else
+static const std::u32string history_up = U"\x1b[A";
+static const std::u32string history_down = U"\x1b[B";
+static const std::u32string cursor_left = U"\x1b[D";
+#endif
+
+TEST(UserInputHistory, NavigatesEditsAndRestoresDraft)
+{
+    UserInputManager manager;
+    manager.AddPrompt("first", {});
+    manager.AddPrompt("second", {});
+    EXPECT_EQ(read_history_input(manager, U"draft" + history_up + history_up + history_down + history_down + U"\r"), "draft\n");
+    EXPECT_EQ(read_history_input(manager, history_up + U"!\r"), "second!\n");
+    EXPECT_EQ(read_history_input(manager, history_up + U"\r"), "second\n");
+}
+
+TEST(UserInputHistory, EditedPromptIsSubmittedOnlyOnEnterAndCanBeRecalled)
+{
+    UserInputManager manager;
+    const std::string first = read_history_input(manager, U"first prompt\r");
+    ASSERT_EQ(first, "first prompt\n");
+    manager.AddPrompt(first.substr(0, first.size() - 1), ui::take_run_input_commands());
+
+    const std::string second = read_history_input(manager, U"second prompt\r");
+    ASSERT_EQ(second, "second prompt\n");
+    manager.AddPrompt(second.substr(0, second.size() - 1), ui::take_run_input_commands());
+
+    EXPECT_EQ(read_history_input(manager, history_up + history_up + U" edited"), "");
+    const std::string edited = read_history_input(manager, history_up + history_up + U" edited\r");
+    ASSERT_EQ(edited, "first prompt edited\n");
+    manager.AddPrompt(edited.substr(0, edited.size() - 1), ui::take_run_input_commands());
+
+    EXPECT_EQ(read_history_input(manager, history_up + history_up + history_down + U"\r"),
+        "first prompt edited\n");
+}
+
+TEST(UserInputHistory, DoesNotSubmitWithoutEnterAndClearRemovesHistory)
+{
+    UserInputManager manager;
+    manager.AddPrompt("prompt", {});
+    EXPECT_EQ(read_history_input(manager, history_up), "");
+    EXPECT_EQ(read_history_input(manager, history_up + U"\x04"), "");
+    manager.Clear();
+    EXPECT_EQ(read_history_input(manager, history_up + U"\r"), "\n");
+}
+
+TEST(UserInputHistory, PreservesRunCommandBoundariesWhenEdited)
+{
+    UserInputManager manager;
+    manager.AddPrompt("/run ls question", {{0, 7, 4}});
+    EXPECT_EQ(read_history_input(manager, history_up + U"!\r"), "/run ls question!\n");
+    const auto commands = ui::take_run_input_commands();
+    ASSERT_EQ(commands.size(), 1u);
+    EXPECT_EQ(commands[0].start, 0u);
+    EXPECT_EQ(commands[0].end, 7u);
+    EXPECT_EQ(commands[0].prefix_length, 4u);
+}
+
+TEST(UserInputHistory, AdjustsRunCommandBoundaryWhenCommandIsEdited)
+{
+    UserInputManager manager;
+    manager.AddPrompt("/run ls question", {{0, 7, 4}});
+    std::u32string keys = history_up;
+    for (size_t i = 0; i < 9; ++i) {
+        keys += cursor_left;
+    }
+    EXPECT_EQ(read_history_input(manager, keys + U" -l\r"), "/run ls -l question\n");
+    const auto commands = ui::take_run_input_commands();
+    ASSERT_EQ(commands.size(), 1u);
+    EXPECT_EQ(commands[0].end, 10u);
 }
 
 TEST(RunInput, EnterSubmitsRunCommand)
