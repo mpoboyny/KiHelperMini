@@ -1,6 +1,29 @@
 # llama.cpp/tools/cli
 
-## Usage
+### Input commands
+
+When running interactively, enter one of the following commands at the prompt.
+
+| Command | Description |
+| ------- | ----------- |
+| `/exit` | Stop the session and exit the program. `Ctrl+C` also exits. |
+| `/regen` | Regenerate the most recent response without adding a new user message. |
+| `/clear` | Clear the conversation history, pending media, and files loaded for file editing. The configured system prompt is retained. |
+| `/read <file>` | Read a text file and add its contents to the next prompt. Quote the path when it contains spaces, for example `/read "notes/file name.txt"`. UTF-8 files are supported; on Windows, text encoded with the system OEM code page is converted to UTF-8 for reading. |
+| `/glob <pattern>` | Read matching text files recursively and add their contents to the next prompt, for example `/glob source/*.cxx`. |
+| `/run <command>` | Run a local shell command, show its combined standard output and standard error, and add the output to the prompt. For example, `/run ls -la`. Only run trusted commands. |
+| `/# <command>` | Alias for `/run <command>`. |
+| `/image <file>` | Add an image to the next prompt. Available only when the loaded model supports vision. |
+| `/audio <file>` | Add audio to the next prompt. Available only when the loaded model supports audio. |
+| `/video <file>` | Add video to the next prompt. Available only when the loaded model supports video. |
+
+For `/run` and `/#` in the advanced console input mode, press `Tab` after the command to keep typing a question on the same line. The command is executed when you press `Enter`; its captured output and the remaining text are supplied to the model. For example:
+
+```text
+/run ls -la<Tab>Which entries are executable?
+```
+
+`--simple-io` uses basic line input, so it does not provide this Tab behavior. Enter the complete command on its own line instead.
 
 <!-- HELP_START -->
 

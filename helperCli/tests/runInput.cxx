@@ -3,6 +3,7 @@
 #include "common.hxx"
 
 #include <filesystem>
+#include <cstdio>
 #include <fstream>
 #include <iterator>
 #include <string>
@@ -47,6 +48,7 @@ static std::string read_run_input_with_keys(const std::string & keys)
     return result;
 }
 
+#ifdef _WIN32
 static std::string read_run_input_with_key_codes(const std::u32string & keys)
 {
     size_t pos = 0;
@@ -56,6 +58,33 @@ static std::string read_run_input_with_key_codes(const std::u32string & keys)
     std::string result = ui::read_run_input(false);
     run_input_source = nullptr;
     return result;
+}
+#endif
+
+TEST(HelpOutput, StartsWithInputCommands)
+{
+#ifdef _WIN32
+    const char * command = "bin\\release\\helperCli.exe --help";
+    FILE * pipe = _popen(command, "r");
+#else
+    const char * command = "bin/release/helperCli --help";
+    FILE * pipe = popen(command, "r");
+#endif
+    ASSERT_NE(pipe, nullptr);
+    std::string output;
+    char buffer[256] = {};
+    while (fgets(buffer, sizeof(buffer), pipe) != nullptr) {
+        output += buffer;
+    }
+#ifdef _WIN32
+    EXPECT_EQ(_pclose(pipe), 0);
+#else
+    EXPECT_EQ(pclose(pipe), 0);
+#endif
+    EXPECT_EQ(output.find("----- input commands -----\n"), 0u);
+    EXPECT_NE(output.find("/read <file>"), std::string::npos);
+    EXPECT_NE(output.find("/run or /# <command>"), std::string::npos);
+    EXPECT_NE(output.find("----- common params -----"), std::string::npos);
 }
 
 TEST(RunInput, TabEndsCommandAndKeepsInputOpen)

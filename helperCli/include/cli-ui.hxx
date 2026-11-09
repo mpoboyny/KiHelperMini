@@ -349,7 +349,7 @@ static void run_move_cursor(int delta) {
     if (delta < 0) {
         for (int i = 0; i < -delta; i++) fputc('\b', stdout);
     } else {
-        for (int i = 0; i < delta; i++) fputc('\033[C', stdout);
+        for (int i = 0; i < delta; i++) fputs("\033[C", stdout);
     }
 #endif
 }
@@ -370,18 +370,6 @@ static void run_append_utf8(char32_t ch, std::string & out) {
         out.push_back(static_cast<char>(0x80 | ((ch >> 6) & 0x3F)));
         out.push_back(static_cast<char>(0x80 | (ch & 0x3F)));
     }
-}
-
-// True while the line is a /run or /# command (the background + Tab
-// end-of-command behavior only applies to these two commands).
-static bool run_is_run_mode(const std::string & line) {
-    if (line.length() >= 2 && string_starts_with(line, "/#")) {
-        return true;
-    }
-    if (line.length() >= 4 && string_starts_with(line, "/run")) {
-        return true;
-    }
-    return false;
 }
 
 static size_t run_command_prefix_length(const std::string & line, size_t end) {
@@ -627,7 +615,7 @@ static std::string read_run_input_raw(bool color_enabled) {
 
 // note: make this view implementation generic, so that we can move to TUI in the future if we want to
 namespace ui {
-    static void init(const common_params & params) {
+    inline void init(const common_params & params) {
         // TODO: avoid using atexit() here by making `console` a singleton
         console::init(params.simple_io, params.use_color);
         atexit([]() { console::cleanup(); });
@@ -684,7 +672,7 @@ namespace ui {
     // The result keeps the trailing '\n' of the reader (an empty line yields
     // "\n", a real EOF yields ""); cli_context::run() strips the newline, so
     // an empty line is skipped instead of being treated as EOF.
-    static std::string read_run_input(bool color_enabled) {
+    inline std::string read_run_input(bool color_enabled) {
         run_input_commands.clear();
         std::string line = read_run_input_raw(color_enabled);
         // The reader leaves the cursor at the end of the line; commit it.
@@ -695,7 +683,7 @@ namespace ui {
         return line;
     }
 
-    static std::vector<run_input_command> take_run_input_commands() {
+    inline std::vector<run_input_command> take_run_input_commands() {
         return std::move(run_input_commands);
     }
 
@@ -753,7 +741,7 @@ namespace ui {
         }
     };
 
-    static void show_error(const std::string & title, const std::string & message = "") {
+    inline void show_error(const std::string & title, const std::string & message = "") {
         console::spinner::stop();
         console::error("Error: %s\n", title.c_str());
         if (!message.empty()) {
@@ -761,11 +749,11 @@ namespace ui {
         }
     }
 
-    static void show_message(const std::string & message) {
+    inline void show_message(const std::string & message) {
         console::log("%s\n", message.c_str());
     }
 
-    static void show_info(const std::string & message) {
+    inline void show_info(const std::string & message) {
         console::set_display(DISPLAY_TYPE_INFO);
         console::log("%s\n", message.c_str());
         console::set_display(DISPLAY_TYPE_RESET);

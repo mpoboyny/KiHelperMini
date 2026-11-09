@@ -55,7 +55,36 @@ static void signal_handler(int) {
 // satisfies -Wmissing-declarations
 int llama_cli(int argc, char ** argv);
 
+static bool usage_requested(const int argc, char ** argv)
+{
+    for (int i = 1; i < argc; ++i) {
+        if (std::strcmp(argv[i], "-h") == 0 || std::strcmp(argv[i], "--help") == 0 ||
+            std::strcmp(argv[i], "--usage") == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void print_input_commands()
+{
+    fprintf(stdout, "----- input commands -----\n\n");
+    fprintf(stdout, "  /exit or Ctrl+C      stop or exit\n");
+    fprintf(stdout, "  /regen               regenerate the last response\n");
+    fprintf(stdout, "  /clear               clear the chat history\n");
+    fprintf(stdout, "  /read <file>         add a text file\n");
+    fprintf(stdout, "  /run or /# <command> run a command\n");
+    fprintf(stdout, "  /glob <pattern>      add text files using globbing pattern\n");
+    fprintf(stdout, "  /image <file>        add an image file when supported\n");
+    fprintf(stdout, "  /audio <file>        add an audio file when supported\n");
+    fprintf(stdout, "  /video <file>        add a video file when supported\n\n");
+}
+
 int llama_cli(int argc, char ** argv) {
+    if (usage_requested(argc, argv)) {
+        print_input_commands();
+    }
+
     common_params params;
 
     params.verbosity = LOG_LEVEL_ERROR; // by default, less verbose logs
