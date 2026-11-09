@@ -41,9 +41,10 @@ TEST_OBJ_DIR := $(OBJ_DIR_ROOT)/tests/$(BUILD_TYPE)
 TEST_TARGET := $(TEST_BIN_DIR)/helperCli-tests
 TEST_SOURCES := $(wildcard tests/*.cxx)
 TEST_OBJ_FILES := $(patsubst tests/%.cxx,$(TEST_OBJ_DIR)/%.o,$(TEST_SOURCES))
+SCRIPTS := $(wildcard scripts/*)
 
 .NOTPARALLEL:
-.PHONY: all release test clean
+.PHONY: all release test sim1 sim2 clean
 
 all: release
 
@@ -52,7 +53,15 @@ release: $(TARGET) $(TEST_TARGET)
 test: $(TARGET) $(TEST_TARGET)
 	$(TEST_TARGET)
 
-$(TARGET): $(OBJ_FILES)
+sim1: release
+	$(MAKE) -C simulation/RunAndExit release
+	$(HELPERCLI_DIR)bin/simulation/RunAndExit/release/RunAndExit
+
+sim2: release
+	$(MAKE) -C simulation/RunDirExit release
+	$(HELPERCLI_DIR)bin/simulation/RunDirExit/release/RunDirExit
+
+$(TARGET): $(OBJ_FILES) $(SCRIPTS)
 	@mkdir -p $(BIN_DIR)
 	@echo "Linking $@..."
 	$(CXX) $(OBJ_FILES) $(LDFLAGS) $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS) -o $@
@@ -61,6 +70,9 @@ $(TARGET): $(OBJ_FILES)
 	@for library in $(LLAMA_LIB_PATH)/libllama.so* $(LLAMA_LIB_PATH)/libggml.so* $(LLAMA_LIB_PATH)/libggml-base.so* $(LLAMA_LIB_PATH)/libggml-cpu.so* $(LLAMA_LIB_PATH)/libggml-cuda.so* $(LLAMA_LIB_PATH)/libllama-common.so* $(LLAMA_LIB_PATH)/libllama-server-impl.so* $(LLAMA_LIB_PATH)/libmtmd.so*; do \
 		[ -e "$$library" ] && cp -a "$$library" $(BIN_DIR)/; \
 	done
+	@echo "Copying scripts..."
+	@rm -rf $(BIN_DIR)/scripts
+	@cp -a scripts $(BIN_DIR)/
 	@test -x $@
 	@echo "Release binary: $@"
 

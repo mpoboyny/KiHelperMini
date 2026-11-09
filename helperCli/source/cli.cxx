@@ -5,11 +5,8 @@
 #include "log.h"
 
 #include "cli-context.hxx"
-#include "cli-todo.hxx"
 
 #include <cstdlib>
-#include <filesystem>
-#include <fstream>
 #include <signal.h>
 #include <vector>
 
@@ -59,55 +56,13 @@ static void signal_handler(int) {
 int llama_cli(int argc, char ** argv);
 
 int llama_cli(int argc, char ** argv) {
-    std::vector<char *> forwarded_args;
-    forwarded_args.push_back(argv[0]);
-    std::string todo_path;
-    bool todo_mode = false;
-    for (int i = 1; i < argc; ++i) {
-        const std::string arg = argv[i];
-        const bool split_option = arg == "-" && i + 1 < argc && std::string(argv[i + 1]) == "todo";
-        if (arg == "-todo" || arg == "--todo" || split_option) {
-            if (todo_mode) {
-                fprintf(stderr, "The todo option may only be specified once.\n");
-                return 1;
-            }
-            if (split_option) {
-                ++i;
-            }
-            if (i + 1 >= argc || argv[i + 1][0] == '\0' || argv[i + 1][0] == '-') {
-                fprintf(stderr, "The todo option requires a file path.\n");
-                return 1;
-            }
-            todo_mode = true;
-            todo_path = argv[++i];
-        } else {
-            forwarded_args.push_back(argv[i]);
-        }
-    }
-    forwarded_args.push_back(nullptr);
-
-    std::vector<std::string> todo_prompts;
-    std::string todo_output_folder;
-    if (todo_mode) {
-        std::ifstream input(std::filesystem::u8path(todo_path), std::ios::binary);
-        if (!input) {
-            fprintf(stderr, "Cannot open todo file: %s\n", todo_path.c_str());
-            return 1;
-        }
-        std::string error;
-        if (!todo::read_prompts(input, todo_prompts, todo_output_folder, error)) {
-            fprintf(stderr, "%s\n", error.c_str());
-            return 1;
-        }
-    }
-
     common_params params;
 
     params.verbosity = LOG_LEVEL_ERROR; // by default, less verbose logs
 
     common_init();
 
-    if (!common_params_parse(static_cast<int>(forwarded_args.size() - 1), forwarded_args.data(), params, LLAMA_EXAMPLE_CLI)) {
+    if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_CLI)) {
         return 1;
     }
 
@@ -127,18 +82,6 @@ int llama_cli(int argc, char ** argv) {
     }
 #endif
 
-    if (todo_mode) {
-        std::filesystem::path output_path;
-        std::string error;
-        if (!todo::prepare_output_path(todo_output_folder, std::filesystem::u8path(todo_path), output_path, error)) {
-            fprintf(stderr, "%s\n", error.c_str());
-            return 1;
-        }
-        params.out_file = output_path.u8string();
-        params.prompt.clear();
-        params.single_turn = false;
-    }
-
     llama_backend_init();
     llama_numa_init(params.numa);
 
@@ -157,8 +100,6 @@ int llama_cli(int argc, char ** argv) {
 #endif
 
     cli_context ctx_cli(params);
-    ctx_cli.todo_mode = todo_mode;
-    ctx_cli.todo_prompts = std::move(todo_prompts);
 
     if (!ctx_cli.init()) {
         return 1;

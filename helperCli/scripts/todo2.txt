@@ -1,3 +1,0 @@
-§%USERPROFILE%\Helper-Mini
->$/read Systest.txt$
->Are some test failed? 

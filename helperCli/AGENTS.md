@@ -31,7 +31,9 @@ You are a principal software engineer and world-class expert in low-level and hi
 ## Environment A: Linux
 - **Compiler:** `g++` (GCC)
 - **Build System:** `GNU Make` (Makefile)
-- **Build Command:** `make release`
+- **Build Command:** `make clean release`
+- **Test Command:** `make clean test`
+- **Sim Command:** `make` and user parameter is needed. If not parameter is given, do nothing.
 
 ## Environment B: Windows
 - **Compiler:** MSVC (Visual Studio via Developer Command Prompt)

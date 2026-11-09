@@ -1,3 +1,0 @@
-§%USERPROFILE%\Helper-Mini
->Hallo
->What DLLs are present? $/run dir *.dll$
