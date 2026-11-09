@@ -58,14 +58,24 @@ static std::string read_run_input_with_key_codes(const std::u32string & keys)
     return result;
 }
 
-TEST(RunInput, TabKeepsCommandOpen)
+TEST(RunInput, TabEndsCommandAndKeepsInputOpen)
 {
     EXPECT_EQ(read_run_input_with_keys("/run\tdir\r"), "/run dir\n");
+    const std::vector<run_input_command> commands = ui::take_run_input_commands();
+    ASSERT_EQ(commands.size(), 1u);
+    EXPECT_EQ(commands[0].start, 0u);
+    EXPECT_EQ(commands[0].end, 4u);
+    EXPECT_EQ(commands[0].prefix_length, 4u);
 }
 
 TEST(RunInput, TabEndsHashCommandThenEnterSubmits)
 {
     EXPECT_EQ(read_run_input_with_keys("/#\tdir\r"), "/# dir\n");
+    const std::vector<run_input_command> commands = ui::take_run_input_commands();
+    ASSERT_EQ(commands.size(), 1u);
+    EXPECT_EQ(commands[0].start, 0u);
+    EXPECT_EQ(commands[0].end, 2u);
+    EXPECT_EQ(commands[0].prefix_length, 2u);
 }
 
 // Tab does not submit on its own: no Enter means the read is still pending,
@@ -94,14 +104,14 @@ TEST(RunInput, TabDoesNotDoubleSpace)
 }
 
 #ifdef _WIN32
-TEST(RunInput, EscapeAfterTabRestoresNormalInput)
+TEST(RunInput, TabEndsCommandBeforeQuestion)
 {
-    EXPECT_EQ(read_run_input_with_key_codes(U"/run dir *.dll\t\uE009How many DLL files?\r"),
-              "/run dir *.dll  How many DLL files?\n");
+    EXPECT_EQ(read_run_input_with_key_codes(U"/run dir *.dll\tHow many DLL files?\r"),
+              "/run dir *.dll How many DLL files?\n");
     const std::vector<run_input_command> commands = ui::take_run_input_commands();
     ASSERT_EQ(commands.size(), 1u);
     EXPECT_EQ(commands[0].start, 0u);
-    EXPECT_EQ(commands[0].end, 15u);
+    EXPECT_EQ(commands[0].end, 14u);
     EXPECT_EQ(commands[0].prefix_length, 4u);
 }
 

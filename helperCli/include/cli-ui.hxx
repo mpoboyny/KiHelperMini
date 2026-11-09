@@ -479,13 +479,18 @@ static std::string read_run_input_raw(bool color_enabled) {
             break;
         }
 
-        // Tab keeps the active command open; outside a command it auto-completes.
+        // Tab marks the end of the active command; outside a command it auto-completes.
         if (cp == '\t') {
             if (command_start != std::string::npos) {
-                if (line.back() != ' ') {
-                    line.push_back(' ');
+                commands.push_back({command_start, cursor, command_prefix_length});
+                if (cursor < line.size() && std::isspace(static_cast<unsigned char>(line[cursor]))) {
+                    cursor++;
+                } else if (cursor == 0 || !std::isspace(static_cast<unsigned char>(line[cursor - 1]))) {
+                    line.insert(cursor, 1, ' ');
+                    cursor++;
                 }
-                cursor = line.size();
+                command_start = std::string::npos;
+                command_prefix_length = 0;
                 redraw();
                 continue;
             }

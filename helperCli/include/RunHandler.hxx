@@ -1,6 +1,5 @@
-#pragma once
-
-#include <string>
+#ifndef _RUNHANDLER_HXX_
+#define _RUNHANDLER_HXX_
 
 class RunHandler
 {
@@ -13,3 +12,5 @@ private:
     std::string status;
     bool succeeded = false;
 };
+
+#endif // _RUNHANDLER_HXX_

@@ -4,7 +4,15 @@
 #include "cli-todo.hxx"
 #include "cli-text.hxx"
 #include "cli-ui.hxx"
+#include "AudioHandler.hxx"
+#include "ClearHandler.hxx"
+#include "ExitHandler.hxx"
+#include "GlobHandler.hxx"
+#include "ImageHandler.hxx"
+#include "ReadHandler.hxx"
+#include "RegenerateHandler.hxx"
 #include "RunHandler.hxx"
+#include "VideoHandler.hxx"
 
 #include "arg.h"
 #include "base64.hpp"
@@ -1241,9 +1249,9 @@ int cli_context::run() {
                 prompt.replace(command->start, command->end - command->start, result);
             }
             cur_msg += prompt;
-        } else if (string_starts_with(buffer, "/exit")) {
+        } else if (ExitHandler::Handle(buffer)) {
             break;
-        } else if (string_starts_with(buffer, "/regen")) {
+        } else if (RegenerateHandler::Handle(buffer)) {
             if (impl->messages.size() >= 2) {
                 size_t last_idx = impl->messages.size() - 1;
                 impl->messages.erase(last_idx);
@@ -1252,7 +1260,7 @@ int cli_context::run() {
                 ui::show_error("No message to regenerate.");
                 continue;
             }
-        } else if (string_starts_with(buffer, "/clear")) {
+        } else if (ClearHandler::Handle(buffer)) {
             impl->messages.clear();
             add_system_prompt();
 
@@ -1260,13 +1268,14 @@ int cli_context::run() {
             loaded_files.clear();
             ui::show_message("Chat history cleared.");
             continue;
-        } else if (
-                (string_starts_with(buffer, "/image ") && has_vision) ||
-                (string_starts_with(buffer, "/audio ") && has_audio) ||
-                (string_starts_with(buffer, "/video ") && has_video)) {
-            std::string type = buffer.substr(1, 5);
-            // just in case (bad copy-paste for example), we strip all trailing/leading spaces
-            std::string fname = string_strip(buffer.substr(7));
+        } else {
+            std::string fname;
+            std::string type;
+            const bool image_command = ImageHandler::Handle(buffer, fname);
+            const bool audio_command = !image_command && AudioHandler::Handle(buffer, fname);
+            const bool video_command = !image_command && !audio_command && VideoHandler::Handle(buffer, fname);
+            if ((image_command && has_vision) || (audio_command && has_audio) || (video_command && has_video)) {
+                type = image_command ? "image" : (audio_command ? "audio" : "video");
             if (!stage_media_file(fname, type)) {
                 ui::show_error(string_format("file does not exist or cannot be opened: '%s'", fname.c_str()));
                 if (todo_mode) {
@@ -1279,11 +1288,7 @@ int cli_context::run() {
             if (!todo_mode) {
                 continue;
             }
-        } else if (string_starts_with(buffer, "/read ")) {
-            std::string fname = string_strip(buffer.substr(6));
-            if (fname.size() >= 2 && fname.front() == '"' && fname.back() == '"') {
-                fname = fname.substr(1, fname.size() - 2);
-            }
+            } else if (ReadHandler::Handle(buffer, fname)) {
             if (!add_text_file(fname) && todo_mode) {
                 return 1;
             }
@@ -1291,7 +1296,7 @@ int cli_context::run() {
             if (!todo_mode) {
                 continue;
             }
-        } else if (run_pos != std::string::npos && (run_pos != 0 && buffer.front() != '/')) {
+            } else if (run_pos != std::string::npos) {
             std::string fname = string_strip(buffer.substr(run_pos + run_length));
             std::string question = string_strip(buffer.substr(0, run_pos));
             RunHandler run;
@@ -1330,14 +1335,18 @@ int cli_context::run() {
                 continue;
             }
             disable_thinking = true;
-        } else if (string_starts_with(buffer, "/glob ")) {
-            add_glob_files(string_strip(buffer.substr(6)));
+            } else {
+            std::string pattern;
+            if (GlobHandler::Handle(buffer, pattern)) {
+            add_glob_files(pattern);
             if (!todo_mode) {
                 continue;
             }
-        } else {
+            } else {
             // not a command
             cur_msg += buffer;
+            }
+            }
         }
 
         // generate response
