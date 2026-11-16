@@ -2,4 +2,5 @@
 <Simulations>
   <Simulation Name="S1" Folder="RunAndExit" />
   <Simulation Name="S2" Folder="RunDirExit" />
+  <Simulation Name="S3" Folder="RunDirManyExit" />
 </Simulations>
