@@ -11,6 +11,7 @@
 #include "ImageHandler.hxx"
 #include "ReadHandler.hxx"
 #include "RegenerateHandler.hxx"
+#include "HelpHandler.hxx"
 #include "RunHandler.hxx"
 #include "UserInputManager.hxx"
 #include "VideoHandler.hxx"
@@ -498,6 +499,28 @@ static std::string media_type_from_ext(const std::string & fname) {
     return "image";
 }
 
+std::string cli_context::get_available_commands() const
+{
+    std::string banner = "available commands:\n";
+    banner += "  /help                show this list\n";
+    banner += "  /exit or Ctrl+C      stop or exit\n";
+    banner += "  /regen               regenerate the last response\n";
+    banner += "  /clear               clear the chat history\n";
+    banner += "  /read <file>         add a text file\n";
+    banner += "  /run or /# <command> run a command\n";
+    banner += "  /glob <pattern>      add text files using globbing pattern\n";
+    if (has_vision) {
+        banner += "  /image <file>       add an image file\n";
+    }
+    if (has_audio) {
+        banner += "  /audio <file>       add an audio file\n";
+    }
+    if (has_video) {
+        banner += "  /video <file>       add a video file\n";
+    }
+    return banner;
+}
+
 bool cli_context::init() {
     ui::init(params);
     advanced_mode.emplace(!todo_mode && !params.simple_io);
@@ -944,22 +967,7 @@ int cli_context::run() {
         banner += "using custom system prompt\n";
     }
     banner += "\n";
-    banner += "available commands:\n";
-    banner += "  /exit or Ctrl+C      stop or exit\n";
-    banner += "  /regen               regenerate the last response\n";
-    banner += "  /clear               clear the chat history\n";
-    banner += "  /read <file>         add a text file\n";
-    banner += "  /run or /# <command> run a command\n";
-    banner += "  /glob <pattern>      add text files using globbing pattern\n";
-    if (has_vision) {
-        banner += "  /image <file>       add an image file\n";
-    }
-    if (has_audio) {
-        banner += "  /audio <file>       add an audio file\n";
-    }
-    if (has_video) {
-        banner += "  /video <file>       add a video file\n";
-    }
+    banner += get_available_commands();
     banner += "\n";
 
     if (!todo_mode) {
@@ -1234,6 +1242,9 @@ int cli_context::run() {
                 prompt.replace(command->start, command->end - command->start, result);
             }
             cur_msg += prompt;
+        } else if (HelpHandler::Handle(buffer)) {
+            ui::show_message("\n" + get_available_commands());
+            continue;
         } else if (ExitHandler::Handle(buffer)) {
             break;
         } else if (RegenerateHandler::Handle(buffer)) {

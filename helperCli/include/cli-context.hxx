@@ -50,6 +50,7 @@ struct cli_context {
     int run();
 
     // stop the local server child (if any)
+    std::string get_available_commands() const;
     void shutdown();
 
     // set by the SIGINT handler; cleared once the interrupt has been handled
