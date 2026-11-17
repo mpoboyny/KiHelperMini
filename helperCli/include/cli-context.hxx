@@ -5,6 +5,7 @@
 #include "cli-client.hxx"
 #include "cli-server.hxx"
 #include "AdvancedModeHandler.hxx"
+#include "UserInputManager.hxx"
 
 #include <atomic>
 #include <memory>
@@ -76,6 +77,8 @@ private:
     // check if server have multiple models (router mode)
     // if yes, list them then ask; do nothing otherwise
     bool list_and_ask_models();
+    void parse_embedded_run_commands(std::string & buffer, std::vector<run_input_command> & commands);
+
 
     // read a file and stage it as a multimodal content part; type is one of
     // "image", "audio", "video"; returns false if the file cannot be read

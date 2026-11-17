@@ -939,6 +939,30 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
     return !stream_error && !interrupted;
 }
 
+void cli_context::parse_embedded_run_commands(std::string & buffer, std::vector<run_input_command> & commands)
+{
+    size_t pos = 0;
+    while ((pos = buffer.find('$', pos)) != std::string::npos) {
+        size_t end = buffer.find('$', pos + 1);
+        if (end == std::string::npos) {
+            break;
+        }
+
+        std::string inner = buffer.substr(pos + 1, end - pos - 1);
+        if (!inner.empty() && inner.front() == '/' && (inner.compare(0, 4, "/run") == 0 || inner.compare(0, 2, "/#") == 0)) {
+            size_t prefix_len = (inner.compare(0, 4, "/run") == 0) ? 4 : 2;
+
+            buffer.erase(pos, 1);
+            buffer.erase(pos + inner.size(), 1);
+
+            commands.push_back({pos, pos + inner.size(), prefix_len});
+            pos += inner.size();
+        } else {
+            pos = end + 1;
+        }
+    }
+}
+
 int cli_context::run() {
     add_system_prompt();
 
@@ -1113,9 +1137,17 @@ int cli_context::run() {
                 ui::show_message(string_format("Loaded media from '%s'", fname.c_str()));
             }
             buffer = params.prompt;
+            
+            // New: parse embedded run commands for prompt from args or -f file
+            std::vector<run_input_command> embedded_cmds;
+            parse_embedded_run_commands(buffer, embedded_cmds);
+            run_commands = embedded_cmds;
+
             user_turn.echo(buffer);
             params.prompt.clear(); // only use it once
         }
+
+
 
         if (should_stop()) {
             cli_context::interrupted().store(false);
