@@ -59,9 +59,9 @@ BUILD_TYPE    = release
 OBJ_DIR = $(OBJ_DIR_ROOT)\$(BUILD_TYPE)
 BIN_DIR = $(BIN_DIR_ROOT)\$(BUILD_TYPE)
 
-SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\AdvancedModeHandler.cxx source\RunHandler.cxx source\UserInputManager.cxx source\main.cxx
-OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\AdvancedModeHandler.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj
-HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\cli-text.hxx include\AdvancedModeHandler.hxx include\RunHandler.hxx include\UserInputManager.hxx
+SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\AdvancedModeHandler.cxx source\AudioHandler.cxx source\ClearHandler.cxx source\ExitHandler.cxx source\GlobHandler.cxx source\ImageHandler.cxx source\ReadHandler.cxx source\RegenerateHandler.cxx source\VideoHandler.cxx source\RunHandler.cxx source\UserInputManager.cxx source\main.cxx
+OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\AdvancedModeHandler.obj $(OBJ_DIR)\AudioHandler.obj $(OBJ_DIR)\ClearHandler.obj $(OBJ_DIR)\ExitHandler.obj $(OBJ_DIR)\GlobHandler.obj $(OBJ_DIR)\ImageHandler.obj $(OBJ_DIR)\ReadHandler.obj $(OBJ_DIR)\RegenerateHandler.obj $(OBJ_DIR)\VideoHandler.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj
+HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\cli-text.hxx include\AdvancedModeHandler.hxx include\AudioHandler.hxx include\ClearHandler.hxx include\ExitHandler.hxx include\GlobHandler.hxx include\ImageHandler.hxx include\ReadHandler.hxx include\RegenerateHandler.hxx include\VideoHandler.hxx include\RunHandler.hxx include\UserInputManager.hxx
 
 TARGET = $(BIN_DIR)\helperCli.exe
 
@@ -82,18 +82,23 @@ SIMULATION_BIN_DIR = $(BIN_DIR_ROOT)\simulation
 .PHONY: all release test sim1 sim2 clean
 
 all: release
+	@echo phony all
 
 release: $(TARGET) $(TEST_TARGET) $(SIMULATION_BIN_DIR)\runSimulation.ps1 $(SIMULATION_BIN_DIR)\simulation.xml
+	@echo phony release
 	@cd /d simulation\RunAndExit && $(MAKE) /nologo /f NMakefile release
 	@cd /d simulation\RunDirExit && $(MAKE) /nologo /f NMakefile release
 
 test: release
+	@echo phony test
 	$(TEST_TARGET)
 
 sim1: release
+	@echo phony sim1
 	powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$(SIMULATION_BIN_DIR)\runSimulation.ps1" S1
 
 sim2: release
+	@echo phony sim2
 	powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File "$(SIMULATION_BIN_DIR)\runSimulation.ps1" S2
 
 $(SIMULATION_BIN_DIR)\runSimulation.ps1: scripts\runSimulation.ps1
@@ -132,7 +137,7 @@ $(OBJ_DIR)\pre.obj $(PCH_FILE): $(PCH_SRC) $(KIHELPER_INC_PATH)\str.hxx $(KIHELP
 
 # The other objects depend on the PCH so a PCH change forces a full
 # recompile. The actual compilation is done by the inference rule below.
-$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\AdvancedModeHandler.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
+$(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\AdvancedModeHandler.obj $(OBJ_DIR)\AudioHandler.obj $(OBJ_DIR)\ClearHandler.obj $(OBJ_DIR)\ExitHandler.obj $(OBJ_DIR)\GlobHandler.obj $(OBJ_DIR)\ImageHandler.obj $(OBJ_DIR)\ReadHandler.obj $(OBJ_DIR)\RegenerateHandler.obj $(OBJ_DIR)\VideoHandler.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj: $(PCH_FILE) $(HEADERS)
 
 # Inference rule for all sources in source\ using the PCH.
 {source}.cxx{$(OBJ_DIR)}.obj:
@@ -163,6 +168,7 @@ $(TEST_OBJ_FILES): tests\common.hxx include\cli-todo.hxx include\cli-text.hxx in
 	@$(CXX) $(CXXFLAGS) /I"$(GTEST_INC_PATH)" /c /Fo"$@" $<
 
 clean:
+	@echo phony clean
 	@cd /d simulation\RunAndExit && $(MAKE) /nologo /f NMakefile clean
 	@cd /d simulation\RunDirExit && $(MAKE) /nologo /f NMakefile clean
 	@if exist obj rmdir /S /Q obj

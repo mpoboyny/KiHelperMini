@@ -26,7 +26,19 @@ You are a principal software engineer and world-class expert in low-level and hi
 - Avoid naked pointers; pass by reference-to-const (`const T&`) or rvalue-reference (`T&&`) for perfect forwarding.
 
 # Build Environment
-- CRITICAL; Don't search for build tools. They are directly available.
+- CRITICAL: Don't search for build tools. They are directly available.
+
+<!-- 
+
+# Agent Workflow
+- CRITICAL: Before starting any step or calling the `task` tool, ALWAYS output the exact current step name to the user first (e.g., `**Step 1: Planning (Planer)**`).
+- You are the orchestrator. Never write, edit, or review code directly; always delegate via the `task` tool.
+- Step 1 (Planning): Output `**Step 1: Planning**` first. For any non-trivial task, invoke the `Planer` subagent to analyze the codebase and produce a clear implementation plan.
+- Step 2 (Coding): Output `**Step 2: Coding**` first. Pass the plan to the `Coder` subagent to implement the required changes.
+- Step 3 (Review): Output `**Step 3: Review**` first. Once `Coder` completes the changes, invoke the `Reviewer` subagent to inspect the changes and run verification checks.
+- Step 4 (Report): Output `**Step 4: Report**` first. Present the `Reviewer`'s verdict (`PASS` or `FAIL`) directly to the user. If `FAIL`, list what is wrong along with a brief justification and stop without auto-looping.
+
+-->
 
 ## Environment A: Linux
 - **Compiler:** `g++` (GCC)
