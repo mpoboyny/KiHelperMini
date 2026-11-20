@@ -76,6 +76,30 @@ static bool confirm_file_operation(const char * prompt, bool automatic) {
 }
 
 #if !defined(_WIN32)
+static std::string read_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files, bool automatic)
+{
+    json args = json::parse_no_throw(arguments);
+    if (!args.is_object() || !args.contains("path") || !args.at("path").is_string()) {
+        return "Error: expected a filename.";
+    }
+    std::string path = args.at("path").get<std::string>();
+    if (path.compare(0, 2, "./") == 0) {
+        path.erase(0, 2);
+    }
+    if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
+        path.find('\\') != std::string::npos || path.find('\0') != std::string::npos) {
+        return "Error: only a filename in the current directory is allowed.";
+    }
+
+    std::ifstream file(path, std::ios::binary);
+    if (!file) {
+        return "Error: could not open file: " + path;
+    }
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    loaded_files[path] = content;
+    return "File content:\n" + content;
+}
+
 static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files, bool automatic)
 {
     json args = json::parse_no_throw(arguments);
@@ -89,7 +113,7 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
         path.erase(0, 2);
     }
     if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
-        path.find('\0') != std::string::npos) {
+        path.find('\\') != std::string::npos || path.find('\0') != std::string::npos) {
         return "Error: only a filename in the current directory is allowed.";
     }
     auto loaded = loaded_files.find(path);
@@ -188,7 +212,7 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
 }
 
 static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files,
-                                         const std::map<std::string, std::string> & loaded_files, bool automatic)
+                                         std::map<std::string, std::string> & loaded_files, bool automatic)
 {
     json args = json::parse_no_throw(arguments);
     if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
@@ -198,7 +222,7 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
     std::string path = args.at("path").get<std::string>();
     std::string content = args.value("content", std::string());
     if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
-        path.find('\0') != std::string::npos) {
+        path.find('\\') != std::string::npos || path.find('\0') != std::string::npos) {
         return "Error: only a filename in the current directory is allowed.";
     }
     if (created_files.count(path)) {
@@ -251,6 +275,7 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
         return std::string("Error closing file; the file may be incomplete: ") + std::strerror(errno);
     }
     created_files.insert(path);
+    loaded_files[path] = content;
     return "Created file: " + path;
 }
 #endif // !defined(_WIN32)
@@ -289,6 +314,30 @@ static bool write_all(HANDLE handle, const std::string & data)
     return FlushFileBuffers(handle) != 0;
 }
 
+static std::string read_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files, bool automatic)
+{
+    json args = json::parse_no_throw(arguments);
+    if (!args.is_object() || !args.contains("path") || !args.at("path").is_string()) {
+        return "Error: expected a filename.";
+    }
+    std::string path = args.at("path").get<std::string>();
+    if (path.compare(0, 2, "./") == 0) {
+        path.erase(0, 2);
+    }
+    if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
+        path.find('\\') != std::string::npos || path.find('\0') != std::string::npos) {
+        return "Error: only a filename in the current directory is allowed.";
+    }
+
+    std::ifstream file(path, std::ios::binary);
+    if (!file) {
+        return "Error: could not open file: " + path;
+    }
+    std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+    loaded_files[path] = content;
+    return "File content:\n" + content;
+}
+
 static std::string edit_file_from_tool(const std::string & arguments, std::map<std::string, std::string> & loaded_files, bool automatic)
 {
     json args = json::parse_no_throw(arguments);
@@ -302,7 +351,7 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
         path.erase(0, 2);
     }
     if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
-        path.find('\0') != std::string::npos) {
+        path.find('\\') != std::string::npos || path.find('\0') != std::string::npos) {
         return "Error: only a filename in the current directory is allowed.";
     }
     auto loaded = loaded_files.find(path);
@@ -398,7 +447,7 @@ static std::string edit_file_from_tool(const std::string & arguments, std::map<s
 }
 
 static std::string create_file_from_tool(const std::string & arguments, std::set<std::string> & created_files,
-                                         const std::map<std::string, std::string> & loaded_files, bool automatic)
+                                         std::map<std::string, std::string> & loaded_files, bool automatic)
 {
     json args = json::parse_no_throw(arguments);
     if (!args.is_object() || !args.contains("path") || !args.at("path").is_string() ||
@@ -408,7 +457,7 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
     std::string path = args.at("path").get<std::string>();
     std::string content = args.value("content", std::string());
     if (path.empty() || path == "." || path == ".." || path.find('/') != std::string::npos ||
-        path.find('\0') != std::string::npos) {
+        path.find('\\') != std::string::npos || path.find('\0') != std::string::npos) {
         return "Error: only a filename in the current directory is allowed.";
     }
     if (created_files.count(path)) {
@@ -454,6 +503,7 @@ static std::string create_file_from_tool(const std::string & arguments, std::set
         return "Error writing file; a partial file may remain: " + win32_error_message();
     }
     created_files.insert(path);
+    loaded_files[path] = content;
     return "Created file: " + path;
 }
 #endif // _WIN32
@@ -817,6 +867,20 @@ bool cli_context::generate_completion(generated_content & content_out, cli_timin
         body["tools"].push_back({
             {"type", "function"},
             {"function", {
+                {"name", "read_file"},
+                {"description", "Read the content of a file in the current directory. Use this tool to get the contents of a file by providing its filename."},
+                {"parameters", {
+                    {"type", "object"},
+                    {"properties", {
+                        {"path", {{"type", "string"}, {"description", "Filename in the current directory"}}}
+                    }},
+                    {"required", json::array({"path"})}
+                }}
+            }}
+        });
+        body["tools"].push_back({
+            {"type", "function"},
+            {"function", {
                 {"name", "edit_file"},
                 {"description", "Replace the complete content of an existing file loaded with /read, after user confirmation. Only filenames in the current directory are allowed."},
                 {"parameters", {
@@ -993,6 +1057,10 @@ int cli_context::run() {
     banner += "\n";
     banner += get_available_commands();
     banner += "\n";
+
+    if (!params.prompt.empty()) {
+        automatic_confirm = true;
+    }
 
     if (!todo_mode) {
         ui::show_message(banner);
@@ -1454,9 +1522,11 @@ int cli_context::run() {
                 if (tool_round >= FILE_TOOL_MAX_CALLS || call.id.empty()) {
                     result = "Error: invalid tool call or tool call limit reached.";
                 } else if (call.name == "create_file") {
-                    result = create_file_from_tool(call.arguments, created_files, loaded_files, todo_mode);
+                    result = create_file_from_tool(call.arguments, created_files, loaded_files, automatic_confirm || todo_mode);
+                } else if (call.name == "read_file") {
+                    result = read_file_from_tool(call.arguments, loaded_files, automatic_confirm || todo_mode);
                 } else if (call.name == "edit_file") {
-                    result = edit_file_from_tool(call.arguments, loaded_files, todo_mode);
+                    result = edit_file_from_tool(call.arguments, loaded_files, automatic_confirm || todo_mode);
                 } else {
                     result = "Error: unknown tool.";
                 }

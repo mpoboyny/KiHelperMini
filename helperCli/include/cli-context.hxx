@@ -38,6 +38,7 @@ struct cli_context {
 
     std::optional<std::ofstream> output_file;
     bool todo_mode = false;
+    bool automatic_confirm = false;
     std::vector<std::string> todo_prompts;
 
     cli_context(const common_params & params);

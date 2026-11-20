@@ -149,6 +149,47 @@ static void test_read_file(const std::string & model, const std::string & name)
         << log_content;
 }
 
+static void test_read_file_tool(const std::string & model, const std::string & name)
+{
+    namespace fs = std::filesystem;
+    test_create_file(model, name);
+    if (::testing::Test::HasFailure()) {
+        return;
+    }
+
+    const fs::path output_dir = fs::absolute(fs::path(g_TestOutputRoot) / "CreateAndEdit");
+    const fs::path input_file = output_dir / (name + "_tool_read.input");
+    const fs::path log_file = output_dir / (name + "_tool_read.log");
+    const std::string filename = name + ".txt";
+#ifdef _WIN32
+    const fs::path executable = fs::absolute("bin/release/helperCli.exe");
+    const std::string cd = "cd /d ";
+#else
+    const fs::path executable = fs::absolute("bin/release/helperCli");
+    const std::string cd = "cd ";
+#endif
+    {
+        std::ofstream input(input_file);
+        ASSERT_TRUE(input.is_open()) << input_file;
+        input << "Read the file " << filename << " and tell me what is in it.\n"
+              << "/exit\n";
+        input.close();
+        ASSERT_TRUE(input) << input_file;
+    }
+
+    const std::string command = cd + shell_quote(output_dir.string()) + " && " +
+        shell_quote(executable.string()) + " -m " + shell_quote(model) +
+        " --simple-io --single-turn --no-warmup --reasoning off --temp 0 -c 4096 -n 512 < " +
+        shell_quote(input_file.string()) + " > " + shell_quote(log_file.string()) + " 2>&1";
+    const int result = std::system(command.c_str());
+
+    std::ifstream log(log_file, std::ios::binary);
+    const std::string log_content((std::istreambuf_iterator<char>(log)), std::istreambuf_iterator<char>());
+    ASSERT_EQ(result, 0) << log_content;
+    EXPECT_NE(log_content.find("File content:"), std::string::npos) << log_content;
+    EXPECT_NE(log_content.find("Hello from helperCli"), std::string::npos) << log_content;
+}
+
 static void test_edit_file(const std::string & model, const std::string & name)
 {
     namespace fs = std::filesystem;
@@ -212,7 +253,12 @@ TEST(CreateAndEdit, Test002_Qwen3dot5_9B_Q4_K_M_CreateFile)
 
 TEST(CreateAndEdit, Test003_Qwen3dot5_0_8B_Q4_K_M_ReadFile)
 {
-    test_read_file(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M, "qwen3_5_0_8b_read");
+    test_read_file(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M, "qwen3_5_0_8b");
+}
+
+TEST(CreateAndEdit, Test003b_Qwen3dot5_0_8B_Q4_K_M_ReadFileTool)
+{
+    test_read_file_tool(g_TestModel_Qwen_Qwen3dot5_0_8B_Q4_K_M, "qwen3_5_0_8b_tool");
 }
 
 #if USE_BIG_MODELS
