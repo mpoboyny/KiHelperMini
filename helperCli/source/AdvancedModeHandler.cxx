@@ -105,7 +105,7 @@ AdvancedModeHandler::AdvancedModeHandler(bool use_advanced_mode)
         std::fflush(stdout);
         Refresh();
         worker = std::thread([this]() {
-            std::unique_lock<std::mutex> lock(mutex);
+            std::unique_lock<std::mutex> lock{mutex};
             while (!wake.wait_for(lock, std::chrono::milliseconds(250), [this]() { return stopping; })) {
                 lock.unlock();
                 try {

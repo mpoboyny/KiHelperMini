@@ -59,8 +59,8 @@ BUILD_TYPE    = release
 OBJ_DIR = $(OBJ_DIR_ROOT)\$(BUILD_TYPE)
 BIN_DIR = $(BIN_DIR_ROOT)\$(BUILD_TYPE)
 
-SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\AdvancedModeHandler.cxx source\RunHandler.cxx source\UserInputManager.cxx source\main.cxx
-OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\AdvancedModeHandler.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj
+SOURCES = source\pre.cxx source\cli.cxx source\cli-client.cxx source\cli-context.cxx source\AdvancedModeHandler.cxx source\RunHandler.cxx source\UserInputManager.cxx source\main.cxx source\AudioHandler.cxx source\ClearHandler.cxx source\ExitHandler.cxx source\GlobHandler.cxx source\ImageHandler.cxx source\ReadHandler.cxx source\RegenerateHandler.cxx source\VideoHandler.cxx source\LogConfigurator.cxx
+OBJ_FILES = $(OBJ_DIR)\pre.obj $(OBJ_DIR)\cli.obj $(OBJ_DIR)\cli-client.obj $(OBJ_DIR)\cli-context.obj $(OBJ_DIR)\AdvancedModeHandler.obj $(OBJ_DIR)\RunHandler.obj $(OBJ_DIR)\UserInputManager.obj $(OBJ_DIR)\main.obj $(OBJ_DIR)\AudioHandler.obj $(OBJ_DIR)\ClearHandler.obj $(OBJ_DIR)\ExitHandler.obj $(OBJ_DIR)\GlobHandler.obj $(OBJ_DIR)\ImageHandler.obj $(OBJ_DIR)\ReadHandler.obj $(OBJ_DIR)\RegenerateHandler.obj $(OBJ_DIR)\VideoHandler.obj $(OBJ_DIR)\LogConfigurator.obj
 HEADERS = include\cli-client.hxx include\cli-context.hxx include\cli-server.hxx include\cli-ui.hxx include\cli-todo.hxx include\cli-text.hxx include\AdvancedModeHandler.hxx include\RunHandler.hxx include\UserInputManager.hxx
 
 TARGET = $(BIN_DIR)\helperCli.exe

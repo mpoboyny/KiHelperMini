@@ -1,4 +1,7 @@
 #include "pre.hxx"
+#include "LogConfigurator.hxx"
+
+
 
 #include "arg.h"
 #include "common.h"
@@ -86,14 +89,16 @@ int llama_cli(int argc, char ** argv) {
     }
 
     common_params params;
-
+ 
     params.verbosity = LOG_LEVEL_ERROR; // by default, less verbose logs
-
-    common_init();
-
+ 
     if (!common_params_parse(argc, argv, params, LLAMA_EXAMPLE_CLI)) {
         return 1;
     }
+
+    LogConfigurator::configure(argc, argv);
+ 
+    common_init();
 
 #if defined(_WIN32)
     if (!expand_model_path(params.model.path)) {
