@@ -31,34 +31,10 @@ PCH_GCH      := $(PCH_HEADER).gch
 
 SOURCES := $(wildcard $(SRC_DIR)/*.cxx)
 
-.PHONY: all debug release build_safe_ldd setup clean rund runr runddd echo _build .inner_link
+.PHONY: all release build_safe_ldd _build .inner_link runr echo _build .inner_link
 
 all: build_safe_ldd
 release: build_safe_ldd
-
-echo:
-	@echo "Available phonies:"
-	@echo "  all debug release setup clean rund runr runddd echo"
-	@echo
-	@echo "Variables:"
-	@echo "  BASE_DIR=$(BASE_DIR)"
-	@echo "  WX_BASE_DIR=$(WX_BASE_DIR)"
-	@echo "  SRC_DIR=$(SRC_DIR)"
-	@echo "  INC_DIR=$(INC_DIR)"
-	@echo "  OBJ_DIR_ROOT=$(OBJ_DIR_ROOT)"
-	@echo "  BIN_DIR_ROOT=$(BIN_DIR_ROOT)"
-	@echo "  LLAMA_BASE=$(LLAMA_BASE)"
-	@echo "  LLAMA_INC=$(LLAMA_INC)"
-	@echo "  GGML_INC=$(GGML_INC)"
-	@echo "  LLAMA_LIBS=$(LLAMA_LIBS)"
-	@echo "  TARGET_NAME=$(TARGET_NAME)"
-	@echo "  OS_DEF=$(OS_DEF)"
-	@echo "  CXX=$(CXX)"
-	@echo "  CURRENT_CXXFLAGS=$(CURRENT_CXXFLAGS)"
-@echo "  SYS_LIBS=$(SYS_LIBS)"
-	@echo "  PCH_HEADER=$(PCH_HEADER)"
-	@echo "  PCH_GCH=$(PCH_GCH)"
-	@echo "  SETUP_ARCHIVE_NAME=$(SETUP_ARCHIVE_NAME)"
 
 $(PCH_GCH): $(PCH_HEADER)
 	@echo "Precompiling header..."
@@ -83,10 +59,13 @@ release: $(PCH_GCH)
 	@cp -f "$(BASE_DIR)/scripts/"* "$(BIN_DIR)/scripts/"
 	@echo Copying ini...
 	@mkdir -p "$(BIN_DIR)/ini"
-@cp -f "$(BASE_DIR)/ini/"* "$(BIN_DIR)/ini/"
+	@cp -f "$(BASE_DIR)/ini/"* "$(BIN_DIR)/ini/"
 	@echo Copying tools...
-	@mkdir -p "$(BIN_DIR)/tools"
-@cp -f "$(BASE_DIR)/safe_ldd/"* "$(BIN_DIR)/tools/safe_ldd/"
+	@rm -rf "$(BIN_DIR)/tools/safe_ldd"
+	@mkdir -p "$(BIN_DIR)/tools/safe_ldd"
+	@cp -f "$(BIN_DIR_ROOT)/release/tools_staging/safe_ldd" "$(BIN_DIR)/tools/safe_ldd/safe_ldd"
+	@cp -f "$(BASE_DIR)/safe_ldd/README.md" "$(BIN_DIR)/tools/safe_ldd/"
+	@cp -f "$(BASE_DIR)/safe_ldd/KiHelperMiniRunner.sh" "$(BIN_DIR)/tools/safe_ldd/"
 
 build_safe_ldd:
 	@$(MAKE) -C safe_ldd all
@@ -99,19 +78,6 @@ setup: release
 	@cp -fr "$(BIN_DIR_ROOT)/release/." "$(BIN_DIR_ROOT)/setup/$(TARGET_NAME)/"
 	@cd "$(BIN_DIR_ROOT)/setup" && 7z a -t7z -mx=9 "$(SETUP_ARCHIVE_NAME)" "$(TARGET_NAME)"
 	
-# --- Run Phonies ---
-rund:
-	@$(MAKE) debug
-	@LD_LIBRARY_PATH=$(WX_BASE_DIR)/build-gtk-debug-shared_x64/lib $(BIN_DIR_ROOT)/debug/$(TARGET_NAME)_debug
-
-runr:
-	@$(MAKE) release
-	@LD_LIBRARY_PATH=$(BIN_DIR_ROOT)/release:$(WX_BASE_DIR)/build-gtk-release-shared_x64/lib $(BIN_DIR_ROOT)/release/$(TARGET_NAME)
-
-runddd:
-	@$(MAKE) debug
-	@LD_LIBRARY_PATH=$(WX_BASE_DIR)/build-gtk-debug-shared_x64/lib ddd $(BIN_DIR_ROOT)/debug/$(TARGET_NAME)_debug &
-
 # --- Internal Build Logic ---
 _build:
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
@@ -130,3 +96,4 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cxx
 clean:
 	@echo "Cleaning up..."
 	@rm -rf $(OBJ_DIR_ROOT) $(BIN_DIR_ROOT) $(PCH_GCH)
+	@rm -rf $(BIN_DIR_ROOT)/tools/safe_ldd

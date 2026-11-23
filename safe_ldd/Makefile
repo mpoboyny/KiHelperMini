@@ -3,7 +3,7 @@ include $(PARENT_DIR)/common.mk
 
 TARGET_NAME := safe_ldd
 BIN_DIR_ROOT := $(PARENT_DIR)/bin
-TARGET := $(BIN_DIR_ROOT)/release/tools/$(TARGET_NAME)
+TARGET := $(BIN_DIR_ROOT)/release/tools_staging/$(TARGET_NAME)
 
 SRC := safe_ldd.cxx
 
@@ -19,7 +19,7 @@ $(TARGET): $(SRC)
 
 clean:
 	@echo "Clean..."
-	rm -f $(TARGET)
+	rm -rf $(TARGET)
 
 echo:
 	@echo "Available phonies:"

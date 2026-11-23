@@ -8,7 +8,10 @@ include/prc.hxx.gch
 run.log
 source/DialogSuggestion.cxx_min
 KiHelperMini_DebianTrxie_x64.7z
-testFiles/Qwen_Qwen3.5-9B-Q4_K_M/server.log
+testFiles/Qwen_Qwen3.5-9B-Q4_K_M/
 googletest/
 safe_ldd/safe_ldd_ms.obj
 helperCli/test.log
+testFiles/Qwen_Qwen3.5-9B-Q4_K_M/
+testFiles/Qwen3-Coder-30B-A3B-Instruct-Q4_K_M
+testFiles/Qwen_Qwen3.5-27B-Q4_K_M/server.log
