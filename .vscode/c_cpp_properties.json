@@ -4,8 +4,8 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/include",
-                "${workspaceFolder}/llama.cpp/llama.cpp-0.3.0/include",
-                "${workspaceFolder}/llama.cpp/llama.cpp-0.3.0/ggml/include",
+                "${workspaceFolder}/llama.cpp/include",
+                "${workspaceFolder}/llama.cpp/ggml/include",
                 "${workspaceFolder}/wxWidgets/3.3.1/include",
                 "${workspaceFolder}/wxWidgets/3.3.1/build-gtk-release-shared_x64/lib/wx/include/gtk3-unicode-3.3",
                 "/usr/include",

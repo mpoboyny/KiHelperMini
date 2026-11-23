@@ -55,7 +55,7 @@ echo:
 	@echo "  OS_DEF=$(OS_DEF)"
 	@echo "  CXX=$(CXX)"
 	@echo "  CURRENT_CXXFLAGS=$(CURRENT_CXXFLAGS)"
-	@echo "  SYS_LIBS=$(SYS_LIBS)"
+@echo "  SYS_LIBS=$(SYS_LIBS)"
 	@echo "  PCH_HEADER=$(PCH_HEADER)"
 	@echo "  PCH_GCH=$(PCH_GCH)"
 	@echo "  SETUP_ARCHIVE_NAME=$(SETUP_ARCHIVE_NAME)"
@@ -83,10 +83,10 @@ release: $(PCH_GCH)
 	@cp -f "$(BASE_DIR)/scripts/"* "$(BIN_DIR)/scripts/"
 	@echo Copying ini...
 	@mkdir -p "$(BIN_DIR)/ini"
-	@cp -f "$(BASE_DIR)/ini/"* "$(BIN_DIR)/ini/"
+@cp -f "$(BASE_DIR)/ini/"* "$(BIN_DIR)/ini/"
 	@echo Copying tools...
 	@mkdir -p "$(BIN_DIR)/tools"
-	@cp -f "$(BASE_DIR)/tools/"* "$(BIN_DIR)/tools/"
+@cp -f "$(BASE_DIR)/safe_ldd/"* "$(BIN_DIR)/tools/safe_ldd/"
 
 build_safe_ldd:
 	@$(MAKE) -C safe_ldd all
