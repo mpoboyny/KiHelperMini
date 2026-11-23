@@ -95,6 +95,10 @@ int llama_cli(int argc, char ** argv) {
         return 1;
     }
 
+    // Reconfigure verbosity based on parsed parameters
+    // Note: --log-file is applied directly in its arg callback, no need to re-apply here
+    common_log_set_verbosity_thold(params.verbosity);
+
 #if defined(_WIN32)
     if (!expand_model_path(params.model.path)) {
         fprintf(stderr, "Cannot expand environment variables in the model path.\n");

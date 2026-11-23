@@ -1,0 +1,61 @@
+0.00.002.093 I srv  llama_server: initializing ...
+0.00.100.476 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+0.00.128.636 I srv    operator(): Available models (1):
+0.00.128.638 I srv    operator():   [    preset] Qwen2.5-14B-Instruct-Q4_K_M
+0.00.128.690 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+0.00.128.698 W srv  llama_server: security: router mode enabled - do not expose to untrusted environments
+0.00.128.698 I srv  llama_server: starting server in router mode. models will be automatically loaded on-demand
+0.00.130.700 I srv  llama_server: listening on http://192.168.200.2:9931
+0.29.119.956 I srv          join: request for name=Qwen2.5-14B-Instruct-Q4_K_M queued at position 1
+0.29.119.961 I srv  ensure_model: waiting until model name=Qwen2.5-14B-Instruct-Q4_K_M is fully loaded...
+0.29.119.962 I srv  ensure_model: slot available, loading queued model name=Qwen2.5-14B-Instruct-Q4_K_M
+0.29.120.036 I srv          load: spawning server instance with name=Qwen2.5-14B-Instruct-Q4_K_M on port 34581
+0.29.120.064 I srv          load: spawning server instance with args:
+0.29.120.066 I srv          load:   /home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server
+0.29.120.066 I srv          load:   --host
+0.29.120.067 I srv          load:   127.0.0.1
+0.29.120.067 I srv          load:   --jinja
+0.29.120.067 I srv          load:   --log-colors
+0.29.120.067 I srv          load:   off
+0.29.120.068 I srv          load:   --port
+0.29.120.068 I srv          load:   34581
+0.29.120.068 I srv          load:   --alias
+0.29.120.068 I srv          load:   Qwen2.5-14B-Instruct-Q4_K_M
+0.29.120.069 I srv          load:   --batch-size
+0.29.120.069 I srv          load:   2048
+0.29.120.069 I srv          load:   --ctx-size
+0.29.120.070 I srv          load:   128000
+0.29.120.070 I srv          load:   --cache-type-k
+0.29.120.070 I srv          load:   q4_0
+0.29.120.070 I srv          load:   --cache-type-v
+0.29.120.070 I srv          load:   q4_0
+0.29.120.070 I srv          load:   --flash-attn
+0.29.120.071 I srv          load:   on
+0.29.120.071 I srv          load:   --model
+0.29.120.071 I srv          load:   /home/tato/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf
+0.29.120.071 I srv          load:   --n-gpu-layers
+0.29.120.071 I srv          load:   42
+0.29.120.071 I srv          load:   --parallel
+0.29.120.072 I srv          load:   1
+0.29.120.072 I srv          load:   --threads
+0.29.120.072 I srv          load:   6
+0.29.120.072 I srv          load:   --threads-batch
+0.29.120.072 I srv          load:   6
+0.29.120.072 I srv          load:   --ubatch-size
+0.29.120.073 I srv          load:   1024
+[34581] 0.00.024.192 I srv  llama_server: initializing ...
+[34581] 0.00.024.202 I cmn  common_param: common_params_print_info: verbosity = 3 (adjust with the `-lv N` CLI arg)
+[34581] 0.00.024.493 W srv  llama_server: security: no API key is set and CORS allows all origins (see https://github.com/ggml-org/llama.cpp/pull/25655)
+[34581] 0.00.026.635 I srv    load_model: loading model '/home/tato/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf'
+[34581] 0.00.341.689 W common_fit_params: failed to fit params to free device memory: n_gpu_layers already set by user to 42, abort
+[34581] 0.00.451.715 W load: control-looking token: 128247 '</s>' was not control-type; this is probably a bug in the model. its type will be overridden
+[34581] 0.00.778.128 E ggml_backend_cuda_buffer_type_alloc_buffer: allocating 7019.58 MiB on device 0: cudaMalloc failed: out of memory
+[34581] 0.00.778.131 E ggml_backend_buft_alloc_buffer_n_default: failed to allocate CUDA0 buffer of size 7360561152
+[34581] 0.00.871.593 E llama_model_load: error loading model: unable to allocate CUDA0 buffer
+[34581] 0.00.871.626 E llama_model_load_from_file_impl: failed to load model
+[34581] 0.00.871.631 E cmn  common_init_: failed to load model '/home/tato/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf'
+[34581] 0.00.871.635 E srv    load_model: failed to load model, '/home/tato/LocalKiModels/Qwen2.5-14B-Instruct-Q4_K_M.gguf'
+[34581] 0.00.871.637 I srv    operator(): operator(): cleaning up before exit...
+[34581] 0.00.872.094 E srv  llama_server: exiting due to model loading error
+0.30.089.163 I srv           run: instance name=Qwen2.5-14B-Instruct-Q4_K_M exited with status 1
+0.30.089.445 W srv    operator(): got exception: {"error":{"code":500,"message":"model name=Qwen2.5-14B-Instruct-Q4_K_M failed to load","type":"server_error"}}

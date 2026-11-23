@@ -1,9 +1,12 @@
 #!/bin/bash
 
 # --- Netzwerk- und Systempfade ---
-SERVER_BIND="0.0.0.0"    
-HOST_LOCAL="127.0.0.1"
-PORT="8080"
+# SERVER_BIND="0.0.0.0"
+SERVER_BIND="192.168.200.2"
+# HOST_LOCAL="127.0.0.1"
+HOST_LOCAL="192.168.200.2"
+
+PORT="9931"
 LLAMA_SERVER="/home/tato/Dokumente/KiHelper-Mini/llama.cpp-source/llama.cpp/llama.cpp-master/build_withCuda/bin/llama-server"
 INI_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M/preset.ini"
 LOG_PATH="/home/tato/GitHub/KiHelperMiniDir/testFiles/Qwen_Qwen3.5-9B-Q4_K_M/server.log"

@@ -671,7 +671,8 @@ static std::string read_run_input_raw(bool color_enabled, UserInputManager * inp
 #endif
                 if ((code == 'u' && params == "9;5") ||
                     (code == '~' && params == "27;5;9") ||
-                    (code == 'I' && params == "1;5")) {
+                    (code == 'I' && params == "1;5") ||
+                    (code == 'Z' && params.empty())) {
                     finish_command();
                     continue;
                 }

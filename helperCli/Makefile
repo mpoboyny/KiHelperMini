@@ -48,7 +48,7 @@ SCRIPTS := $(wildcard scripts/*)
 
 all: release
 
-release: $(TARGET) $(TEST_TARGET)
+release: $(TARGET) $(TEST_TARGET) $(BIN_DIR)/scripts
 
 test: $(TARGET) $(TEST_TARGET)
 	$(TEST_TARGET)
@@ -61,7 +61,7 @@ sim2: release
 	$(MAKE) -C simulation/RunDirExit release
 	$(HELPERCLI_DIR)bin/simulation/RunDirExit/release/RunDirExit
 
-$(TARGET): $(OBJ_FILES) $(SCRIPTS)
+$(TARGET): $(OBJ_FILES)
 	@mkdir -p $(BIN_DIR)
 	@echo "Linking $@..."
 	$(CXX) $(OBJ_FILES) $(LDFLAGS) $(LLAMA_LIBS) $(COMMON_LIBS) $(SERVER_LIBS) $(HTTPLIB_LIBS) $(SYS_LIBS) -o $@
@@ -70,11 +70,13 @@ $(TARGET): $(OBJ_FILES) $(SCRIPTS)
 	@for library in $(LLAMA_LIB_PATH)/libllama.so* $(LLAMA_LIB_PATH)/libggml.so* $(LLAMA_LIB_PATH)/libggml-base.so* $(LLAMA_LIB_PATH)/libggml-cpu.so* $(LLAMA_LIB_PATH)/libggml-cuda.so* $(LLAMA_LIB_PATH)/libllama-common.so* $(LLAMA_LIB_PATH)/libllama-server-impl.so* $(LLAMA_LIB_PATH)/libmtmd.so*; do \
 		[ -e "$$library" ] && cp -a "$$library" $(BIN_DIR)/; \
 	done
+	@test -x $@
+	@echo "Release binary: $@"
+
+$(BIN_DIR)/scripts: $(SCRIPTS)
 	@echo "Copying scripts..."
 	@rm -rf $(BIN_DIR)/scripts
 	@cp -a scripts $(BIN_DIR)/
-	@test -x $@
-	@echo "Release binary: $@"
 
 $(OBJ_DIR)/%.o: source/%.cxx $(HEADERS)
 	@mkdir -p $(dir $@)

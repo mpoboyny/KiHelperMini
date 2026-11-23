@@ -23,7 +23,7 @@ release: $(TARGET)
 $(HELPERCLI):
 	$(MAKE) -C ../.. release
 
-$(TARGET): simulation.cxx ../RunAndExit/simulation.cxx $(HELPERCLI)
+$(TARGET): simulation.cxx $(HELPERCLI)
 	@mkdir -p $(OBJ_DIR) $(BIN_DIR)
 	$(CXX) $(CXXFLAGS) -c simulation.cxx -o $(OBJECT)
 	$(CXX) $(OBJECT) -o $(TARGET)
